@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Commerce.Host</RootNamespace>
+    <AssemblyName>Commerce.Host</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Framework\Commerce.Framework.Application\Commerce.Framework.Application.csproj" />
+    <ProjectReference Include="..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+    <ProjectReference Include="..\..\Framework\Commerce.Framework.Infrastructure\Commerce.Framework.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Commerce.Modules.Core\Commerce.Modules.Core.csproj" />
+    <ProjectReference Include="..\..\Modules\Catalog\Commerce.Modules.Catalog\Commerce.Modules.Catalog.csproj" />
+  </ItemGroup>
+
+</Project>

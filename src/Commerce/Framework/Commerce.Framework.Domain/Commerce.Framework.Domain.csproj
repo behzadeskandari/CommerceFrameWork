@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Framework.Domain</RootNamespace>
+    <AssemblyName>Commerce.Framework.Domain</AssemblyName>
+    <Description>Shared domain value objects for the Commerce Framework.</Description>
+  </PropertyGroup>
+
+</Project>

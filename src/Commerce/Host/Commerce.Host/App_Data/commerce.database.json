@@ -1,0 +1,4 @@
+{
+  "Provider": "SqlServer",
+  "ConnectionString": "__InMemory__"
+}

@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Framework.Core</RootNamespace>
+    <AssemblyName>Commerce.Framework.Core</AssemblyName>
+    <Description>Core primitives for the Commerce Framework.</Description>
+  </PropertyGroup>
+
+</Project>

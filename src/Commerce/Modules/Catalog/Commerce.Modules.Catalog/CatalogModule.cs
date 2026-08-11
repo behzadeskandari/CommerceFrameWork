@@ -2,8 +2,10 @@ using Commerce.Catalog.Application.DependencyInjection;
 using Commerce.Catalog.Infrastructure.DependencyInjection;
 using Commerce.Catalog.Infrastructure.Migrations;
 using Commerce.Catalog.Infrastructure.Persistence;
+using Commerce.Catalog.Infrastructure.Security;
 using Commerce.Catalog.Infrastructure.Seeding;
 using Commerce.Framework.Contracts.Modules;
+using Commerce.Framework.Contracts.Security;
 using Commerce.Framework.Contracts.Seeding;
 using Commerce.Framework.Data.Db;
 using Commerce.Framework.Data.Migrations;
@@ -28,6 +30,7 @@ public sealed class CatalogModule : CommerceModuleBase
         services.AddSingleton<ICommerceModelContributor, CatalogModelContributor>();
         services.AddSingleton<ICommerceMigration, CatalogInitialMigration>();
         services.AddSingleton<ICommerceSeeder, CatalogDevelopmentSeeder>();
+        services.AddSingleton<IModulePermissionContributor, CatalogPermissionContributor>();
         services.AddCatalogApplication();
         services.AddCatalogInfrastructure();
     }

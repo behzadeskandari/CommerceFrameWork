@@ -2,40 +2,25 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Commerce.Catalog.Domain.Enums;
-using Commerce.Host.Catalog;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
 using Xunit;
 
 namespace Commerce.Tests.Integration;
 
 public sealed class CatalogFlowTests
 {
-    private const string AdminKey = "integration-catalog-admin-key";
-
     [Fact]
     public async Task CompleteCatalogFlow_WorksAfterInstallation()
     {
-        await using var factory = InstallationFlowTests.CreateFactory()
-            .WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureAppConfiguration((_, config) =>
-                {
-                    config.AddInMemoryCollection(new Dictionary<string, string?>
-                    {
-                        ["Commerce:Catalog:AdminApiKey"] = AdminKey
-                    });
-                });
-            });
-
+        await using var factory = InstallationFlowTests.CreateFactory();
         using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
-            AllowAutoRedirect = false
+            AllowAutoRedirect = false,
+            HandleCookies = true
         });
 
-        client.DefaultRequestHeaders.Add(CatalogAdminRequiredAttribute.AdminKeyHeader, AdminKey);
-
         await InstallationFlowTests.CompleteInstallationAsync(client, InstallationFlowTests.CreateInMemoryToken());
+        await IntegrationAuthHelper.LoginAsAdministratorAsync(client);
 
         var categoryResponse = await client.PostAsJsonAsync("/api/catalog/categories", new
         {
@@ -80,20 +65,9 @@ public sealed class CatalogFlowTests
     }
 
     [Fact]
-    public async Task CreateProduct_WithoutAdminKey_ReturnsUnauthorized()
+    public async Task CreateProduct_WithoutAuthentication_ReturnsUnauthorized()
     {
-        await using var factory = InstallationFlowTests.CreateFactory()
-            .WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureAppConfiguration((_, config) =>
-                {
-                    config.AddInMemoryCollection(new Dictionary<string, string?>
-                    {
-                        ["Commerce:Catalog:AdminApiKey"] = AdminKey
-                    });
-                });
-            });
-
+        await using var factory = InstallationFlowTests.CreateFactory();
         using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
             AllowAutoRedirect = false
@@ -109,5 +83,31 @@ public sealed class CatalogFlowTests
         });
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CreateProduct_AsCustomer_ReturnsForbidden()
+    {
+        await using var factory = InstallationFlowTests.CreateFactory();
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        await InstallationFlowTests.CompleteInstallationAsync(client, InstallationFlowTests.CreateInMemoryToken());
+        await IntegrationAuthHelper.RegisterAndLoginCustomerAsync(
+            client,
+            "shopper@example.com",
+            "Password123!");
+
+        var response = await client.PostAsJsonAsync("/api/catalog/products", new
+        {
+            Name = "Blocked",
+            Sku = "BLOCK-2",
+            ProductType = ProductType.Simple
+        });
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 }

@@ -15,6 +15,7 @@
     <ProjectReference Include="..\..\Framework\Commerce.Framework.Infrastructure\Commerce.Framework.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Commerce.Modules.Core\Commerce.Modules.Core.csproj" />
     <ProjectReference Include="..\..\Modules\Catalog\Commerce.Modules.Catalog\Commerce.Modules.Catalog.csproj" />
+    <ProjectReference Include="..\..\Modules\Customers\Commerce.Modules.Customers\Commerce.Modules.Customers.csproj" />
   </ItemGroup>
 
 </Project>

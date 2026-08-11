@@ -36,6 +36,7 @@ public sealed class InstallationService : IInstallationService
     private readonly IHostEnvironment _hostEnvironment;
     private readonly ICommerceModuleManager _moduleManager;
     private readonly IStoreContextInitializerService _storeContextInitializer;
+    private readonly IAdministratorProvisioningService? _administratorProvisioningService;
     private readonly ILogger<InstallationService> _logger;
 
     public InstallationService(
@@ -52,7 +53,8 @@ public sealed class InstallationService : IInstallationService
         IHostEnvironment hostEnvironment,
         ICommerceModuleManager moduleManager,
         IStoreContextInitializerService storeContextInitializer,
-        ILogger<InstallationService> logger)
+        ILogger<InstallationService> logger,
+        IAdministratorProvisioningService? administratorProvisioningService = null)
     {
         _dbContext = dbContext;
         _connectionProvider = connectionProvider;
@@ -67,6 +69,7 @@ public sealed class InstallationService : IInstallationService
         _hostEnvironment = hostEnvironment;
         _moduleManager = moduleManager;
         _storeContextInitializer = storeContextInitializer;
+        _administratorProvisioningService = administratorProvisioningService;
         _logger = logger;
     }
 
@@ -185,6 +188,21 @@ public sealed class InstallationService : IInstallationService
         if (request.Password.Length < 8)
         {
             return Result.Failure(Error.Validation("Administrator password must be at least 8 characters."));
+        }
+
+        if (_administratorProvisioningService is not null)
+        {
+            var provisioningResult = await _administratorProvisioningService
+                .CreateAdministratorAsync(request, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (provisioningResult.IsSuccess)
+            {
+                await UpdateInstallationStepAsync(InstallationStep.Administrator, cancellationToken).ConfigureAwait(false);
+                _logger.LogInformation("Administrator created for {Username}.", request.Username);
+            }
+
+            return provisioningResult;
         }
 
         if (await _dbContext.BootstrapAdministrators.AnyAsync(cancellationToken).ConfigureAwait(false))
@@ -357,7 +375,11 @@ public sealed class InstallationService : IInstallationService
     {
         await EnsureNotLockedAsync(cancellationToken).ConfigureAwait(false);
 
-        if (!await _dbContext.BootstrapAdministrators.AnyAsync(cancellationToken).ConfigureAwait(false))
+        var hasAdministrator = _administratorProvisioningService is not null
+            ? await _administratorProvisioningService.HasAdministratorAsync(cancellationToken).ConfigureAwait(false)
+            : await _dbContext.BootstrapAdministrators.AnyAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!hasAdministrator)
         {
             return Result.Failure(Error.Validation("Administrator must be created before completing installation."));
         }

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Customers.Application</RootNamespace>
+    <AssemblyName>Commerce.Customers.Application</AssemblyName>
+    <Description>Customer application services.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Customers.Contracts\Commerce.Customers.Contracts.csproj" />
+    <ProjectReference Include="..\Commerce.Customers.Domain\Commerce.Customers.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Application\Commerce.Framework.Application.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Domain\Commerce.Framework.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

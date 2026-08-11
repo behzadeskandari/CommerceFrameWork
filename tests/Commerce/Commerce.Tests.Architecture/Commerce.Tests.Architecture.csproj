@@ -19,6 +19,8 @@
     <ProjectReference Include="..\..\..\src\Commerce\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Modules\Catalog\Commerce.Catalog.Domain\Commerce.Catalog.Domain.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Modules\Catalog\Commerce.Catalog.Contracts\Commerce.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Customers\Commerce.Customers.Contracts\Commerce.Customers.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Customers\Commerce.Customers.Domain\Commerce.Customers.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

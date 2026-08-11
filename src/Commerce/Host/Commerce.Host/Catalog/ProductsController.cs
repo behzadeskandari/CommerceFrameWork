@@ -2,6 +2,8 @@ using Commerce.Catalog.Application.Categories;
 using Commerce.Catalog.Application.Products;
 using Commerce.Catalog.Domain.Enums;
 using Commerce.Framework.Core.Results;
+using Commerce.Host.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Commerce.Host.Catalog;
@@ -11,6 +13,7 @@ namespace Commerce.Host.Catalog;
 public sealed class ProductsController(IProductService productService) : ControllerBase
 {
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> List(CancellationToken cancellationToken)
     {
         var result = await productService.ListAsync(includeDeleted: false, cancellationToken).ConfigureAwait(false);
@@ -18,6 +21,7 @@ public sealed class ProductsController(IProductService productService) : Control
     }
 
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     public async Task<IActionResult> Get(int id, CancellationToken cancellationToken)
     {
         var result = await productService.GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
@@ -25,7 +29,7 @@ public sealed class ProductsController(IProductService productService) : Control
     }
 
     [HttpPost]
-    [CatalogAdminRequired]
+    [RequirePermission("Catalog.Products.Create")]
     public async Task<IActionResult> Create([FromBody] CreateProductApiRequest request, CancellationToken cancellationToken)
     {
         var result = await productService.CreateAsync(new CreateProductRequest(
@@ -43,7 +47,7 @@ public sealed class ProductsController(IProductService productService) : Control
     }
 
     [HttpPut("{id:int}")]
-    [CatalogAdminRequired]
+    [RequirePermission("Catalog.Products.Update")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateProductApiRequest request, CancellationToken cancellationToken)
     {
         var result = await productService.UpdateAsync(id, new UpdateProductRequest(
@@ -60,7 +64,7 @@ public sealed class ProductsController(IProductService productService) : Control
     }
 
     [HttpDelete("{id:int}")]
-    [CatalogAdminRequired]
+    [RequirePermission("Catalog.Products.Delete")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var result = await productService.DeleteAsync(id, cancellationToken).ConfigureAwait(false);
@@ -68,7 +72,7 @@ public sealed class ProductsController(IProductService productService) : Control
     }
 
     [HttpPost("{id:int}/categories/{categoryId:int}")]
-    [CatalogAdminRequired]
+    [RequirePermission("Catalog.Products.Update")]
     public async Task<IActionResult> AssignCategory(int id, int categoryId, CancellationToken cancellationToken)
     {
         var result = await productService.AssignCategoryAsync(new AssignProductCategoryRequest(id, categoryId), cancellationToken)

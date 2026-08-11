@@ -1,13 +1,15 @@
 using Commerce.Framework.Data.Configuration;
 using Commerce.Framework.Data.Entities;
+using Commerce.Framework.Data.Identity;
 using Commerce.Framework.Data.Migrations;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Commerce.Framework.Data.Db;
 
-public sealed class CommerceDbContext : DbContext
+public sealed class CommerceDbContext : IdentityDbContext<CommerceIdentityUser, CommerceIdentityRole, string>
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -43,6 +45,8 @@ public sealed class CommerceDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
+
+        base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfiguration(new MigrationVersionInfoConfiguration());
         modelBuilder.ApplyConfiguration(new CommerceInstallationConfiguration());

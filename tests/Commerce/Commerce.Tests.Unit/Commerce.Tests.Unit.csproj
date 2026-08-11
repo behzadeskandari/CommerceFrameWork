@@ -18,6 +18,9 @@
     <ProjectReference Include="..\..\..\src\Commerce\Modules\Catalog\Commerce.Catalog.Application\Commerce.Catalog.Application.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Modules\Catalog\Commerce.Catalog.Domain\Commerce.Catalog.Domain.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Modules\Catalog\Commerce.Catalog.Infrastructure\Commerce.Catalog.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Customers\Commerce.Customers.Application\Commerce.Customers.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Customers\Commerce.Customers.Domain\Commerce.Customers.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Customers\Commerce.Customers.Infrastructure\Commerce.Customers.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Framework\Commerce.Framework.Infrastructure\Commerce.Framework.Infrastructure.csproj" />
   </ItemGroup>

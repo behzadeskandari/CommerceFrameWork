@@ -1,5 +1,7 @@
 using Commerce.Catalog.Application.Categories;
 using Commerce.Framework.Core.Results;
+using Commerce.Host.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Commerce.Host.Catalog;
@@ -9,6 +11,7 @@ namespace Commerce.Host.Catalog;
 public sealed class CategoriesController(ICategoryService categoryService) : ControllerBase
 {
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> List(CancellationToken cancellationToken)
     {
         var result = await categoryService.ListAsync(cancellationToken).ConfigureAwait(false);
@@ -16,6 +19,7 @@ public sealed class CategoriesController(ICategoryService categoryService) : Con
     }
 
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     public async Task<IActionResult> Get(int id, CancellationToken cancellationToken)
     {
         var result = await categoryService.GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
@@ -23,7 +27,7 @@ public sealed class CategoriesController(ICategoryService categoryService) : Con
     }
 
     [HttpPost]
-    [CatalogAdminRequired]
+    [RequirePermission("Catalog.Categories.Create")]
     public async Task<IActionResult> Create([FromBody] CreateCategoryApiRequest request, CancellationToken cancellationToken)
     {
         var result = await categoryService.CreateAsync(new CreateCategoryRequest(
@@ -38,7 +42,7 @@ public sealed class CategoriesController(ICategoryService categoryService) : Con
     }
 
     [HttpPut("{id:int}")]
-    [CatalogAdminRequired]
+    [RequirePermission("Catalog.Categories.Update")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryApiRequest request, CancellationToken cancellationToken)
     {
         var result = await categoryService.UpdateAsync(id, new UpdateCategoryRequest(
@@ -53,7 +57,7 @@ public sealed class CategoriesController(ICategoryService categoryService) : Con
     }
 
     [HttpDelete("{id:int}")]
-    [CatalogAdminRequired]
+    [RequirePermission("Catalog.Categories.Delete")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var result = await categoryService.DeleteAsync(id, cancellationToken).ConfigureAwait(false);

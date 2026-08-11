@@ -4,10 +4,14 @@ using Commerce.Framework.Contracts.Modules;
 using Commerce.Framework.Core.Errors;
 using Commerce.Framework.Data.DependencyInjection;
 using Commerce.Framework.Infrastructure.DependencyInjection;
+using Commerce.Host.Authorization;
 using Commerce.Host.Installation;
 using Commerce.Host.Middleware;
 using Commerce.Modules.Catalog;
 using Commerce.Modules.Core;
+using Commerce.Modules.Customers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,10 +19,16 @@ builder.Services.AddCommerceInfrastructure(builder.Configuration);
 builder.Services.AddCommerceModules(builder.Configuration, modules =>
 {
     modules.AddModule<CoreModule>();
+    modules.AddModule<CustomersModule>();
     modules.AddModule<CatalogModule>();
 });
 builder.Services.AddCommerceData(builder.Configuration);
 builder.Services.AddCommerceModuleRuntime();
+
+builder.Services.AddAuthorization();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -26,6 +36,8 @@ var app = builder.Build();
 await app.Services.LoadPersistedInstallationConfigurationAsync().ConfigureAwait(false);
 
 app.UseMiddleware<InstallationGateMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.MapGet("/", async (IInstallationStateService stateService, CancellationToken cancellationToken) =>

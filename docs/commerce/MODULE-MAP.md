@@ -43,29 +43,137 @@ These are not business modules — they provide platform capabilities consumed b
 
 ## 3. Business Modules
 
-### 3.1 Catalog Module
+### 3.1 Catalog Module (PHASE 8 — implemented)
 
-**Path:** `Commerce.Modules/Catalog/`
+**Path:** `src/Commerce/Modules/Catalog/`
 
 | Layer | Contents |
 |---|---|
-| Domain | `Product`, `Category`, `Manufacturer`, `ProductAttribute`, `ProductVariantCombination`, `TierPrice`, `ProductTag`, `SpecificationAttribute` |
-| Application | `IProductService`, `ICategoryService`, `IManufacturerService`, `IProductAttributeService`, `IProductPricingService`, `IProductInventoryService`, `ICategoryTreeService` |
-| Events | `ProductCreatedEvent`, `ProductUpdatedEvent`, `ProductDeletedEvent` |
+| Domain | `Product`, `Category`, `ProductAttributeDefinition`, `ProductAttributeOption`, `ProductAttributeAssignment`, `ProductAttributeValue`, `ProductVariant`, `ProductVariantAttribute`, `ProductOffer`, `Sku` |
+| Contracts | `IProductReader`, `ICategoryReader`, `IProductAttributeReader`, `IProductVariantReader`, `IProductOfferReader`, `IPricingService`, `ICatalogPricingReader`, `ResolvedPriceDto` |
+| Application | `ProductService`, `CategoryService`, `AttributeService`, `VariantService`, `OfferService`, `PricingService`, `StorefrontCatalogService` |
+| Events | `ProductCreated/Updated/Published`, `VariantCreated/Updated`, `OfferCreated/Updated` |
 
-**Responsibilities:**
-- Product types: simple, grouped, variant, bundle, downloadable, digital, physical, virtual
-- Category hierarchy with tree path queries
-- Product attributes and variant combinations
-- Tier pricing, customer-specific pricing, store-specific pricing
-- Cross-sell and related products
-- Category/manufacturer/tag/specification mappings
-- Inventory-ready design (stock tracking deferred to later phase)
+**Responsibilities (Phase 8):**
+- Product types: Simple (full), Variant (full), Digital (catalog-only), Grouped/Bundle (foundation)
+- Reusable product attributes with localization
+- Variants with attribute combinations and duplicate prevention
+- Store-scoped, currency-explicit offers — **Cart consumes offers, not Product.Price**
+- `IPricingService` / `ResolvedPriceDto` price snapshot for future checkout
+- Public storefront read API (published/visible/active only)
+- Category hierarchy preserved from Phase 4
 
-**Depends on:** Framework (Core, Data, Events, Media, Localization, Seo, Caching)  
-**Depended on by:** ShoppingCart, Checkout, Orders, Search, Discounts
+**Depends on:** Framework (Core, Domain, Data, Contracts/Tenancy), Store context for pricing  
+**Depended on by (future):** ShoppingCart, Checkout, Orders, Search, Discounts — via **Contracts only**
 
-### 3.2 Customers Module
+**Does NOT depend on:** Customers, Orders, Checkout, Payments, Shipping, Inventory (verified by architecture tests)
+
+### 3.2 Media Module (PHASE 9 — implemented)
+
+**Path:** `src/Commerce/Modules/Media/`
+
+| Layer | Contents |
+|---|---|
+| Domain | `MediaAsset`, `FileSignatureValidator`, `StorageKeyGenerator`, `FileNameSanitizer` |
+| Contracts | `IMediaStorage`, `IMediaReader`, `IMediaService`, `IMediaUrlResolver`, `IImageProcessor` |
+| Application | `MediaService`, `MediaUploadValidator`, `MediaSettings` |
+| Infrastructure | `LocalMediaStorage`, `BasicImageProcessor`, `EfMediaAssetRepository` |
+
+**Responsibilities:** Upload, metadata, store-scoped storage, public/private delivery, thumbnails, media library API.
+
+**Catalog integration:** `ProductMedia`, `ProductVariantMedia`, `CategoryMedia` relationship tables; Catalog.Application → Media.Contracts only.
+
+**Store integration:** `StoreMedia` foundation (Logo, Favicon, Banner roles).
+
+### 3.3 Cart Module (PHASE 10 — implemented)
+
+**Path:** `src/Commerce/Modules/Cart/`
+
+| Layer | Contents |
+|---|---|
+| Domain | `ShoppingCart`, `CartItem`, `CartStatus` |
+| Contracts | `ICartService`, `CartDto`, `CartItemDto`, `CartMergeResultDto` |
+| Application | `CartService`, `CartOfferValidator`, `CartTotalsCalculator`, `CartItemDisplayEnricher`, `CartSettings` |
+| Infrastructure | `EfCartRepository`, `GuestCartCookieManager`, `CartGuestTokenGenerator` |
+
+**Purchase chain:** `CartItem → OfferId → ICatalogPricingReader → ResolvedPriceDto` (never client prices)
+
+**Cart invariant:** one active cart per **Store + Customer + Currency** or **Store + GuestToken + Currency**
+
+**API:** `GET/DELETE /api/cart`, `POST/PUT/DELETE /api/cart/items`, `POST /api/cart/merge`
+
+**Depends on:** Catalog.Contracts, Customers.Contracts, Store context, Settings  
+**Does NOT depend on:** Catalog.Infrastructure, Media.Infrastructure, Checkout, Orders
+
+### 3.4 Checkout Module (PHASE 11 — implemented)
+
+**Path:** `src/Commerce/Modules/Checkout/`
+
+| Layer | Contents |
+|---|---|
+| Domain | `CheckoutSession`, `CheckoutSessionItem`, `CheckoutAddressSnapshot`, `CheckoutStatus` |
+| Contracts | `ICheckoutService`, `ICheckoutOrderPreparationService`, provider contracts (`IShippingRateProvider`, `ITaxCalculator`, `IDiscountCalculator`, `IPaymentMethodProvider`) |
+| Application | `CheckoutService`, `CheckoutOfferValidator`, `CheckoutTotalsCalculator`, `CheckoutRequiresShippingEvaluator`, no-op providers |
+| Infrastructure | `EfCheckoutRepository`, `CheckoutModelContributor`, `CheckoutSettingDefinitionProvider` |
+
+**Purchase chain:** `Cart → Offer revalidation → ICatalogPricingReader → checkout line snapshots → totals`
+
+**Checkout invariant:** one active checkout per cart; cart mutations mark session `RequiresReview`
+
+**Terminal state (Phase 11):** `ReadyForOrder` via `ICheckoutOrderPreparationService` — completed to `Completed` by Orders module after order creation
+
+**API:** `/api/checkout/*` (start, addresses, shipping/payment selection, refresh, validate)
+
+**Depends on:** Cart.Contracts, Catalog.Contracts, Customers.Contracts, Store.Contracts  
+**Does NOT depend on:** Cart/Catalog/Customers Infrastructure, Order, Payment, Shipping, Tax Infrastructure
+
+### 3.4.1 Orders Module (PHASE 12 — implemented)
+
+**Path:** `src/Commerce/Modules/Orders/`
+
+| Layer | Contents |
+|---|---|
+| Domain | `Order`, `OrderItem`, `OrderStatusHistory`, `OrderCreationIdempotency`, `StoreOrderNumberSequence`, `OrderAddressSnapshot` |
+| Contracts | `IOrderService`, `IAdminOrderService`, order DTOs |
+| Application | `OrderService`, `OrderNumberGenerator`, `OrderMapper` |
+| Infrastructure | `EfOrderRepository`, `OrderCreationTransaction`, `OrdersPermissionContributor`, `OrdersModelContributor` |
+
+**Purchase chain:** `ReadyForOrder Checkout → ICheckoutOrderPreparationService → immutable Order + snapshots`
+
+**Order invariant:** one order per checkout; totals computed server-side; historical snapshots never reference live catalog/customer rows
+
+**Order numbering:** `ORD-{year}-{sequence:D6}` per store via `StoreOrderNumberSequence`
+
+**API:** `/api/orders/*`, `/api/admin/orders/*`
+
+**Depends on:** Checkout.Contracts, Cart.Contracts, Catalog.Contracts, Customers.Contracts, Store.Contracts, **Inventory.Contracts**  
+**Does NOT depend on:** Checkout/Cart/Catalog/Customers Infrastructure, Payment, Shipping, Inventory Infrastructure
+
+### 3.4.2 Inventory Module (PHASE 13 — implemented)
+
+**Path:** `src/Commerce/Modules/Inventory/`
+
+| Layer | Contents |
+|---|---|
+| Domain | `InventoryItem`, `InventoryMovement`, `InventoryReservation` |
+| Contracts | `IInventoryReader`, `IInventoryOrderService`, `IInventoryReservationService`, `IInventoryAdminService` |
+| Application | `InventoryReader`, `InventoryOrderService`, `InventoryAdminService`, `InventoryReservationService` |
+| Infrastructure | `EfInventoryRepository`, `InventoryModelContributor`, `InventoryPermissionContributor` |
+
+**Purchase chain:** `OfferId → InventoryItem (StoreId + OfferId) → OnHand / Reserved / Available`
+
+**Reservation lifecycle:** `Active → Released | Converted | Expired | Cancelled` (expired excluded from availability without background worker)
+
+**Order integration:** reserve in `OrderCreationTransaction`; release on cancel via `IInventoryOrderService`
+
+**API:** `/api/admin/inventory/*`
+
+**Depends on:** Catalog.Contracts, Store.Contracts, Orders.Contracts (application only where needed)  
+**Does NOT depend on:** Catalog/Orders Infrastructure
+
+**Depended on by:** Cart, Checkout, Orders (via Contracts), Catalog storefront pricing (via Contracts)
+
+### 3.5 Customers Module
 
 **Path:** `Commerce.Modules/Customers/`
 
@@ -86,7 +194,7 @@ These are not business modules — they provide platform capabilities consumed b
 **Depends on:** Framework (Core, Data, Security, Events)  
 **Depended on by:** ShoppingCart, Checkout, Orders, Discounts
 
-### 3.3 ShoppingCart Module
+### 3.6 ShoppingCart Module (superseded by 3.3 Cart — PHASE 10)
 
 **Path:** `Commerce.Modules/ShoppingCart/`
 

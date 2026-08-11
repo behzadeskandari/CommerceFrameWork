@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Cart.Domain</RootNamespace>
+    <AssemblyName>Commerce.Cart.Domain</AssemblyName>
+    <Description>Shopping cart domain model for the Commerce platform.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+  </ItemGroup>
+
+</Project>

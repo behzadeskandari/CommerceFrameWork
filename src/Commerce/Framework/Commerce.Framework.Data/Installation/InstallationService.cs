@@ -37,6 +37,7 @@ public sealed class InstallationService : IInstallationService
     private readonly ICommerceModuleManager _moduleManager;
     private readonly IStoreContextInitializerService _storeContextInitializer;
     private readonly IAdministratorProvisioningService? _administratorProvisioningService;
+    private readonly IStoreInstallationProvisioningService? _storeInstallationProvisioningService;
     private readonly ILogger<InstallationService> _logger;
 
     public InstallationService(
@@ -54,7 +55,8 @@ public sealed class InstallationService : IInstallationService
         ICommerceModuleManager moduleManager,
         IStoreContextInitializerService storeContextInitializer,
         ILogger<InstallationService> logger,
-        IAdministratorProvisioningService? administratorProvisioningService = null)
+        IAdministratorProvisioningService? administratorProvisioningService = null,
+        IStoreInstallationProvisioningService? storeInstallationProvisioningService = null)
     {
         _dbContext = dbContext;
         _connectionProvider = connectionProvider;
@@ -70,6 +72,7 @@ public sealed class InstallationService : IInstallationService
         _moduleManager = moduleManager;
         _storeContextInitializer = storeContextInitializer;
         _administratorProvisioningService = administratorProvisioningService;
+        _storeInstallationProvisioningService = storeInstallationProvisioningService;
         _logger = logger;
     }
 
@@ -239,6 +242,21 @@ public sealed class InstallationService : IInstallationService
             return Result.Failure(Error.Validation("Store name and URL are required."));
         }
 
+        if (_storeInstallationProvisioningService is not null)
+        {
+            var provisioningResult = await _storeInstallationProvisioningService
+                .CreateStoreAsync(request, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (provisioningResult.IsSuccess)
+            {
+                await UpdateInstallationStepAsync(InstallationStep.Store, cancellationToken).ConfigureAwait(false);
+                _logger.LogInformation("Store created via store module: {StoreName}.", request.Name);
+            }
+
+            return provisioningResult;
+        }
+
         if (await _dbContext.BootstrapStores.AnyAsync(cancellationToken).ConfigureAwait(false))
         {
             return Result.Failure(Error.Conflict("A store has already been created."));
@@ -269,6 +287,21 @@ public sealed class InstallationService : IInstallationService
         if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Culture))
         {
             return Result.Failure(Error.Validation("Language name and culture are required."));
+        }
+
+        if (_storeInstallationProvisioningService is not null)
+        {
+            var provisioningResult = await _storeInstallationProvisioningService
+                .ConfigureLanguageAsync(request, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (provisioningResult.IsSuccess)
+            {
+                await UpdateInstallationStepAsync(InstallationStep.Language, cancellationToken).ConfigureAwait(false);
+                _logger.LogInformation("Language configured via store module: {Culture}.", request.Culture);
+            }
+
+            return provisioningResult;
         }
 
         var existing = await _dbContext.BootstrapLanguages
@@ -319,6 +352,21 @@ public sealed class InstallationService : IInstallationService
         if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.CurrencyCode))
         {
             return Result.Failure(Error.Validation("Currency name and code are required."));
+        }
+
+        if (_storeInstallationProvisioningService is not null)
+        {
+            var provisioningResult = await _storeInstallationProvisioningService
+                .ConfigureCurrencyAsync(request, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (provisioningResult.IsSuccess)
+            {
+                await UpdateInstallationStepAsync(InstallationStep.Currency, cancellationToken).ConfigureAwait(false);
+                _logger.LogInformation("Currency configured via store module: {CurrencyCode}.", request.CurrencyCode);
+            }
+
+            return provisioningResult;
         }
 
         try
@@ -384,17 +432,29 @@ public sealed class InstallationService : IInstallationService
             return Result.Failure(Error.Validation("Administrator must be created before completing installation."));
         }
 
-        if (!await _dbContext.BootstrapStores.AnyAsync(cancellationToken).ConfigureAwait(false))
+        var hasStore = _storeInstallationProvisioningService is not null
+            ? await _storeInstallationProvisioningService.HasStoreAsync(cancellationToken).ConfigureAwait(false)
+            : await _dbContext.BootstrapStores.AnyAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!hasStore)
         {
             return Result.Failure(Error.Validation("Store must be created before completing installation."));
         }
 
-        if (!await _dbContext.BootstrapLanguages.AnyAsync(cancellationToken).ConfigureAwait(false))
+        var hasLanguage = _storeInstallationProvisioningService is not null
+            ? await _storeInstallationProvisioningService.HasLanguageAsync(cancellationToken).ConfigureAwait(false)
+            : await _dbContext.BootstrapLanguages.AnyAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!hasLanguage)
         {
             return Result.Failure(Error.Validation("Language must be configured before completing installation."));
         }
 
-        if (!await _dbContext.BootstrapCurrencies.AnyAsync(cancellationToken).ConfigureAwait(false))
+        var hasCurrency = _storeInstallationProvisioningService is not null
+            ? await _storeInstallationProvisioningService.HasCurrencyAsync(cancellationToken).ConfigureAwait(false)
+            : await _dbContext.BootstrapCurrencies.AnyAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!hasCurrency)
         {
             return Result.Failure(Error.Validation("Currency must be configured before completing installation."));
         }

@@ -6,5 +6,7 @@ public enum ProductType
     Grouped = 1,
     Digital = 2,
     Downloadable = 3,
-    Virtual = 4
+    Virtual = 4,
+    Variant = 5,
+    Bundle = 6
 }

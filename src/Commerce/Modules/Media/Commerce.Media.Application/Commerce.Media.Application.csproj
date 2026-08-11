@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Media.Application</RootNamespace>
+    <AssemblyName>Commerce.Media.Application</AssemblyName>
+    <Description>Media application services.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Media.Contracts\Commerce.Media.Contracts.csproj" />
+    <ProjectReference Include="..\Commerce.Media.Domain\Commerce.Media.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Application\Commerce.Framework.Application.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

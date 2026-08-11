@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Modules.Checkout</RootNamespace>
+    <AssemblyName>Commerce.Modules.Checkout</AssemblyName>
+    <Description>Checkout module registration facade.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Checkout.Application\Commerce.Checkout.Application.csproj" />
+    <ProjectReference Include="..\Commerce.Checkout.Infrastructure\Commerce.Checkout.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+  </ItemGroup>
+
+</Project>

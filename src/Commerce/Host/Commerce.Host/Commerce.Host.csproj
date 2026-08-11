@@ -15,7 +15,14 @@
     <ProjectReference Include="..\..\Framework\Commerce.Framework.Infrastructure\Commerce.Framework.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Commerce.Modules.Core\Commerce.Modules.Core.csproj" />
     <ProjectReference Include="..\..\Modules\Catalog\Commerce.Modules.Catalog\Commerce.Modules.Catalog.csproj" />
+    <ProjectReference Include="..\..\Modules\Media\Commerce.Modules.Media\Commerce.Modules.Media.csproj" />
+    <ProjectReference Include="..\..\Modules\Cart\Commerce.Modules.Cart\Commerce.Modules.Cart.csproj" />
+    <ProjectReference Include="..\..\Modules\Checkout\Commerce.Modules.Checkout\Commerce.Modules.Checkout.csproj" />
+    <ProjectReference Include="..\..\Modules\Inventory\Commerce.Modules.Inventory\Commerce.Modules.Inventory.csproj" />
+    <ProjectReference Include="..\..\Modules\Orders\Commerce.Modules.Orders\Commerce.Modules.Orders.csproj" />
     <ProjectReference Include="..\..\Modules\Customers\Commerce.Modules.Customers\Commerce.Modules.Customers.csproj" />
+    <ProjectReference Include="..\..\Modules\Store\Commerce.Modules.Store\Commerce.Modules.Store.csproj" />
+    <ProjectReference Include="..\..\Modules\Store\Commerce.Store.Infrastructure\Commerce.Store.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

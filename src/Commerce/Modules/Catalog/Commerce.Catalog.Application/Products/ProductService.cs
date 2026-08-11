@@ -23,7 +23,8 @@ public sealed class ProductService(
     IProductRepository productRepository,
     ICategoryRepository categoryRepository,
     IProductCategoryRepository productCategoryRepository,
-    IProductAttributeRepository attributeRepository) : IProductService
+    IProductAttributeRepository attributeRepository,
+    IProductVariantRepository variantRepository) : IProductService
 {
     public async Task<Result<ProductDetailDto>> CreateAsync(
         CreateProductRequest request,
@@ -36,7 +37,7 @@ public sealed class ProductService(
             var sku = Sku.Create(request.Sku);
             Slug? slug = string.IsNullOrWhiteSpace(request.Slug) ? null : Slug.Create(request.Slug);
 
-            if (await productRepository.GetBySkuAsync(sku.Value, cancellationToken).ConfigureAwait(false) is not null)
+            if (await IsSkuTakenAsync(sku.Value, cancellationToken).ConfigureAwait(false))
             {
                 return Result.Failure<ProductDetailDto>(Error.Conflict($"Product SKU '{sku.Value}' already exists."));
             }
@@ -49,6 +50,8 @@ public sealed class ProductService(
                 request.Description,
                 slug,
                 request.Published,
+                request.IsVisible,
+                request.IsAvailable,
                 request.DisplayOrder);
 
             await productRepository.AddAsync(product, cancellationToken).ConfigureAwait(false);
@@ -99,6 +102,8 @@ public sealed class ProductService(
                 request.Description,
                 slug,
                 request.Published,
+                request.IsVisible,
+                request.IsAvailable,
                 request.DisplayOrder);
 
             await productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
@@ -199,19 +204,16 @@ public sealed class ProductService(
     {
         var products = await productRepository.ListAsync(includeDeleted, cancellationToken).ConfigureAwait(false);
         var summaries = products
-            .Select(p => new ProductSummaryDto(
-                p.Id,
-                p.Name,
-                p.Sku,
-                p.ProductType.ToString(),
-                p.Published,
-                p.Deleted,
-                p.DisplayOrder,
-                p.Slug))
+            .Select(MapSummary)
             .ToList();
 
         return Result.Success<IReadOnlyList<ProductSummaryDto>>(summaries);
     }
+
+    // SKU uniqueness is GLOBAL across products and variants (not scoped per store).
+    private async Task<bool> IsSkuTakenAsync(string sku, CancellationToken cancellationToken) =>
+        await productRepository.GetBySkuAsync(sku, cancellationToken).ConfigureAwait(false) is not null ||
+        await variantRepository.GetBySkuAsync(sku, cancellationToken).ConfigureAwait(false) is not null;
 
     private async Task<ProductDetailDto> MapDetailAsync(Product product, CancellationToken cancellationToken)
     {
@@ -223,6 +225,18 @@ public sealed class ProductService(
             .GetValuesForProductAsync(product.Id, cancellationToken)
             .ConfigureAwait(false);
 
+        var mappedAttributes = new List<ProductAttributeValueDto>();
+        foreach (var value in attributeValues)
+        {
+            var definition = await attributeRepository.GetDefinitionByIdAsync(value.AttributeDefinitionId, cancellationToken)
+                .ConfigureAwait(false);
+            mappedAttributes.Add(new ProductAttributeValueDto(
+                value.AttributeDefinitionId,
+                definition?.Code ?? string.Empty,
+                definition?.Name ?? string.Empty,
+                value.Value));
+        }
+
         return new ProductDetailDto(
             product.Id,
             product.Name,
@@ -231,16 +245,27 @@ public sealed class ProductService(
             product.Sku,
             product.ProductType.ToString(),
             product.Published,
+            product.IsVisible,
+            product.IsAvailable,
             product.Deleted,
             product.DisplayOrder,
             product.Slug,
             product.CreatedAtUtc,
             product.UpdatedAtUtc,
             categoryIds,
-            attributeValues.Select(v => new ProductAttributeValueDto(
-                v.AttributeDefinitionId,
-                string.Empty,
-                string.Empty,
-                v.Value)).ToList());
+            mappedAttributes);
     }
+
+    private static ProductSummaryDto MapSummary(Product product) =>
+        new(
+            product.Id,
+            product.Name,
+            product.Sku,
+            product.ProductType.ToString(),
+            product.Published,
+            product.IsVisible,
+            product.IsAvailable,
+            product.Deleted,
+            product.DisplayOrder,
+            product.Slug);
 }

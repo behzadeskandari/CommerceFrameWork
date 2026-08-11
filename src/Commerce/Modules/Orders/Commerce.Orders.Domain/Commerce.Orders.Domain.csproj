@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Orders.Domain</RootNamespace>
+    <AssemblyName>Commerce.Orders.Domain</AssemblyName>
+    <Description>Order domain model for the Commerce platform.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Domain\Commerce.Framework.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

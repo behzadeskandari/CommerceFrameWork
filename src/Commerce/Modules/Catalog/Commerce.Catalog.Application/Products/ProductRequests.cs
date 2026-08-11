@@ -10,6 +10,8 @@ public sealed record CreateProductRequest(
     string? Description = null,
     string? Slug = null,
     bool Published = false,
+    bool IsVisible = true,
+    bool IsAvailable = true,
     int DisplayOrder = 0,
     IReadOnlyList<int>? CategoryIds = null);
 
@@ -20,6 +22,8 @@ public sealed record UpdateProductRequest(
     string? Description = null,
     string? Slug = null,
     bool Published = false,
+    bool IsVisible = true,
+    bool IsAvailable = true,
     int DisplayOrder = 0,
     IReadOnlyList<int>? CategoryIds = null);
 

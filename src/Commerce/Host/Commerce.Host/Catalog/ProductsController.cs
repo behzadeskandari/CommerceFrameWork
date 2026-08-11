@@ -40,6 +40,8 @@ public sealed class ProductsController(IProductService productService) : Control
             request.Description,
             request.Slug,
             request.Published,
+            request.IsVisible,
+            request.IsAvailable,
             request.DisplayOrder,
             request.CategoryIds), cancellationToken).ConfigureAwait(false);
 
@@ -57,6 +59,8 @@ public sealed class ProductsController(IProductService productService) : Control
             request.Description,
             request.Slug,
             request.Published,
+            request.IsVisible,
+            request.IsAvailable,
             request.DisplayOrder,
             request.CategoryIds), cancellationToken).ConfigureAwait(false);
 
@@ -122,6 +126,8 @@ public sealed record CreateProductApiRequest(
     string? Description = null,
     string? Slug = null,
     bool Published = false,
+    bool IsVisible = true,
+    bool IsAvailable = true,
     int DisplayOrder = 0,
     IReadOnlyList<int>? CategoryIds = null);
 
@@ -132,5 +138,7 @@ public sealed record UpdateProductApiRequest(
     string? Description = null,
     string? Slug = null,
     bool Published = false,
+    bool IsVisible = true,
+    bool IsAvailable = true,
     int DisplayOrder = 0,
     IReadOnlyList<int>? CategoryIds = null);

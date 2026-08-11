@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@commerce/api": ["libs/api/src/index.ts"],
+      "@commerce/auth": ["libs/auth/src/index.ts"],
+      "@commerce/core": ["libs/core/src/index.ts"],
+      "@commerce/layout": ["libs/layout/src/index.ts"],
+      "@commerce/shared": ["libs/shared/src/index.ts"],
+      "@commerce/localization": ["libs/localization/src/index.ts"],
+      "@commerce/theme": ["libs/theme/src/index.ts"]
+    }
+  }
+}

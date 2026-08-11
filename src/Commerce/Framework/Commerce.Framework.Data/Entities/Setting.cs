@@ -9,4 +9,6 @@ public sealed class Setting
     public string Value { get; set; } = null!;
 
     public int StoreId { get; set; }
+
+    public string DataType { get; set; } = "string";
 }

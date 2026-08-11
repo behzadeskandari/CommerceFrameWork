@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Modules.Cart</RootNamespace>
+    <AssemblyName>Commerce.Modules.Cart</AssemblyName>
+    <Description>Shopping cart module registration facade.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Cart.Application\Commerce.Cart.Application.csproj" />
+    <ProjectReference Include="..\Commerce.Cart.Infrastructure\Commerce.Cart.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+  </ItemGroup>
+
+</Project>

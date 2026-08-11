@@ -21,8 +21,17 @@
     <ProjectReference Include="..\..\..\src\Commerce\Modules\Customers\Commerce.Customers.Application\Commerce.Customers.Application.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Modules\Customers\Commerce.Customers.Domain\Commerce.Customers.Domain.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Modules\Customers\Commerce.Customers.Infrastructure\Commerce.Customers.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Store\Commerce.Store.Domain\Commerce.Store.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Store\Commerce.Store.Infrastructure\Commerce.Store.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Framework\Commerce.Framework.Infrastructure\Commerce.Framework.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Media\Commerce.Media.Domain\Commerce.Media.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Cart\Commerce.Cart.Domain\Commerce.Cart.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Checkout\Commerce.Checkout.Domain\Commerce.Checkout.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Orders\Commerce.Orders.Domain\Commerce.Orders.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Orders\Commerce.Orders.Application\Commerce.Orders.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Inventory\Commerce.Inventory.Domain\Commerce.Inventory.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Inventory\Commerce.Inventory.Application\Commerce.Inventory.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

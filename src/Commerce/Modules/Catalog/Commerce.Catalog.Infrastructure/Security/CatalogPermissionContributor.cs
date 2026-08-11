@@ -15,6 +15,18 @@ public sealed class CatalogPermissionContributor : IModulePermissionContributor
         new("Catalog.Categories.View", "View catalog categories.", ModuleSystemName),
         new("Catalog.Categories.Create", "Create catalog categories.", ModuleSystemName),
         new("Catalog.Categories.Update", "Update catalog categories.", ModuleSystemName),
-        new("Catalog.Categories.Delete", "Delete catalog categories.", ModuleSystemName)
+        new("Catalog.Categories.Delete", "Delete catalog categories.", ModuleSystemName),
+        new("Catalog.Attributes.View", "View catalog attributes.", ModuleSystemName),
+        new("Catalog.Attributes.Create", "Create catalog attributes.", ModuleSystemName),
+        new("Catalog.Attributes.Update", "Update catalog attributes.", ModuleSystemName),
+        new("Catalog.Attributes.Delete", "Delete catalog attributes.", ModuleSystemName),
+        new("Catalog.Variants.View", "View product variants.", ModuleSystemName),
+        new("Catalog.Variants.Create", "Create product variants.", ModuleSystemName),
+        new("Catalog.Variants.Update", "Update product variants.", ModuleSystemName),
+        new("Catalog.Variants.Delete", "Delete product variants.", ModuleSystemName),
+        new("Catalog.Offers.View", "View product offers.", ModuleSystemName),
+        new("Catalog.Offers.Create", "Create product offers.", ModuleSystemName),
+        new("Catalog.Offers.Update", "Update product offers.", ModuleSystemName),
+        new("Catalog.Offers.Delete", "Delete product offers.", ModuleSystemName)
     ];
 }

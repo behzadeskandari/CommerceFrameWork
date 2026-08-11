@@ -12,6 +12,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICategoryRepository, EfCategoryRepository>();
         services.AddScoped<IProductCategoryRepository, EfProductCategoryRepository>();
         services.AddScoped<IProductAttributeRepository, EfProductAttributeRepository>();
+        services.AddScoped<IProductVariantRepository, EfProductVariantRepository>();
+        services.AddScoped<IProductOfferRepository, EfProductOfferRepository>();
+        services.AddScoped<IProductMediaRepository, EfProductMediaRepository>();
+        services.AddScoped<IProductVariantMediaRepository, EfProductVariantMediaRepository>();
+        services.AddScoped<ICategoryMediaRepository, EfCategoryMediaRepository>();
 
         return services;
     }

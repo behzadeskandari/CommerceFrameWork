@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Orders.Infrastructure</RootNamespace>
+    <AssemblyName>Commerce.Orders.Infrastructure</AssemblyName>
+    <Description>Order infrastructure and persistence.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Orders.Application\Commerce.Orders.Application.csproj" />
+    <ProjectReference Include="..\Commerce.Orders.Domain\Commerce.Orders.Domain.csproj" />
+    <ProjectReference Include="..\..\Checkout\Commerce.Checkout.Domain\Commerce.Checkout.Domain.csproj" />
+    <ProjectReference Include="..\..\Cart\Commerce.Cart.Domain\Commerce.Cart.Domain.csproj" />
+    <ProjectReference Include="..\..\Inventory\Commerce.Inventory.Contracts\Commerce.Inventory.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+  </ItemGroup>
+
+</Project>

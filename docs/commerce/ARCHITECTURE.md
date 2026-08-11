@@ -365,13 +365,101 @@ See [IMPLEMENTATION-ROADMAP.md](./IMPLEMENTATION-ROADMAP.md) for the complete so
 
 ---
 
-## 12. Next Step
+## 12. Implementation Status (updated PHASE 8)
 
-**PHASE 1 — Commerce Foundation** (awaiting approval)
+Phases 0–8 are complete. See individual phase reports under `docs/commerce/`.
 
-Create `Commerce.Framework.Core`, `Domain`, `Contracts`, `Application`, `Infrastructure`, `Data` with:
-- Result/error types, domain events, entity base, auditing
-- Configuration, DI extensions, DbContext skeleton
-- Migration infrastructure (no catalog yet)
+### PHASE 8 — Catalog 2.0 (complete)
 
-See [MIGRATION-PLAN.md](./MIGRATION-PLAN.md) and [IMPLEMENTATION-ROADMAP.md](./IMPLEMENTATION-ROADMAP.md) for details.
+The Catalog module was upgraded from Phase 4 foundation to a production-capable ecommerce catalog:
+
+```text
+Product → Offer → Price → (future Cart → Checkout → Order)
+```
+
+Key additions:
+
+| Capability | Implementation |
+|---|---|
+| Product types | Simple, Variant (full); Digital (catalog); Grouped/Bundle (enum foundation) |
+| Attributes | Definitions, options, assignments, localized via EntityTranslation |
+| Variants | Stable IDs, attribute combinations, duplicate prevention, Cartesian generation |
+| SKU | Global uniqueness across products and variants |
+| Offers | Store-scoped + currency-explicit; replaces direct Product.Price for purchasing |
+| Pricing | `IPricingService`, `ICatalogPricingReader`, `ResolvedPriceDto` snapshot |
+| Storefront API | `/api/catalog/storefront/*` — published/visible/active only |
+| Angular | Admin attributes/variants/offers; storefront variant selection + API pricing |
+
+Catalog remains independent of Cart, Orders, Checkout, Payments, Shipping, and Inventory. Future modules consume `Commerce.Catalog.Contracts` only.
+
+Full details: [PHASE-8-REPORT.md](./PHASE-8-REPORT.md)
+
+---
+
+### PHASE 9 — Media & File Storage (complete)
+
+Added `Commerce.Media` module with `MediaAsset`, `IMediaStorage`, local file provider, secure storage keys, public/private delivery, thumbnails, and Catalog/Store media relationships.
+
+Full details: [PHASE-9-REPORT.md](./PHASE-9-REPORT.md)
+
+---
+
+### PHASE 10 — Cart & Shopping Cart Engine (complete)
+
+Added `Commerce.Cart` module with guest/customer carts, offer-based line items, server-side pricing, guest cookie token, cart merge on login, and storefront cart UI.
+
+```text
+Customer/Guest → Cart → CartItem → Offer → ResolvedPriceDto → Cart Totals → (future Checkout)
+```
+
+Key rules:
+- Cart purchases **OfferId**, never Product directly
+- Client sends only `offerId` + `quantity`; prices resolved via `ICatalogPricingReader`
+- One active cart per Store + Customer/GuestToken + Currency
+- Discount/shipping/tax totals = 0 with extension points for future modules
+
+Full details: [PHASE-10-REPORT.md](./PHASE-10-REPORT.md)
+
+---
+
+### PHASE 11 — Checkout Engine (complete)
+
+Added `Commerce.Checkout` module with checkout sessions, cart revalidation, price snapshots, address snapshots, provider abstractions (no-op defaults), guest/customer checkout, and storefront multi-step UI.
+
+```text
+Cart → Start Checkout → CheckoutSession → Addresses → Providers → Validate → ReadyForOrder → Order
+```
+
+Key rules:
+- Checkout does **not** process payments
+- Server-side totals only; price changes mark session `RequiresReview`
+- One active checkout per cart; cart mutations invalidate stale checkout
+- `ICheckoutOrderPreparationService` is the sole order-creation input boundary
+
+Full details: [PHASE-11-REPORT.md](./PHASE-11-REPORT.md)
+
+---
+
+### PHASE 12 — Order Engine & Immutable Commercial Snapshots (complete)
+
+Added `Commerce.Orders` module converting `ReadyForOrder` checkouts into immutable orders with full commercial snapshots.
+
+```text
+ReadyForOrder Checkout → ICheckoutOrderPreparationService → Order + OrderItems
+  → Checkout Completed → Cart Converted
+```
+
+Key rules:
+- Order stores immutable price, product, address, and customer contact snapshots
+- Order numbering: `ORD-{year}-{sequence}` per store
+- Idempotency via `Idempotency-Key` header + unique `CheckoutId` constraint
+- Atomic creation via `OrderCreationTransaction`
+- Payment, shipping, and inventory **not** processed in Phase 12
+
+Full details: [PHASE-12-REPORT.md](./PHASE-12-REPORT.md)
+
+---
+
+## 13. Next Step
+
+**PHASE 13** (awaiting explicit approval)

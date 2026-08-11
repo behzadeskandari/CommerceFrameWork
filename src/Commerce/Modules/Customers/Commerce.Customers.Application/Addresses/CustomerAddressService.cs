@@ -8,7 +8,7 @@ using Commerce.Framework.Domain.ValueObjects;
 
 namespace Commerce.Customers.Application.Addresses;
 
-public interface ICustomerAddressService
+public interface ICustomerAddressService : ICustomerAddressReader
 {
     Task<Result<CustomerAddressDto>> AddAsync(
         int customerId,
@@ -22,10 +22,6 @@ public interface ICustomerAddressService
         CancellationToken cancellationToken = default);
 
     Task<Result> DeleteAsync(int customerId, int addressId, CancellationToken cancellationToken = default);
-
-    Task<Result<IReadOnlyList<CustomerAddressDto>>> ListAsync(
-        int customerId,
-        CancellationToken cancellationToken = default);
 }
 
 public sealed class CustomerAddressService(
@@ -146,6 +142,21 @@ public sealed class CustomerAddressService(
 
         await addressRepository.DeleteAsync(address, cancellationToken).ConfigureAwait(false);
         return Result.Success();
+    }
+
+    public async Task<Result<CustomerAddressDto>> GetByIdAsync(
+        int customerId,
+        int addressId,
+        CancellationToken cancellationToken = default)
+    {
+        var address = await addressRepository.GetByIdAsync(addressId, cancellationToken).ConfigureAwait(false);
+        if (address is null || address.CustomerId != customerId)
+        {
+            return Result.Failure<CustomerAddressDto>(
+                Error.NotFound($"Address '{addressId}' was not found for customer '{customerId}'."));
+        }
+
+        return Result.Success(CustomerService.MapAddress(address));
     }
 
     public async Task<Result<IReadOnlyList<CustomerAddressDto>>> ListAsync(

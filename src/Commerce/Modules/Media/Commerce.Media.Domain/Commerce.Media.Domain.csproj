@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Media.Domain</RootNamespace>
+    <AssemblyName>Commerce.Media.Domain</AssemblyName>
+    <Description>Media domain model for the Commerce platform.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+  </ItemGroup>
+
+</Project>

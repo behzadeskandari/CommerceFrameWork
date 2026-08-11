@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Checkout.Domain</RootNamespace>
+    <AssemblyName>Commerce.Checkout.Domain</AssemblyName>
+    <Description>Checkout domain model for the Commerce platform.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Domain\Commerce.Framework.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

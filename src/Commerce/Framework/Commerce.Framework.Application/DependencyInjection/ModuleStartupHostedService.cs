@@ -40,8 +40,15 @@ public sealed class ModuleStartupHostedService : IHostedService
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        using var scope = _serviceProvider.CreateScope();
-        var manager = scope.ServiceProvider.GetRequiredService<ICommerceModuleManager>();
-        return manager.StopModulesAsync(cancellationToken);
+        try
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var manager = scope.ServiceProvider.GetRequiredService<ICommerceModuleManager>();
+            return manager.StopModulesAsync(cancellationToken);
+        }
+        catch (ObjectDisposedException)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

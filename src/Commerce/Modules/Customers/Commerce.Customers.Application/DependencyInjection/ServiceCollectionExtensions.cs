@@ -14,6 +14,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICustomerAddressService, CustomerAddressService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<ICustomerReader>(sp => sp.GetRequiredService<ICustomerService>());
+        services.AddScoped<ICustomerAddressReader>(sp => sp.GetRequiredService<ICustomerAddressService>());
 
         return services;
     }

@@ -98,6 +98,7 @@ public sealed class CommerceDbContext : IdentityDbContext<CommerceIdentityUser, 
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Name).HasMaxLength(400).IsRequired();
             builder.Property(x => x.Value).IsRequired();
+            builder.Property(x => x.DataType).HasMaxLength(50).IsRequired();
             builder.HasIndex(x => new { x.Name, x.StoreId }).IsUnique();
         }
     }

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Media.Contracts</RootNamespace>
+    <AssemblyName>Commerce.Media.Contracts</AssemblyName>
+    <Description>Media contracts for cross-module consumption.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Media.Domain\Commerce.Media.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+  </ItemGroup>
+
+</Project>

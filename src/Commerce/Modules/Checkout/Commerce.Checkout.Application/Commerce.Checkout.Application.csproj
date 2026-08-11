@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Checkout.Application</RootNamespace>
+    <AssemblyName>Commerce.Checkout.Application</AssemblyName>
+    <Description>Checkout application services.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Checkout.Contracts\Commerce.Checkout.Contracts.csproj" />
+    <ProjectReference Include="..\Commerce.Checkout.Domain\Commerce.Checkout.Domain.csproj" />
+    <ProjectReference Include="..\..\Cart\Commerce.Cart.Contracts\Commerce.Cart.Contracts.csproj" />
+    <ProjectReference Include="..\..\Catalog\Commerce.Catalog.Contracts\Commerce.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\Inventory\Commerce.Inventory.Contracts\Commerce.Inventory.Contracts.csproj" />
+    <ProjectReference Include="..\..\Customers\Commerce.Customers.Contracts\Commerce.Customers.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Application\Commerce.Framework.Application.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Domain\Commerce.Framework.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+
+</Project>

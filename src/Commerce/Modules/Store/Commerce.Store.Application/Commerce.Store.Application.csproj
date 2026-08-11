@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Store.Application</RootNamespace>
+    <AssemblyName>Commerce.Store.Application</AssemblyName>
+    <Description>Store application services.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Store.Contracts\Commerce.Store.Contracts.csproj" />
+    <ProjectReference Include="..\Commerce.Store.Domain\Commerce.Store.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Application\Commerce.Framework.Application.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Domain\Commerce.Framework.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

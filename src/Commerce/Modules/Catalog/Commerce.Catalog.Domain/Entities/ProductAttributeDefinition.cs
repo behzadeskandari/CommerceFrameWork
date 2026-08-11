@@ -1,3 +1,4 @@
+using Commerce.Catalog.Domain.Enums;
 using Commerce.Framework.Core.Entities;
 
 namespace Commerce.Catalog.Domain.Entities;
@@ -15,9 +16,22 @@ public sealed class ProductAttributeDefinition : AggregateRoot
 
     public string Code { get; private set; } = string.Empty;
 
+    public AttributeType AttributeType { get; private set; }
+
+    public bool IsActive { get; private set; }
+
     public int DisplayOrder { get; private set; }
 
-    public static ProductAttributeDefinition Create(string name, string code, int displayOrder = 0)
+    public DateTime CreatedAtUtc { get; private set; }
+
+    public DateTime UpdatedAtUtc { get; private set; }
+
+    public static ProductAttributeDefinition Create(
+        string name,
+        string code,
+        AttributeType attributeType,
+        int displayOrder = 0,
+        bool isActive = true)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -41,11 +55,30 @@ public sealed class ProductAttributeDefinition : AggregateRoot
             throw new ArgumentException($"Attribute name cannot exceed {NameMaxLength} characters.", nameof(name));
         }
 
+        var now = DateTime.UtcNow;
         return new ProductAttributeDefinition
         {
             Name = trimmedName,
             Code = normalizedCode,
-            DisplayOrder = displayOrder
+            AttributeType = attributeType,
+            IsActive = isActive,
+            DisplayOrder = displayOrder,
+            CreatedAtUtc = now,
+            UpdatedAtUtc = now
         };
+    }
+
+    public void Update(string name, AttributeType attributeType, int displayOrder, bool isActive)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException("Attribute name is required.", nameof(name));
+        }
+
+        Name = name.Trim();
+        AttributeType = attributeType;
+        DisplayOrder = displayOrder;
+        IsActive = isActive;
+        UpdatedAtUtc = DateTime.UtcNow;
     }
 }

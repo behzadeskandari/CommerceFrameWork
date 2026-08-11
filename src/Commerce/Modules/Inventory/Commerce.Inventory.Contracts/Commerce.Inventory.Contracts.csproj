@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Inventory.Contracts</RootNamespace>
+    <AssemblyName>Commerce.Inventory.Contracts</AssemblyName>
+    <Description>Inventory module contracts.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Inventory.Domain\Commerce.Inventory.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+  </ItemGroup>
+
+</Project>

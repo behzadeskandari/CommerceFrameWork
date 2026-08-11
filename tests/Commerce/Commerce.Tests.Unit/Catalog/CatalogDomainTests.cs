@@ -74,7 +74,7 @@ public sealed class ProductAttributeTests
     [Fact]
     public void Definition_Create_NormalizesCode()
     {
-        var definition = ProductAttributeDefinition.Create("Brand", " BRAND ");
+        var definition = ProductAttributeDefinition.Create("Brand", " BRAND ", AttributeType.Text);
         Assert.Equal("brand", definition.Code);
     }
 

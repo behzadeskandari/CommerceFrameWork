@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../out-tsc/storefront-spec",
+    "types": ["jasmine"]
+  },
+  "include": ["src/**/*.spec.ts", "../../libs/**/*.spec.ts", "src/**/*.d.ts"]
+}

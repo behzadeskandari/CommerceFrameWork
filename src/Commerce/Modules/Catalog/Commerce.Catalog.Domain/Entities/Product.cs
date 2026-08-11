@@ -26,6 +26,10 @@ public sealed class Product : AggregateRoot
 
     public bool Published { get; private set; }
 
+    public bool IsVisible { get; private set; }
+
+    public bool IsAvailable { get; private set; }
+
     public bool Deleted { get; private set; }
 
     public int DisplayOrder { get; private set; }
@@ -44,6 +48,8 @@ public sealed class Product : AggregateRoot
         string? description = null,
         Slug? slug = null,
         bool published = false,
+        bool isVisible = true,
+        bool isAvailable = true,
         int displayOrder = 0)
     {
         var product = new Product
@@ -55,6 +61,8 @@ public sealed class Product : AggregateRoot
             Description = description?.Trim(),
             Slug = slug?.Value,
             Published = published,
+            IsVisible = isVisible,
+            IsAvailable = isAvailable,
             DisplayOrder = displayOrder,
             CreatedAtUtc = DateTime.UtcNow,
             UpdatedAtUtc = DateTime.UtcNow
@@ -71,6 +79,8 @@ public sealed class Product : AggregateRoot
         string? description,
         Slug? slug,
         bool published,
+        bool isVisible,
+        bool isAvailable,
         int displayOrder)
     {
         EnsureNotDeleted();
@@ -81,6 +91,8 @@ public sealed class Product : AggregateRoot
         Description = description?.Trim();
         Slug = slug?.Value;
         Published = published;
+        IsVisible = isVisible;
+        IsAvailable = isAvailable;
         DisplayOrder = displayOrder;
         UpdatedAtUtc = DateTime.UtcNow;
 
@@ -96,9 +108,13 @@ public sealed class Product : AggregateRoot
 
         Deleted = true;
         Published = false;
+        IsVisible = false;
+        IsAvailable = false;
         UpdatedAtUtc = DateTime.UtcNow;
         RaiseDomainEvent(new ProductDeletedEvent(Id, Sku, Name));
     }
+
+    public bool IsPubliclyVisible() => Published && IsVisible && IsAvailable && !Deleted;
 
     private void EnsureNotDeleted()
     {

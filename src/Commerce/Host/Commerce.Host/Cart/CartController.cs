@@ -60,6 +60,22 @@ public sealed class CartController(ICartService cartService) : ControllerBase
         var result = await cartService.MergeGuestCartAsync(cancellationToken).ConfigureAwait(false);
         return CartActionResults.ToActionResult(this, result, value => value);
     }
+
+    [HttpPost("coupons")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ApplyCoupon([FromBody] ApplyCartCouponRequest request, CancellationToken cancellationToken)
+    {
+        var result = await cartService.ApplyCouponAsync(request, cancellationToken).ConfigureAwait(false);
+        return CartActionResults.ToActionResult(this, result, value => value);
+    }
+
+    [HttpDelete("coupons/{code}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> RemoveCoupon(string code, CancellationToken cancellationToken)
+    {
+        var result = await cartService.RemoveCouponAsync(code, cancellationToken).ConfigureAwait(false);
+        return CartActionResults.ToActionResult(this, result, value => value);
+    }
 }
 
 internal static class CartActionResults

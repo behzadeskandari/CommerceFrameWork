@@ -17,7 +17,8 @@ public sealed record CheckoutLineValidation(
     string ProductType,
     decimal UnitPrice,
     decimal PreviousUnitPrice,
-    string CurrencyCode);
+    string CurrencyCode,
+    decimal WeightGrams);
 
 public interface ICheckoutOfferValidator
 {
@@ -145,7 +146,8 @@ public sealed class CheckoutOfferValidator(
             product.ProductType,
             unitPrice,
             previousUnitPrice ?? unitPrice,
-            resolvedPrice?.CurrencyCode ?? offer.CurrencyCode);
+            resolvedPrice?.CurrencyCode ?? offer.CurrencyCode,
+            product.WeightGrams);
     }
 
     private static CheckoutLineValidation Invalid(IReadOnlyList<string> messages, decimal? previousUnitPrice) =>
@@ -160,5 +162,6 @@ public sealed class CheckoutOfferValidator(
             string.Empty,
             0m,
             previousUnitPrice ?? 0m,
-            string.Empty);
+            string.Empty,
+            0m);
 }

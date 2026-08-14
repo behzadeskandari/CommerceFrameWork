@@ -13,7 +13,12 @@
     <ProjectReference Include="..\..\Cart\Commerce.Cart.Contracts\Commerce.Cart.Contracts.csproj" />
     <ProjectReference Include="..\..\Customers\Commerce.Customers.Contracts\Commerce.Customers.Contracts.csproj" />
     <ProjectReference Include="..\..\Inventory\Commerce.Inventory.Contracts\Commerce.Inventory.Contracts.csproj" />
+    <ProjectReference Include="..\..\Pricing\Commerce.Pricing.Contracts\Commerce.Pricing.Contracts.csproj" />
+    <ProjectReference Include="..\..\Payments\Commerce.Payments.Contracts\Commerce.Payments.Contracts.csproj" />
+    <ProjectReference Include="..\..\Promotions\Commerce.Promotions.Contracts\Commerce.Promotions.Contracts.csproj" />
+    <ProjectReference Include="..\..\Shipping\Commerce.Shipping.Contracts\Commerce.Shipping.Contracts.csproj" />
     <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Application\Commerce.Framework.Application.csproj" />
     <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
     <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Domain\Commerce.Framework.Domain.csproj" />
   </ItemGroup>

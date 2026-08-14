@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Plugin.Test</RootNamespace>
+    <AssemblyName>Commerce.Plugin.Test</AssemblyName>
+    <Description>Test-only Commerce plugin for automated validation.</Description>
+    <CommercePluginSystemName>Commerce.Test</CommercePluginSystemName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\PluginContracts\Commerce.Framework.PluginContracts\Commerce.Framework.PluginContracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Plugin.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Localization\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Import Project="..\..\..\PluginSdk\Commerce.Plugin.Sdk\Build\Commerce.Plugin.Sdk.targets" />
+
+</Project>

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Tax.Infrastructure</RootNamespace>
+    <AssemblyName>Commerce.Tax.Infrastructure</AssemblyName>
+    <Description>Tax infrastructure.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Tax.Application\Commerce.Tax.Application.csproj" />
+    <ProjectReference Include="..\Commerce.Tax.Domain\Commerce.Tax.Domain.csproj" />
+    <ProjectReference Include="..\..\Store\Commerce.Store.Domain\Commerce.Store.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+  </ItemGroup>
+
+</Project>

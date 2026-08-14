@@ -112,6 +112,63 @@ public sealed class CheckoutController(ICheckoutService checkoutService) : Contr
         var result = await checkoutService.ValidateAsync(id, cancellationToken).ConfigureAwait(false);
         return CheckoutActionResults.ToActionResult(this, result, value => value);
     }
+
+    [HttpPost("{id:int}/gift-cards")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ApplyGiftCard(
+        int id,
+        [FromBody] ApplyGiftCardRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await checkoutService.ApplyGiftCardAsync(id, request, cancellationToken).ConfigureAwait(false);
+        return CheckoutActionResults.ToActionResult(this, result, value => value);
+    }
+
+    [HttpDelete("{id:int}/gift-cards")]
+    [AllowAnonymous]
+    public async Task<IActionResult> RemoveGiftCard(int id, CancellationToken cancellationToken)
+    {
+        var result = await checkoutService.RemoveGiftCardAsync(id, cancellationToken).ConfigureAwait(false);
+        return CheckoutActionResults.ToActionResult(this, result, value => value);
+    }
+
+    [HttpPost("{id:int}/store-credit")]
+    [Authorize]
+    public async Task<IActionResult> ApplyStoreCredit(
+        int id,
+        [FromBody] ApplyStoreCreditRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await checkoutService.ApplyStoreCreditAsync(id, request, cancellationToken).ConfigureAwait(false);
+        return CheckoutActionResults.ToActionResult(this, result, value => value);
+    }
+
+    [HttpDelete("{id:int}/store-credit")]
+    [Authorize]
+    public async Task<IActionResult> RemoveStoreCredit(int id, CancellationToken cancellationToken)
+    {
+        var result = await checkoutService.RemoveStoreCreditAsync(id, cancellationToken).ConfigureAwait(false);
+        return CheckoutActionResults.ToActionResult(this, result, value => value);
+    }
+
+    [HttpPost("{id:int}/referral-code")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ApplyReferralCode(
+        int id,
+        [FromBody] ApplyReferralCodeRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await checkoutService.ApplyReferralCodeAsync(id, request, cancellationToken).ConfigureAwait(false);
+        return CheckoutActionResults.ToActionResult(this, result, value => value);
+    }
+
+    [HttpDelete("{id:int}/referral-code")]
+    [AllowAnonymous]
+    public async Task<IActionResult> RemoveReferralCode(int id, CancellationToken cancellationToken)
+    {
+        var result = await checkoutService.RemoveReferralCodeAsync(id, cancellationToken).ConfigureAwait(false);
+        return CheckoutActionResults.ToActionResult(this, result, value => value);
+    }
 }
 
 internal static class CheckoutActionResults

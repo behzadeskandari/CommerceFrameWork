@@ -1,0 +1,121 @@
+version=1
+
+# This file caches language service data to improve the performance of C# Dev Kit.
+# It is not intended for manual editing. It can safely be deleted and will be
+# regenerated automatically. For more information, see https://aka.ms/lscache
+#
+# To control where cache files are stored, use the following VS Code setting:
+#   "dotnet.projectsystem.cacheInProjectFolder": true
+
+[project]
+language=C#
+primary
+lastDtbSucceeded
+
+[properties]
+AssemblyName=Commerce.Promotions.Application
+CommandLineArgsForDesignTimeEvaluation=-langversion:latest -define:TRACE
+CompilerGeneratedFilesOutputPath=
+MaxSupportedLangVersion=
+ProjectAssetsFile=<PATH>obj/project.assets.json
+RootNamespace=Commerce.Promotions.Application
+RunAnalyzers=
+RunAnalyzersDuringLiveAnalysis=
+SolutionPath=<PATH>../../../../../Commerce.sln
+TargetFrameworkIdentifier=.NETCoreApp
+TargetPath=<PATH>bin/Debug/net10.0/Commerce.Promotions.Application.dll
+TargetRefPath=<PATH>obj/Debug/net10.0/ref/Commerce.Promotions.Application.dll
+TemporaryDependencyNodeTargetIdentifier=net10.0
+
+[commandLineArguments]
+/noconfig
+/unsafe-
+/checked-
+/nowarn:1701,1702,1701,1702
+/fullpaths
+/nostdlib+
+/errorreport:prompt
+/warn:1
+/define:TRACE;DEBUG;NET;NET10_0;NETCOREAPP;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP1_0_OR_GREATER;NETCOREAPP1_1_OR_GREATER;NETCOREAPP2_0_OR_GREATER;NETCOREAPP2_1_OR_GREATER;NETCOREAPP2_2_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER
+/highentropyva+
+/nullable:enable
+/debug+
+/debug:portable
+/filealign:512
+/optimize-
+/out:obj\Debug\net10.0\Commerce.Promotions.Application.dll
+/refout:obj\Debug\net10.0\refint\Commerce.Promotions.Application.dll
+/target:library
+/warnaserror-
+/utf8output
+/deterministic+
+/langversion:latest
+/warnaserror+:NU1605,SYSLIB0011
+
+[sourceFiles]
+Abstractions/PromotionsAbstractions.cs
+Admin/PromotionAdminService.cs
+DependencyInjection/ServiceCollectionExtensions.cs
+obj/Debug/net10.0/
+ .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+ Commerce.Promotions.Application.AssemblyInfo.cs
+ Commerce.Promotions.Application.GlobalUsings.g.cs
+Pricing/PromotionEvaluationService.cs
+Rules/
+ Actions/PromotionActionExecutors.cs
+ Conditions/PromotionConditionEvaluators.cs
+ PromotionParameterReader.cs
+ PromotionRuleEngine.cs
+Usage/PromotionUsageService.cs
+
+[metadataReferences]
+../../../Framework/
+ Commerce.Framework.Application/obj/Debug/net10.0/ref/Commerce.Framework.Application.dll
+ Commerce.Framework.Contracts/obj/Debug/net10.0/ref/Commerce.Framework.Contracts.dll
+ Commerce.Framework.Core/obj/Debug/net10.0/ref/Commerce.Framework.Core.dll
+ Commerce.Framework.Domain/obj/Debug/net10.0/ref/Commerce.Framework.Domain.dll
+../../Catalog/
+ Commerce.Catalog.Application/obj/Debug/net10.0/ref/Commerce.Catalog.Application.dll
+ Commerce.Catalog.Contracts/obj/Debug/net10.0/ref/Commerce.Catalog.Contracts.dll
+ Commerce.Catalog.Domain/obj/Debug/net10.0/ref/Commerce.Catalog.Domain.dll
+../../Checkout/
+ Commerce.Checkout.Contracts/obj/Debug/net10.0/ref/Commerce.Checkout.Contracts.dll
+ Commerce.Checkout.Domain/obj/Debug/net10.0/ref/Commerce.Checkout.Domain.dll
+../../Customers/
+ Commerce.Customers.Contracts/obj/Debug/net10.0/ref/Commerce.Customers.Contracts.dll
+ Commerce.Customers.Domain/obj/Debug/net10.0/ref/Commerce.Customers.Domain.dll
+../../Inventory/
+ Commerce.Inventory.Contracts/obj/Debug/net10.0/ref/Commerce.Inventory.Contracts.dll
+ Commerce.Inventory.Domain/obj/Debug/net10.0/ref/Commerce.Inventory.Domain.dll
+../../Media/
+ Commerce.Media.Contracts/obj/Debug/net10.0/ref/Commerce.Media.Contracts.dll
+ Commerce.Media.Domain/obj/Debug/net10.0/ref/Commerce.Media.Domain.dll
+../../Pricing/
+ Commerce.Pricing.Application/obj/Debug/net10.0/ref/Commerce.Pricing.Application.dll
+ Commerce.Pricing.Contracts/obj/Debug/net10.0/ref/Commerce.Pricing.Contracts.dll
+ Commerce.Pricing.Domain/obj/Debug/net10.0/ref/Commerce.Pricing.Domain.dll
+../
+ Commerce.Promotions.Contracts/obj/Debug/net10.0/ref/Commerce.Promotions.Contracts.dll
+ Commerce.Promotions.Domain/obj/Debug/net10.0/ref/Commerce.Promotions.Domain.dll
+<NUGET>/
+ microsoft.extensions.configuration.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.Configuration.Abstractions.dll
+ microsoft.extensions.configuration.binder/10.0.0/lib/net10.0/Microsoft.Extensions.Configuration.Binder.dll
+ microsoft.extensions.configuration/10.0.0/lib/net10.0/Microsoft.Extensions.Configuration.dll
+ microsoft.extensions.dependencyinjection.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
+ microsoft.extensions.diagnostics.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.Diagnostics.Abstractions.dll
+ microsoft.extensions.fileproviders.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.FileProviders.Abstractions.dll
+ microsoft.extensions.hosting.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.Hosting.Abstractions.dll
+ microsoft.extensions.logging.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.Logging.Abstractions.dll
+ microsoft.extensions.options/10.0.0/lib/net10.0/Microsoft.Extensions.Options.dll
+ microsoft.extensions.primitives/10.0.0/lib/net10.0/Microsoft.Extensions.Primitives.dll
+
+[analyzerReferences]
+<DOTNET>/sdk/8.0.302/Sdks/Microsoft.NET.Sdk/analyzers/
+ Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
+ Microsoft.CodeAnalysis.NetAnalyzers.dll
+<NUGET>/
+ microsoft.extensions.logging.abstractions/10.0.0/analyzers/dotnet/roslyn4.4/cs/Microsoft.Extensions.Logging.Generators.dll
+ microsoft.extensions.options/10.0.0/analyzers/dotnet/roslyn4.4/cs/Microsoft.Extensions.Options.SourceGeneration.dll
+
+[analyzerConfigFiles]
+obj/Debug/net10.0/Commerce.Promotions.Application.GeneratedMSBuildEditorConfig.editorconfig

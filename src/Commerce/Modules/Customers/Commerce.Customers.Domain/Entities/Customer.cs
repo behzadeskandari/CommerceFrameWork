@@ -29,6 +29,12 @@ public sealed class Customer : AggregateRoot
 
     public bool Deleted { get; private set; }
 
+    public bool IsTaxExempt { get; private set; }
+
+    public string? TaxRegistrationNumber { get; private set; }
+
+    public int? CustomerGroupId { get; private set; }
+
     public DateTime CreatedAtUtc { get; private set; }
 
     public DateTime UpdatedAtUtc { get; private set; }
@@ -75,6 +81,23 @@ public sealed class Customer : AggregateRoot
         UpdatedAtUtc = DateTime.UtcNow;
 
         RaiseDomainEvent(new CustomerUpdatedEvent(Id, Email));
+    }
+
+    public void UpdateTaxProfile(bool isTaxExempt, string? taxRegistrationNumber)
+    {
+        EnsureNotDeleted();
+        IsTaxExempt = isTaxExempt;
+        TaxRegistrationNumber = string.IsNullOrWhiteSpace(taxRegistrationNumber)
+            ? null
+            : taxRegistrationNumber.Trim();
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    public void AssignCustomerGroup(int? customerGroupId)
+    {
+        EnsureNotDeleted();
+        CustomerGroupId = customerGroupId is > 0 ? customerGroupId : null;
+        UpdatedAtUtc = DateTime.UtcNow;
     }
 
     public void Deactivate()

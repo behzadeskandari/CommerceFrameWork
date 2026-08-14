@@ -1,0 +1,11 @@
+{
+  "SystemName": "Commerce.Test",
+  "Name": "Commerce Test Plugin",
+  "Version": "1.0.0",
+  "Assembly": "Commerce.Plugin.Test.dll",
+  "MinimumCommerceVersion": "1.0.0",
+  "Author": "Commerce Framework",
+  "Description": "Test-only plugin for validating runtime plugin extensibility. Not for production.",
+  "IsSystemPlugin": false,
+  "IsRequired": false
+}

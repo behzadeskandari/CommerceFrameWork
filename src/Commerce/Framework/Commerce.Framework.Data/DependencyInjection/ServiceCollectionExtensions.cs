@@ -11,6 +11,7 @@ using Commerce.Framework.Data.Migrations;
 using Commerce.Framework.Data.Migrations.Core;
 using Commerce.Framework.Data.Seeding;
 using Commerce.Framework.Data.Tenancy;
+using Commerce.Framework.Infrastructure.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,6 +61,8 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IInstallationStateService, InstallationStateService>();
         services.AddScoped<IInstallationService, InstallationService>();
+        services.Configure<CommerceDeploymentOptions>(configuration.GetSection(CommerceDeploymentOptions.SectionName));
+        services.AddHostedService<Deployment.DeploymentStartupHostedService>();
 
         return services;
     }

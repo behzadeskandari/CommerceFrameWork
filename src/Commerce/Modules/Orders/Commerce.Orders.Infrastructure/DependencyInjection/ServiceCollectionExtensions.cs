@@ -1,5 +1,6 @@
 using Commerce.Orders.Application.Abstractions;
 using Commerce.Orders.Application.DependencyInjection;
+using Commerce.Orders.Contracts.Orders;
 using Commerce.Orders.Infrastructure.Migrations;
 using Commerce.Orders.Infrastructure.Persistence;
 using Commerce.Orders.Infrastructure.Persistence.Repositories;
@@ -18,8 +19,11 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<IModulePermissionContributor, OrdersPermissionContributor>();
         services.AddScoped<IOrderRepository, EfOrderRepository>();
+        services.AddScoped<IOrderPaymentSyncRepository>(sp => sp.GetRequiredService<EfOrderRepository>());
+        services.AddScoped<IOrderPurchaseVerifier, OrderPurchaseVerifier>();
         services.AddScoped<IOrderNumberSequenceRepository, EfOrderNumberSequenceRepository>();
         services.AddScoped<IOrderCreationIdempotencyRepository, EfOrderCreationIdempotencyRepository>();
+        services.AddScoped<IReturnCaseRepository, EfReturnCaseRepository>();
         services.AddScoped<IOrderCreationTransaction, OrderCreationTransaction>();
         services.AddOrdersApplication();
         return services;

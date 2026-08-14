@@ -12,7 +12,10 @@ public sealed record ResolvedPriceDto(
     decimal UnitPrice,
     decimal? CompareAtPrice,
     DateTime ResolvedAtUtc,
-    StorefrontAvailabilityDto? Availability = null);
+    StorefrontAvailabilityDto? Availability = null,
+    decimal? FinalUnitPrice = null,
+    decimal? DiscountAmount = null,
+    decimal? DiscountPercentage = null);
 
 public interface IPricingService
 {
@@ -30,4 +33,9 @@ public interface IPricingService
 public interface ICatalogPricingReader
 {
     Task<ResolvedPriceDto?> GetOfferPriceAsync(int offerId, CancellationToken cancellationToken = default);
+
+    Task<ResolvedPriceDto?> GetOfferPriceAsync(
+        int offerId,
+        int quantity,
+        CancellationToken cancellationToken = default);
 }

@@ -14,6 +14,17 @@ public sealed record OrderAddressDto(
     string PostalCode,
     string? PhoneNumber);
 
+public sealed record OrderTaxLineDto(
+    int Id,
+    string Name,
+    decimal? RatePercentage,
+    decimal TaxableAmount,
+    decimal TaxAmount,
+    string CurrencyCode,
+    bool IsShippingTax,
+    int? TaxCategoryId,
+    string? TaxCategoryName);
+
 public sealed record OrderItemDto(
     int Id,
     int OfferId,
@@ -87,6 +98,7 @@ public sealed record OrderDetailDto(
     string? SelectedPaymentMethodId,
     string? SelectedPaymentMethodSystemName,
     IReadOnlyList<OrderItemDto> Items,
+    IReadOnlyList<OrderTaxLineDto> TaxLines,
     IReadOnlyList<OrderStatusHistoryDto> StatusHistory,
     DateTime CreatedAtUtc,
     DateTime UpdatedAtUtc);
@@ -138,6 +150,20 @@ public interface IOrderService
     Task<Result<OrderDetailDto>> CancelAsync(
         int orderId,
         CancelOrderRequest request,
+        CancellationToken cancellationToken = default);
+}
+
+public interface IOrderFulfillmentSync
+{
+    Task<Result> SyncFulfillmentAsync(int orderId, CancellationToken cancellationToken = default);
+}
+
+public interface IOrderFulfillmentUpdater
+{
+    Task<Result> UpdateFulfillmentStatusAsync(
+        int orderId,
+        FulfillmentStatus status,
+        string reason,
         CancellationToken cancellationToken = default);
 }
 

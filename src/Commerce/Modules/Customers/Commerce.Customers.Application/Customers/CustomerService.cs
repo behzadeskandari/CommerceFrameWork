@@ -1,6 +1,7 @@
 using Commerce.Customers.Application.Abstractions;
 using Commerce.Customers.Contracts.Customers;
 using Commerce.Customers.Domain.Entities;
+using Commerce.Framework.Contracts.Audit;
 using Commerce.Framework.Core.Errors;
 using Commerce.Framework.Core.Results;
 
@@ -8,7 +9,9 @@ namespace Commerce.Customers.Application.Customers;
 
 public sealed class CustomerService(
     ICustomerRepository customerRepository,
-    ICustomerAddressRepository addressRepository) : ICustomerService
+    ICustomerAddressRepository addressRepository,
+    IEnumerable<ICustomerRegisteredHandler> registeredHandlers,
+    IAuditPublisher auditPublisher) : ICustomerService
 {
     public async Task<Result<CustomerDetailDto>> RegisterAsync(
         CreateCustomerRequest request,
@@ -42,6 +45,11 @@ public sealed class CustomerService(
                 request.PhoneNumber);
 
             await customerRepository.AddAsync(customer, cancellationToken).ConfigureAwait(false);
+            foreach (var handler in registeredHandlers)
+            {
+                await handler.HandleCustomerRegisteredAsync(customer.Id, customer.Email, cancellationToken).ConfigureAwait(false);
+            }
+
             return Result.Success(await MapDetailAsync(customer, cancellationToken).ConfigureAwait(false));
         }
         catch (ArgumentException ex)
@@ -67,6 +75,7 @@ public sealed class CustomerService(
         {
             customer.UpdateProfile(request.FirstName, request.LastName, request.PhoneNumber);
             await customerRepository.UpdateAsync(customer, cancellationToken).ConfigureAwait(false);
+            await PublishCustomerChangedAuditAsync(customer, cancellationToken).ConfigureAwait(false);
             return Result.Success(await MapDetailAsync(customer, cancellationToken).ConfigureAwait(false));
         }
         catch (ArgumentException ex)
@@ -89,8 +98,25 @@ public sealed class CustomerService(
 
         customer.Deactivate();
         await customerRepository.UpdateAsync(customer, cancellationToken).ConfigureAwait(false);
+        await PublishCustomerChangedAuditAsync(customer, cancellationToken, deactivated: true).ConfigureAwait(false);
         return Result.Success();
     }
+
+    private Task PublishCustomerChangedAuditAsync(
+        Customer customer,
+        CancellationToken cancellationToken,
+        bool deactivated = false) =>
+        auditPublisher.PublishAsync(new AuditPublishRequest(
+            AuditCategory.Customer,
+            AuditActions.CustomerUpdated,
+            Success: true,
+            EntityType: nameof(Customer),
+            EntityId: customer.Id.ToString(),
+            Details: new Dictionary<string, string?>
+            {
+                ["email"] = customer.Email,
+                ["deactivated"] = deactivated.ToString()
+            }), cancellationToken);
 
     public async Task<Result<CustomerDetailDto>> GetByIdAsync(int customerId, CancellationToken cancellationToken = default)
     {
@@ -138,6 +164,9 @@ public sealed class CustomerService(
             customer.PhoneNumber,
             customer.Active,
             customer.Deleted,
+            customer.IsTaxExempt,
+            customer.TaxRegistrationNumber,
+            customer.CustomerGroupId,
             customer.CreatedAtUtc,
             customer.UpdatedAtUtc,
             addresses.Select(MapAddress).ToList());

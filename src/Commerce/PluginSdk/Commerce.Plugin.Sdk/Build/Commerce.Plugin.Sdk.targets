@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <CommercePluginHostDir Condition="'$(CommercePluginHostDir)' == ''">$(MSBuildThisFileDirectory)..\..\..\Host\Commerce.Host\Plugins\$(CommercePluginSystemName)\</CommercePluginHostDir>
+  </PropertyGroup>
+
+  <Target Name="ValidateCommercePluginProperties" BeforeTargets="CopyCommercePluginOutput">
+    <Error Condition="'$(CommercePluginSystemName)' == ''" Text="CommercePluginSystemName must be set in the plugin project file." />
+  </Target>
+
+  <Target Name="CopyCommercePluginOutput" AfterTargets="Build">
+    <MakeDir Directories="$(CommercePluginHostDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(CommercePluginHostDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Plugin.json" DestinationFolder="$(CommercePluginHostDir)" SkipUnchangedFiles="true" Condition="Exists('$(MSBuildProjectDirectory)\Plugin.json')" />
+    <ItemGroup>
+      <CommercePluginLocalization Include="$(MSBuildProjectDirectory)\Localization\**\*.json" />
+      <CommercePluginDependencies Include="$(MSBuildProjectDirectory)\dependencies\**\*.*" />
+      <CommercePluginAssets Include="$(MSBuildProjectDirectory)\assets\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(CommercePluginLocalization)" DestinationFolder="$(CommercePluginHostDir)\Localization\%(RecursiveDir)" SkipUnchangedFiles="true" Condition="'@(CommercePluginLocalization)' != ''" />
+    <Copy SourceFiles="@(CommercePluginDependencies)" DestinationFolder="$(CommercePluginHostDir)\dependencies\%(RecursiveDir)" SkipUnchangedFiles="true" Condition="'@(CommercePluginDependencies)' != ''" />
+    <Copy SourceFiles="@(CommercePluginAssets)" DestinationFolder="$(CommercePluginHostDir)\assets\%(RecursiveDir)" SkipUnchangedFiles="true" Condition="'@(CommercePluginAssets)' != ''" />
+  </Target>
+</Project>

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Plugin.Contracts</RootNamespace>
+    <AssemblyName>Commerce.Plugin.Contracts</AssemblyName>
+    <Description>Developer-facing plugin contracts and package layout rules.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Framework\PluginContracts\Commerce.Framework.PluginContracts\Commerce.Framework.PluginContracts.csproj" />
+  </ItemGroup>
+</Project>

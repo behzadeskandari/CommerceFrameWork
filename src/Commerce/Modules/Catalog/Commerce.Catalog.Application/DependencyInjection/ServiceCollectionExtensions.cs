@@ -27,6 +27,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAttributeService, AttributeService>();
         services.AddScoped<IVariantService, VariantService>();
         services.AddScoped<IOfferService, OfferService>();
+        services.AddScoped<OfferTierPriceService>();
+        services.AddScoped<IOfferTierPriceReader>(sp => sp.GetRequiredService<OfferTierPriceService>());
+        services.AddScoped<IOfferTierPriceAdminService>(sp => sp.GetRequiredService<OfferTierPriceService>());
         services.AddScoped<PricingService>();
         services.AddScoped<IStorefrontCatalogService, StorefrontCatalogService>();
         services.AddScoped<IProductMediaService, ProductMediaService>();

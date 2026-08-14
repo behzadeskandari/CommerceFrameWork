@@ -15,6 +15,8 @@ internal sealed class CatalogProductConfiguration : IEntityTypeConfiguration<Pro
         builder.Property(x => x.Sku).HasMaxLength(64).IsRequired();
         builder.Property(x => x.Slug).HasMaxLength(200);
         builder.Property(x => x.ProductType).IsRequired();
+        builder.Property(x => x.WeightGrams).HasPrecision(18, 4).HasDefaultValue(0m);
+        builder.Property(x => x.TaxCategoryId);
         builder.Property(x => x.CreatedAtUtc).IsRequired();
         builder.Property(x => x.UpdatedAtUtc).IsRequired();
         builder.HasIndex(x => x.Sku).IsUnique();
@@ -23,6 +25,7 @@ internal sealed class CatalogProductConfiguration : IEntityTypeConfiguration<Pro
         builder.HasIndex(x => x.IsVisible);
         builder.HasIndex(x => x.IsAvailable);
         builder.HasIndex(x => x.Slug).IsUnique().HasFilter("[Slug] IS NOT NULL");
+        builder.HasIndex(x => new { x.Published, x.IsVisible, x.IsAvailable, x.Deleted });
     }
 }
 
@@ -202,6 +205,24 @@ internal sealed class CatalogProductOfferConfiguration : IEntityTypeConfiguratio
         builder.HasOne<ProductVariant>()
             .WithMany()
             .HasForeignKey(x => x.VariantId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
+internal sealed class CatalogOfferTierPriceConfiguration : IEntityTypeConfiguration<OfferTierPrice>
+{
+    public void Configure(EntityTypeBuilder<OfferTierPrice> builder)
+    {
+        builder.ToTable("CatalogOfferTierPrice");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Price).HasPrecision(18, 4);
+        builder.Property(x => x.CreatedAtUtc).IsRequired();
+        builder.Property(x => x.UpdatedAtUtc).IsRequired();
+        builder.HasIndex(x => x.OfferId);
+        builder.HasIndex(x => new { x.OfferId, x.MinQuantity }).IsUnique();
+        builder.HasOne<ProductOffer>()
+            .WithMany()
+            .HasForeignKey(x => x.OfferId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

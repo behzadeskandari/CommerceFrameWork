@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Themes.Contracts</RootNamespace>
+    <AssemblyName>Commerce.Themes.Contracts</AssemblyName>
+    <Description>Theme contracts and DTOs.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Themes\Commerce.Framework.Themes\Commerce.Framework.Themes.csproj" />
+  </ItemGroup>
+</Project>

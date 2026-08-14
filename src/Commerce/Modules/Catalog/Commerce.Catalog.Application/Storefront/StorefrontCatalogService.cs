@@ -126,15 +126,21 @@ public sealed class StorefrontCatalogService(
             variantMediaMap[variantId] = await productMediaService.GetForVariantAsync(variantId, cancellationToken).ConfigureAwait(false);
         }
 
+        var optionIds = variants
+            .SelectMany(v => v.Attributes)
+            .Select(a => a.AttributeOptionId)
+            .Distinct()
+            .ToList();
+        var optionLookup = (await attributeRepository.GetOptionsByIdsAsync(optionIds, cancellationToken).ConfigureAwait(false))
+            .ToDictionary(x => x.Id);
+
         var storefrontVariants = new List<StorefrontVariantDto>();
         foreach (var variant in variants)
         {
             var options = new List<StorefrontAttributeOptionDto>();
             foreach (var attribute in variant.Attributes)
             {
-                var option = await attributeRepository.GetOptionByIdAsync(attribute.AttributeOptionId, cancellationToken)
-                    .ConfigureAwait(false);
-                if (option is not null)
+                if (optionLookup.TryGetValue(attribute.AttributeOptionId, out var option))
                 {
                     options.Add(new StorefrontAttributeOptionDto(option.Id, option.Value));
                 }

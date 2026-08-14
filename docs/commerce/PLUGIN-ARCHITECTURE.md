@@ -35,6 +35,31 @@
 | Migrations | Plugin-owned `ICommerceMigration` implementations |
 | Isolation | Own namespace, services, tables, permissions, localization |
 
+### Commerce plugin model (Phase 18–19 — IMPLEMENTED)
+
+See [PHASE-18-REPORT.md](./PHASE-18-REPORT.md) and [PHASE-19-REPORT.md](./PHASE-19-REPORT.md).
+
+Key implemented components:
+- `Commerce.Framework.PluginContracts` — contracts
+- `Commerce.Framework.Plugins` — engine
+- `Plugins/Payment.Manual/` — reference payment plugin
+- `Plugins/Commerce.Test/` — test-only validation plugin
+- Admin API `/api/admin/plugins/*` + Angular `/plugins`
+- MVC routes `/api/plugins/{systemName}/*` from enabled plugin assemblies
+- Plugin settings via `ISettingService`, permissions via dynamic contributor
+- Plugin migrations on install, localization from `Localization/*.json`
+- Multi-store configuration via `CommercePluginStoreConfiguration`
+- **Security:** plugins are trusted code; not sandboxed
+- **Angular:** server-driven UI metadata only — no runtime JS from ZIP packages
+
+### Plugin routing (Phase 19)
+
+```
+/api/plugins/{systemName}/{route}
+```
+
+Plugin controllers are registered through `ApplicationPartManager` only for assemblies in `PluginAssemblyRegistry` (validated, enabled plugins at startup).
+
 ---
 
 ## 2. Plugin Types

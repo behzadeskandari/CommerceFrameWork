@@ -30,6 +30,10 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.ShippingTotal).HasPrecision(18, 4);
         builder.Property(x => x.TaxTotal).HasPrecision(18, 4);
         builder.Property(x => x.GrandTotal).HasPrecision(18, 4);
+        builder.Property(x => x.StoreCreditApplied).HasPrecision(18, 4);
+        builder.Property(x => x.GiftCardApplied).HasPrecision(18, 4);
+        builder.Property(x => x.AppliedGiftCardCode).HasMaxLength(64);
+        builder.Property(x => x.ReferralCode).HasMaxLength(64);
         builder.Property(x => x.CreatedAtUtc).IsRequired();
         builder.Property(x => x.UpdatedAtUtc).IsRequired();
         builder.Property(x => x.RowVersion).IsRowVersion();
@@ -58,6 +62,12 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasForeignKey(x => x.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
         builder.Navigation(x => x.StatusHistory).UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasMany(x => x.TaxLines)
+            .WithOne()
+            .HasForeignKey(x => x.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(x => x.TaxLines).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 
     private static void ConfigureAddress(OwnedNavigationBuilder<Order, OrderAddressSnapshot> address, string prefix)
@@ -91,6 +101,8 @@ internal sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderIte
         builder.Property(x => x.LineTotal).HasPrecision(18, 4);
         builder.Property(x => x.PrimaryImageUrl).HasMaxLength(2000);
         builder.Property(x => x.PrimaryImageThumbnailUrl).HasMaxLength(2000);
+        builder.Property(x => x.CancelledQuantity).HasDefaultValue(0);
+        builder.Property(x => x.ReturnedQuantity).HasDefaultValue(0);
 
         builder.HasIndex(x => x.OrderId);
         builder.HasIndex(x => x.OfferId);
@@ -123,6 +135,22 @@ internal sealed class OrderCreationIdempotencyConfiguration : IEntityTypeConfigu
         builder.Property(x => x.CreatedAtUtc).IsRequired();
         builder.HasIndex(x => new { x.StoreId, x.IdempotencyKey }).IsUnique();
         builder.HasIndex(x => x.CheckoutId);
+        builder.HasIndex(x => x.OrderId);
+    }
+}
+
+internal sealed class OrderTaxLineConfiguration : IEntityTypeConfiguration<OrderTaxLine>
+{
+    public void Configure(EntityTypeBuilder<OrderTaxLine> builder)
+    {
+        builder.ToTable("OrderTaxLine");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Name).HasMaxLength(256).IsRequired();
+        builder.Property(x => x.CurrencyCode).HasMaxLength(8).IsRequired();
+        builder.Property(x => x.TaxCategoryName).HasMaxLength(200);
+        builder.Property(x => x.RatePercentage).HasPrecision(18, 4);
+        builder.Property(x => x.TaxableAmount).HasPrecision(18, 4);
+        builder.Property(x => x.TaxAmount).HasPrecision(18, 4);
         builder.HasIndex(x => x.OrderId);
     }
 }

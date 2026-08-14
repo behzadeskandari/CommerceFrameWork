@@ -20,6 +20,37 @@ public sealed class EfInventoryRepository(CommerceDbContext dbContext) : IInvent
             .Include(x => x.Reservations)
             .FirstOrDefaultAsync(x => x.StoreId == storeId && x.OfferId == offerId, cancellationToken);
 
+    public Task<InventoryItem?> GetByStoreOfferAndWarehouseAsync(
+        int storeId,
+        int offerId,
+        int? warehouseId,
+        CancellationToken cancellationToken = default) =>
+        dbContext.Set<InventoryItem>()
+            .AsNoTracking()
+            .Include(x => x.Reservations)
+            .FirstOrDefaultAsync(x => x.StoreId == storeId && x.OfferId == offerId && x.WarehouseId == warehouseId, cancellationToken);
+
+    public Task<IReadOnlyList<InventoryItem>> ListByStoreAndOfferAsync(
+        int storeId,
+        int offerId,
+        CancellationToken cancellationToken = default) =>
+        dbContext.Set<InventoryItem>()
+            .AsNoTracking()
+            .Include(x => x.Reservations)
+            .Where(x => x.StoreId == storeId && x.OfferId == offerId)
+            .ToListAsync(cancellationToken)
+            .ContinueWith(t => (IReadOnlyList<InventoryItem>)t.Result, cancellationToken);
+
+    public Task<IReadOnlyList<InventoryItem>> ListByStoreAndOfferForUpdateAsync(
+        int storeId,
+        int offerId,
+        CancellationToken cancellationToken = default) =>
+        dbContext.Set<InventoryItem>()
+            .Include(x => x.Reservations)
+            .Where(x => x.StoreId == storeId && x.OfferId == offerId)
+            .ToListAsync(cancellationToken)
+            .ContinueWith(t => (IReadOnlyList<InventoryItem>)t.Result, cancellationToken);
+
     public Task<InventoryItem?> GetByStoreAndOfferForUpdateAsync(int storeId, int offerId, CancellationToken cancellationToken = default) =>
         dbContext.Set<InventoryItem>()
             .Include(x => x.Reservations)
@@ -56,6 +87,11 @@ public sealed class EfInventoryRepository(CommerceDbContext dbContext) : IInvent
         if (criteria.ProductId.HasValue)
         {
             query = query.Where(x => x.ProductId == criteria.ProductId.Value);
+        }
+
+        if (criteria.WarehouseId.HasValue)
+        {
+            query = query.Where(x => x.WarehouseId == criteria.WarehouseId.Value);
         }
 
         var items = await query
@@ -108,4 +144,74 @@ public sealed class EfInventoryRepository(CommerceDbContext dbContext) : IInvent
     public Task<InventoryReservation?> GetReservationByIdAsync(int reservationId, CancellationToken cancellationToken = default) =>
         dbContext.Set<InventoryReservation>()
             .FirstOrDefaultAsync(x => x.Id == reservationId, cancellationToken);
+
+    public Task<Warehouse?> GetWarehouseByIdAsync(int id, CancellationToken cancellationToken = default) =>
+        dbContext.Set<Warehouse>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+    public Task<Warehouse?> GetDefaultWarehouseAsync(int storeId, CancellationToken cancellationToken = default) =>
+        dbContext.Set<Warehouse>()
+            .Where(x => x.StoreId == storeId && x.IsDefault && x.IsActive)
+            .OrderBy(x => x.DisplayOrder)
+            .FirstOrDefaultAsync(cancellationToken);
+
+    public Task<IReadOnlyList<Warehouse>> ListWarehousesAsync(int storeId, CancellationToken cancellationToken = default) =>
+        dbContext.Set<Warehouse>()
+            .Where(x => x.StoreId == storeId)
+            .OrderBy(x => x.DisplayOrder)
+            .ThenBy(x => x.Name)
+            .ToListAsync(cancellationToken)
+            .ContinueWith(t => (IReadOnlyList<Warehouse>)t.Result, cancellationToken);
+
+    public async Task AddWarehouseAsync(Warehouse warehouse, CancellationToken cancellationToken = default)
+    {
+        dbContext.Set<Warehouse>().Add(warehouse);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task SaveWarehouseAsync(Warehouse warehouse, CancellationToken cancellationToken = default)
+    {
+        dbContext.Set<Warehouse>().Update(warehouse);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public Task<StockLocation?> GetStockLocationByIdAsync(int id, CancellationToken cancellationToken = default) =>
+        dbContext.Set<StockLocation>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+    public Task<IReadOnlyList<StockLocation>> ListStockLocationsAsync(int warehouseId, CancellationToken cancellationToken = default) =>
+        dbContext.Set<StockLocation>()
+            .Where(x => x.WarehouseId == warehouseId)
+            .OrderByDescending(x => x.IsDefault)
+            .ThenBy(x => x.Code)
+            .ToListAsync(cancellationToken)
+            .ContinueWith(t => (IReadOnlyList<StockLocation>)t.Result, cancellationToken);
+
+    public async Task AddStockLocationAsync(StockLocation location, CancellationToken cancellationToken = default)
+    {
+        dbContext.Set<StockLocation>().Add(location);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task SaveStockLocationAsync(StockLocation location, CancellationToken cancellationToken = default)
+    {
+        dbContext.Set<StockLocation>().Update(location);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task ClearDefaultWarehouseAsync(int storeId, int exceptWarehouseId, CancellationToken cancellationToken = default)
+    {
+        var warehouses = await dbContext.Set<Warehouse>()
+            .Where(x => x.StoreId == storeId && x.IsDefault && x.Id != exceptWarehouseId)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        foreach (var warehouse in warehouses)
+        {
+            warehouse.SetDefault(false);
+        }
+
+        if (warehouses.Count > 0)
+        {
+            await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+    }
 }

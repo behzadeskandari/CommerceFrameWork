@@ -1,6 +1,7 @@
 using Commerce.Customers.Application.Authentication;
 using Commerce.Customers.Application.Abstractions;
 using Commerce.Customers.Application.Customers;
+using Commerce.Framework.Contracts.Audit;
 using Commerce.Framework.Contracts.Security;
 using Commerce.Framework.Core.Errors;
 using Commerce.Framework.Core.Results;
@@ -13,7 +14,8 @@ public sealed class AuthenticationService(
     UserManager<CommerceIdentityUser> userManager,
     SignInManager<CommerceIdentityUser> signInManager,
     ICustomerService customerService,
-    ICustomerRepository customerRepository) : IAuthenticationService
+    ICustomerRepository customerRepository,
+    IAuditPublisher auditPublisher) : IAuthenticationService
 {
     public async Task<Result<AuthenticationResult>> RegisterAsync(
         RegisterCustomerRequest request,
@@ -87,6 +89,13 @@ public sealed class AuthenticationService(
         var user = await userManager.FindByEmailAsync(request.Email).ConfigureAwait(false);
         if (user is null)
         {
+            await auditPublisher.PublishAsync(new AuditPublishRequest(
+                AuditCategory.Security,
+                AuditActions.LoginFailed,
+                Success: false,
+                EntityType: "IdentityUser",
+                ActorDisplay: request.Email,
+                Details: new Dictionary<string, string?> { ["reason"] = "user_not_found" }), cancellationToken).ConfigureAwait(false);
             return Result.Failure<AuthenticationResult>(Error.Validation("Invalid email or password."));
         }
 
@@ -97,10 +106,29 @@ public sealed class AuthenticationService(
 
         if (!signInResult.Succeeded)
         {
+            await auditPublisher.PublishAsync(new AuditPublishRequest(
+                AuditCategory.Security,
+                AuditActions.LoginFailed,
+                Success: false,
+                EntityType: "IdentityUser",
+                EntityId: user.Id,
+                ActorDisplay: request.Email,
+                Details: new Dictionary<string, string?> { ["reason"] = signInResult.IsLockedOut ? "locked_out" : "invalid_password" }), cancellationToken).ConfigureAwait(false);
             return Result.Failure<AuthenticationResult>(Error.Validation("Invalid email or password."));
         }
 
         await signInManager.SignInAsync(user, request.RememberMe).ConfigureAwait(false);
+
+        var isAdmin = await userManager.IsInRoleAsync(user, CommerceRoles.Administrator).ConfigureAwait(false);
+        await auditPublisher.PublishAsync(new AuditPublishRequest(
+            AuditCategory.Security,
+            AuditActions.LoginSucceeded,
+            Success: true,
+            EntityType: "IdentityUser",
+            EntityId: user.Id,
+            ActorType: isAdmin ? AuditActorType.Administrator : AuditActorType.Customer,
+            ActorId: user.Id,
+            ActorDisplay: user.Email), cancellationToken).ConfigureAwait(false);
 
         var customer = await customerRepository.GetByIdentityUserIdAsync(user.Id, cancellationToken)
             .ConfigureAwait(false);
@@ -122,6 +150,11 @@ public sealed class AuthenticationService(
     public async Task<Result> LogoutAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        await auditPublisher.PublishAsync(new AuditPublishRequest(
+            AuditCategory.Security,
+            AuditActions.Logout,
+            Success: true,
+            EntityType: "IdentityUser"), cancellationToken).ConfigureAwait(false);
         await signInManager.SignOutAsync().ConfigureAwait(false);
         return Result.Success();
     }

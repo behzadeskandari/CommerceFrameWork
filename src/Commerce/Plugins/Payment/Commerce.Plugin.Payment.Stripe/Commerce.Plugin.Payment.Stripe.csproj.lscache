@@ -1,0 +1,98 @@
+version=1
+
+# This file caches language service data to improve the performance of C# Dev Kit.
+# It is not intended for manual editing. It can safely be deleted and will be
+# regenerated automatically. For more information, see https://aka.ms/lscache
+#
+# To control where cache files are stored, use the following VS Code setting:
+#   "dotnet.projectsystem.cacheInProjectFolder": true
+
+[project]
+language=C#
+primary
+lastDtbSucceeded
+
+[properties]
+AssemblyName=Commerce.Plugin.Payment.Stripe
+CommandLineArgsForDesignTimeEvaluation=-langversion:latest -define:TRACE
+CompilerGeneratedFilesOutputPath=
+MaxSupportedLangVersion=
+ProjectAssetsFile=<PATH>obj/project.assets.json
+RootNamespace=Commerce.Plugin.Payment.Stripe
+RunAnalyzers=
+RunAnalyzersDuringLiveAnalysis=
+SolutionPath=<PATH>../../../../../Commerce.sln
+TargetFrameworkIdentifier=.NETCoreApp
+TargetPath=<PATH>bin/Debug/net10.0/Commerce.Plugin.Payment.Stripe.dll
+TargetRefPath=<PATH>obj/Debug/net10.0/ref/Commerce.Plugin.Payment.Stripe.dll
+TemporaryDependencyNodeTargetIdentifier=net10.0
+
+[commandLineArguments]
+/noconfig
+/unsafe-
+/checked-
+/nowarn:1701,1702,1701,1702
+/fullpaths
+/nostdlib+
+/errorreport:prompt
+/warn:1
+/define:TRACE;DEBUG;NET;NET10_0;NETCOREAPP;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP1_0_OR_GREATER;NETCOREAPP1_1_OR_GREATER;NETCOREAPP2_0_OR_GREATER;NETCOREAPP2_1_OR_GREATER;NETCOREAPP2_2_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER
+/highentropyva+
+/nullable:enable
+/debug+
+/debug:portable
+/filealign:512
+/optimize-
+/out:obj\Debug\net10.0\Commerce.Plugin.Payment.Stripe.dll
+/refout:obj\Debug\net10.0\refint\Commerce.Plugin.Payment.Stripe.dll
+/target:library
+/warnaserror-
+/utf8output
+/deterministic+
+/langversion:latest
+/warnaserror+:NU1605,SYSLIB0011
+
+[sourceFiles]
+obj/Debug/net10.0/
+ .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+ Commerce.Plugin.Payment.Stripe.AssemblyInfo.cs
+ Commerce.Plugin.Payment.Stripe.GlobalUsings.g.cs
+StripeApiClient.cs
+StripePaymentPlugin.cs
+StripePaymentProvider.cs
+StripeSettingDefinitionProvider.cs
+StripeSettings.cs
+
+[metadataReferences]
+../../../Framework/
+ Commerce.Framework.Core/obj/Debug/net10.0/ref/Commerce.Framework.Core.dll
+ Commerce.Framework.Domain/obj/Debug/net10.0/ref/Commerce.Framework.Domain.dll
+ PluginContracts/Commerce.Framework.PluginContracts/obj/Debug/net10.0/ref/Commerce.Framework.PluginContracts.dll
+../../../Modules/Payments/
+ Commerce.Payments.Contracts/obj/Debug/net10.0/ref/Commerce.Payments.Contracts.dll
+ Commerce.Payments.Domain/obj/Debug/net10.0/ref/Commerce.Payments.Domain.dll
+<NUGET>/
+ microsoft.extensions.configuration.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.Configuration.Abstractions.dll
+ microsoft.extensions.configuration.binder/10.0.0/lib/net10.0/Microsoft.Extensions.Configuration.Binder.dll
+ microsoft.extensions.configuration/10.0.0/lib/net10.0/Microsoft.Extensions.Configuration.dll
+ microsoft.extensions.dependencyinjection.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
+ microsoft.extensions.dependencyinjection/10.0.0/lib/net10.0/Microsoft.Extensions.DependencyInjection.dll
+ microsoft.extensions.diagnostics.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.Diagnostics.Abstractions.dll
+ microsoft.extensions.diagnostics/10.0.0/lib/net10.0/Microsoft.Extensions.Diagnostics.dll
+ microsoft.extensions.http/10.0.0/lib/net10.0/Microsoft.Extensions.Http.dll
+ microsoft.extensions.logging.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.Logging.Abstractions.dll
+ microsoft.extensions.logging/10.0.0/lib/net10.0/Microsoft.Extensions.Logging.dll
+ microsoft.extensions.options.configurationextensions/10.0.0/lib/net10.0/Microsoft.Extensions.Options.ConfigurationExtensions.dll
+ microsoft.extensions.options/10.0.0/lib/net10.0/Microsoft.Extensions.Options.dll
+ microsoft.extensions.primitives/10.0.0/lib/net10.0/Microsoft.Extensions.Primitives.dll
+
+[analyzerReferences]
+<DOTNET>/sdk/8.0.302/Sdks/Microsoft.NET.Sdk/analyzers/
+ Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
+ Microsoft.CodeAnalysis.NetAnalyzers.dll
+<NUGET>/
+ microsoft.extensions.logging.abstractions/10.0.0/analyzers/dotnet/roslyn4.4/cs/Microsoft.Extensions.Logging.Generators.dll
+ microsoft.extensions.options/10.0.0/analyzers/dotnet/roslyn4.4/cs/Microsoft.Extensions.Options.SourceGeneration.dll
+
+[analyzerConfigFiles]
+obj/Debug/net10.0/Commerce.Plugin.Payment.Stripe.GeneratedMSBuildEditorConfig.editorconfig

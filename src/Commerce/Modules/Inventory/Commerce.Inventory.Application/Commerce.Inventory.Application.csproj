@@ -10,6 +10,8 @@
     <ProjectReference Include="..\Commerce.Inventory.Contracts\Commerce.Inventory.Contracts.csproj" />
     <ProjectReference Include="..\Commerce.Inventory.Domain\Commerce.Inventory.Domain.csproj" />
     <ProjectReference Include="..\..\Catalog\Commerce.Catalog.Contracts\Commerce.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\Orders\Commerce.Orders.Contracts\Commerce.Orders.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Scheduling\Commerce.Framework.Scheduling\Commerce.Framework.Scheduling.csproj" />
     <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
     <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
   </ItemGroup>

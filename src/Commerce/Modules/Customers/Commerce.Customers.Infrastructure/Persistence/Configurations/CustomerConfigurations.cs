@@ -16,6 +16,9 @@ internal sealed class CustomerCustomerConfiguration : IEntityTypeConfiguration<C
         builder.Property(x => x.FirstName).HasMaxLength(Customer.NameMaxLength).IsRequired();
         builder.Property(x => x.LastName).HasMaxLength(Customer.NameMaxLength).IsRequired();
         builder.Property(x => x.PhoneNumber).HasMaxLength(Customer.PhoneMaxLength);
+        builder.Property(x => x.TaxRegistrationNumber).HasMaxLength(100);
+        builder.Property(x => x.IsTaxExempt).HasDefaultValue(false);
+        builder.Property(x => x.CustomerGroupId);
         builder.Property(x => x.CreatedAtUtc).IsRequired();
         builder.Property(x => x.UpdatedAtUtc).IsRequired();
         builder.HasIndex(x => x.IdentityUserId).IsUnique();

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Modules.SmartstoreImport</RootNamespace>
+    <AssemblyName>Commerce.Modules.SmartstoreImport</AssemblyName>
+    <Description>Smartstore import module.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.SmartstoreImport.Infrastructure\Commerce.SmartstoreImport.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+  </ItemGroup>
+</Project>

@@ -11,6 +11,7 @@
     <ProjectReference Include="..\Commerce.Cart.Domain\Commerce.Cart.Domain.csproj" />
     <ProjectReference Include="..\..\Catalog\Commerce.Catalog.Contracts\Commerce.Catalog.Contracts.csproj" />
     <ProjectReference Include="..\..\Inventory\Commerce.Inventory.Contracts\Commerce.Inventory.Contracts.csproj" />
+    <ProjectReference Include="..\..\Pricing\Commerce.Pricing.Contracts\Commerce.Pricing.Contracts.csproj" />
     <ProjectReference Include="..\..\Customers\Commerce.Customers.Contracts\Commerce.Customers.Contracts.csproj" />
     <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
     <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Application\Commerce.Framework.Application.csproj" />

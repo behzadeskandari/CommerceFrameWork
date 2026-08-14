@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Themes.Domain</RootNamespace>
+    <AssemblyName>Commerce.Themes.Domain</AssemblyName>
+    <Description>Theme store assignment domain.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+  </ItemGroup>
+</Project>

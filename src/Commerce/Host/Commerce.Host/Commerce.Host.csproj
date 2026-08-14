@@ -13,16 +13,48 @@
     <ProjectReference Include="..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
     <ProjectReference Include="..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
     <ProjectReference Include="..\..\Framework\Commerce.Framework.Infrastructure\Commerce.Framework.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Framework\Plugins\Commerce.Framework.Plugins\Commerce.Framework.Plugins.csproj" />
     <ProjectReference Include="..\..\Modules\Commerce.Modules.Core\Commerce.Modules.Core.csproj" />
     <ProjectReference Include="..\..\Modules\Catalog\Commerce.Modules.Catalog\Commerce.Modules.Catalog.csproj" />
     <ProjectReference Include="..\..\Modules\Media\Commerce.Modules.Media\Commerce.Modules.Media.csproj" />
     <ProjectReference Include="..\..\Modules\Cart\Commerce.Modules.Cart\Commerce.Modules.Cart.csproj" />
     <ProjectReference Include="..\..\Modules\Checkout\Commerce.Modules.Checkout\Commerce.Modules.Checkout.csproj" />
     <ProjectReference Include="..\..\Modules\Inventory\Commerce.Modules.Inventory\Commerce.Modules.Inventory.csproj" />
+    <ProjectReference Include="..\..\Modules\Pricing\Commerce.Modules.Pricing\Commerce.Modules.Pricing.csproj" />
+    <ProjectReference Include="..\..\Modules\Shipping\Commerce.Modules.Shipping\Commerce.Modules.Shipping.csproj" />
+    <ProjectReference Include="..\..\Modules\Tax\Commerce.Modules.Tax\Commerce.Modules.Tax.csproj" />
+    <ProjectReference Include="..\..\Modules\Payments\Commerce.Modules.Payments\Commerce.Modules.Payments.csproj" />
     <ProjectReference Include="..\..\Modules\Orders\Commerce.Modules.Orders\Commerce.Modules.Orders.csproj" />
+    <ProjectReference Include="..\..\Modules\Downloads\Commerce.Modules.Downloads\Commerce.Modules.Downloads.csproj" />
+    <ProjectReference Include="..\..\Modules\Cms\Commerce.Modules.Cms\Commerce.Modules.Cms.csproj" />
+    <ProjectReference Include="..\..\Modules\Themes\Commerce.Modules.Themes\Commerce.Modules.Themes.csproj" />
+    <ProjectReference Include="..\..\Modules\Search\Commerce.Modules.Search\Commerce.Modules.Search.csproj" />
+    <ProjectReference Include="..\..\Modules\Reviews\Commerce.Modules.Reviews\Commerce.Modules.Reviews.csproj" />
+    <ProjectReference Include="..\..\Modules\Promotions\Commerce.Modules.Promotions\Commerce.Modules.Promotions.csproj" />
+    <ProjectReference Include="..\..\Modules\Seo\Commerce.Modules.Seo\Commerce.Modules.Seo.csproj" />
+    <ProjectReference Include="..\..\Modules\Notifications\Commerce.Modules.Notifications\Commerce.Modules.Notifications.csproj" />
+    <ProjectReference Include="..\..\Modules\Scheduling\Commerce.Modules.Scheduling\Commerce.Modules.Scheduling.csproj" />
     <ProjectReference Include="..\..\Modules\Customers\Commerce.Modules.Customers\Commerce.Modules.Customers.csproj" />
     <ProjectReference Include="..\..\Modules\Store\Commerce.Modules.Store\Commerce.Modules.Store.csproj" />
     <ProjectReference Include="..\..\Modules\Store\Commerce.Store.Infrastructure\Commerce.Store.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Integration\Commerce.Modules.Integration\Commerce.Modules.Integration.csproj" />
+    <ProjectReference Include="..\..\Modules\Integration\Commerce.Integration.Contracts\Commerce.Integration.Contracts.csproj" />
+    <ProjectReference Include="..\..\Modules\Integration\Commerce.Integration.Infrastructure\Commerce.Integration.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Analytics\Commerce.Modules.Analytics\Commerce.Modules.Analytics.csproj" />
+    <ProjectReference Include="..\..\Modules\Analytics\Commerce.Analytics.Contracts\Commerce.Analytics.Contracts.csproj" />
+    <ProjectReference Include="..\..\Modules\Audit\Commerce.Modules.Audit\Commerce.Modules.Audit.csproj" />
+    <ProjectReference Include="..\..\Modules\Audit\Commerce.Audit.Contracts\Commerce.Audit.Contracts.csproj" />
+    <ProjectReference Include="..\..\Modules\Observability\Commerce.Modules.Observability\Commerce.Modules.Observability.csproj" />
+    <ProjectReference Include="..\..\Modules\Cache\Commerce.Modules.Cache\Commerce.Modules.Cache.csproj" />
+    <ProjectReference Include="..\..\Modules\DisasterRecovery\Commerce.Modules.DisasterRecovery\Commerce.Modules.DisasterRecovery.csproj" />
+    <ProjectReference Include="..\..\Modules\DisasterRecovery\Commerce.DisasterRecovery.Contracts\Commerce.DisasterRecovery.Contracts.csproj" />
+    <ProjectReference Include="..\..\Modules\SmartstoreImport\Commerce.Modules.SmartstoreImport\Commerce.Modules.SmartstoreImport.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Plugins\**\*.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Update="Plugins\**\Plugin.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Update="Plugins\**\Localization\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

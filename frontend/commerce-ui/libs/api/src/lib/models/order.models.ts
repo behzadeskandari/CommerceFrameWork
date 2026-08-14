@@ -5,7 +5,7 @@ export type OrderStatus =
   | 'Completed'
   | 'Cancelled';
 
-export type PaymentStatus =
+export type OrderPaymentStatus =
   | 'Pending'
   | 'Authorized'
   | 'Paid'
@@ -31,6 +31,18 @@ export interface OrderAddress {
   address2?: string | null;
   postalCode: string;
   phoneNumber?: string | null;
+}
+
+export interface OrderTaxLine {
+  id: number;
+  name: string;
+  ratePercentage?: number | null;
+  taxableAmount: number;
+  taxAmount: number;
+  currencyCode: string;
+  isShippingTax: boolean;
+  taxCategoryId?: number | null;
+  taxCategoryName?: string | null;
 }
 
 export interface OrderItem {
@@ -83,7 +95,7 @@ export interface OrderSummary {
   orderNumber: string;
   storeId: number;
   status: OrderStatus;
-  paymentStatus: PaymentStatus;
+  paymentStatus: OrderPaymentStatus;
   fulfillmentStatus: FulfillmentStatus;
   grandTotal: number;
   currencyCode: string;
@@ -99,7 +111,7 @@ export interface OrderDetail {
   storeId: number;
   checkoutId: number;
   status: OrderStatus;
-  paymentStatus: PaymentStatus;
+  paymentStatus: OrderPaymentStatus;
   fulfillmentStatus: FulfillmentStatus;
   customer: OrderCustomer;
   totals: OrderTotals;
@@ -111,6 +123,7 @@ export interface OrderDetail {
   selectedPaymentMethodId?: string | null;
   selectedPaymentMethodSystemName?: string | null;
   items: OrderItem[];
+  taxLines: OrderTaxLine[];
   statusHistory: OrderStatusHistory[];
   createdAtUtc: string;
   updatedAtUtc: string;

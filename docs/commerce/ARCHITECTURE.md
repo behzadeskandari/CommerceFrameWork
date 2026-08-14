@@ -460,6 +460,140 @@ Full details: [PHASE-12-REPORT.md](./PHASE-12-REPORT.md)
 
 ---
 
+### PHASE 13 — Inventory, Stock & Reservation Engine (complete)
+
+Added `Commerce.Inventory` with offer-based stock, reservations, movements, and order-integrated reservation lifecycle.
+
+Full details: [PHASE-13-REPORT.md](./PHASE-13-REPORT.md)
+
+---
+
+### PHASE 14 — Pricing, Discounts & Coupons Engine (complete)
+
+Added `Commerce.Pricing` as the authoritative discount layer without mutating offer base prices.
+
+```text
+Offer (base price)
+  → IPriceCalculationService
+  → Line discounts (Product/Variant/Offer/Category)
+  → Cart discounts
+  → Coupon validation
+  → ResolvedPriceDto / Cart totals / Checkout totals
+  → Order snapshot (immutable)
+```
+
+Key rules:
+- `UnitPrice` on offers and checkout items remains the **base** commercial price
+- Discounts are a separate calculated layer (`DiscountTotal`, `FinalUnitPrice`)
+- One calculation path: `DiscountCalculationEngine` used by catalog, cart, and checkout
+- Stackable discounts apply sequentially (compound); non-stackable picks priority winner
+- Coupon codes are case-insensitive; usage consumed atomically at order creation
+- Cart stores `AppliedCouponCode` only — no usage consumption until order succeeds
+- Tax, shipping, and payment remain future modules (`ITaxCalculator` boundary preserved)
+
+Full details: [PHASE-14-REPORT.md](./PHASE-14-REPORT.md)
+
+---
+
+### PHASE 15 — Shipping Engine (complete)
+
+Added `Commerce.Shipping` as the authoritative shipping calculation layer.
+
+```text
+Cart/Checkout context
+  → IShippingRateProvider (Checkout boundary)
+  → IShippingCalculationService
+  → IShippingProvider (FlatRate built-in; future plugins)
+  → Zone matching + rate rules
+  → Authoritative shipping option + price
+  → Order snapshot (immutable)
+```
+
+Key rules:
+- Client sends only shipping method selection — never authoritative price
+- Digital/Virtual/Downloadable products skip shipping
+- Mixed carts ship physical lines only
+- Address or cart changes invalidate stale shipping selections
+- Tax and payments remain future phases
+
+Full details: [PHASE-15-REPORT.md](./PHASE-15-REPORT.md)
+
+---
+
+### PHASE 16 — Tax Engine (complete)
+
+Added `Commerce.Tax` as the authoritative tax calculation layer.
+
+```text
+Cart/Checkout context (post-discount line amounts)
+  → ITaxCalculator (Checkout boundary)
+  → ITaxCalculationService
+  → ITaxProvider (InternalTaxProvider built-in; future plugins)
+  → Zone matching + rate rules + inclusive/exclusive pricing
+  → Authoritative tax breakdown + grand total
+  → Order snapshot (OrderTaxLine + item TaxTotal)
+```
+
+Key rules:
+- Tax calculated on post-discount amounts; Pricing owns discounts
+- Client cannot submit trusted tax amounts or grand totals
+- Shipping tax only when `RequiresShipping` and rate has `TaxShipping`
+- Digital products are taxable; digital-only carts skip shipping tax
+- Customer `IsTaxExempt` and exempt categories supported
+- Store setting `Tax.PricesIncludeTax` controls inclusive vs exclusive display/calculation
+
+Full details: [PHASE-16-REPORT.md](./PHASE-16-REPORT.md)
+
+---
+
+### PHASE 17 — Payment Engine (complete)
+
+Added `Commerce.Payments` as the provider-independent payment engine with `Commerce.Plugin.Payment.Manual` as the first provider.
+
+```text
+Checkout (IPaymentMethodProvider — method discovery)
+  → Order creation (ReadyForOrder)
+  → IPaymentService.CreateForOrderAsync
+  → IPaymentProvider (Manual plugin; future gateways)
+  → Payment + PaymentTransaction audit trail
+  → Callback/verify (server-side)
+  → Order payment status sync (immutable history)
+```
+
+Key rules:
+- Core module never contains provider-specific code (ZarinPal, Stripe, etc.)
+- Client cannot submit trusted payment amounts or status
+- Idempotency on payment create and callbacks
+- Free orders auto-capture; paid orders require method selection
+- No sensitive card data stored
+
+Full details: [PHASE-17-REPORT.md](./PHASE-17-REPORT.md)
+
+---
+
+### PHASE 18 — Dynamic Plugin Engine (complete)
+
+Added runtime plugin engine separate from compile-time module runtime.
+
+```text
+Plugins/ directory (Plugin.json + DLL)
+  → Discovery + manifest validation
+  → CollectibleAssemblyLoadContext load
+  → ICommercePlugin.RegisterServices (enabled plugins)
+  → Install/Enable lifecycle (DB persisted)
+  → Provider registration (IPaymentProvider, etc.)
+```
+
+Key rules:
+- Modules remain compile-time; plugins are runtime extensions
+- Manual Payment migrated to `Plugins/Payment.Manual/` — no Host compile-time reference
+- Optional plugin failures do not block Commerce startup
+- Plugins are trusted server-side code — not sandboxed
+
+Full details: [PHASE-18-REPORT.md](./PHASE-18-REPORT.md)
+
+---
+
 ## 13. Next Step
 
-**PHASE 13** (awaiting explicit approval)
+**PHASE 19** (awaiting explicit approval)

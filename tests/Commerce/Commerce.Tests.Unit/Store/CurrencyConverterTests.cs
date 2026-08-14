@@ -39,7 +39,7 @@ public sealed class CurrencyConverterTests
         Assert.Equal(200m, result.ConvertedAmount.Amount);
     }
 
-    private sealed class InMemoryCurrencyRepository : Commerce.Store.Application.Abstractions.IStoreCurrencyRepository
+    private sealed class InMemoryCurrencyRepository : global::Commerce.Store.Application.Abstractions.IStoreCurrencyRepository
     {
         private readonly List<StoreCurrency> _items = [];
 

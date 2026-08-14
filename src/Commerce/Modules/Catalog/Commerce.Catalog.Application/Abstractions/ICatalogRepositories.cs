@@ -68,6 +68,10 @@ public interface IProductAttributeRepository
 
     Task<ProductAttributeOption?> GetOptionByIdAsync(int optionId, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<ProductAttributeOption>> GetOptionsByIdsAsync(
+        IReadOnlyCollection<int> optionIds,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<ProductAttributeOption>> GetOptionsForDefinitionAsync(
         int attributeDefinitionId,
         bool includeInactive,
@@ -135,6 +139,21 @@ public interface IProductOfferRepository
     Task AddAsync(ProductOffer offer, CancellationToken cancellationToken = default);
 
     Task UpdateAsync(ProductOffer offer, CancellationToken cancellationToken = default);
+}
+
+public interface IOfferTierPriceRepository
+{
+    Task<IReadOnlyList<OfferTierPrice>> ListForOfferAsync(int offerId, CancellationToken cancellationToken = default);
+
+    Task<OfferTierPrice?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+
+    Task<decimal?> ResolveTierUnitPriceAsync(int offerId, int quantity, CancellationToken cancellationToken = default);
+
+    Task AddAsync(OfferTierPrice tierPrice, CancellationToken cancellationToken = default);
+
+    Task UpdateAsync(OfferTierPrice tierPrice, CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(OfferTierPrice tierPrice, CancellationToken cancellationToken = default);
 }
 
 public interface IProductMediaRepository

@@ -30,6 +30,8 @@ public sealed record ProductDetailDto(
     string? Slug,
     DateTime CreatedAtUtc,
     DateTime UpdatedAtUtc,
+    decimal WeightGrams,
+    int? TaxCategoryId,
     IReadOnlyList<int> CategoryIds,
     IReadOnlyList<ProductAttributeValueDto> Attributes);
 

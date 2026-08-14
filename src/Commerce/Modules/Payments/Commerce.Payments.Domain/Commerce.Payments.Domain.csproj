@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+
+
+  <PropertyGroup>
+
+    <RootNamespace>Commerce.Payments.Domain</RootNamespace>
+
+    <AssemblyName>Commerce.Payments.Domain</AssemblyName>
+
+    <Description>Payments domain model.</Description>
+
+  </PropertyGroup>
+
+
+
+  <ItemGroup>
+
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Domain\Commerce.Framework.Domain.csproj" />
+
+  </ItemGroup>
+
+
+
+</Project>
+

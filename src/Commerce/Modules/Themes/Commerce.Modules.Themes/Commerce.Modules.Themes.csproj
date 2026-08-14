@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Modules.Themes</RootNamespace>
+    <AssemblyName>Commerce.Modules.Themes</AssemblyName>
+    <Description>Themes module registration.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Themes.Infrastructure\Commerce.Themes.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Themes\Commerce.Framework.Themes\Commerce.Framework.Themes.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+</Project>

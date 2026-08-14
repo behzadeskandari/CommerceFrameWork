@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Tax.Application</RootNamespace>
+    <AssemblyName>Commerce.Tax.Application</AssemblyName>
+    <Description>Tax application services.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Tax.Contracts\Commerce.Tax.Contracts.csproj" />
+    <ProjectReference Include="..\Commerce.Tax.Domain\Commerce.Tax.Domain.csproj" />
+    <ProjectReference Include="..\..\Catalog\Commerce.Catalog.Contracts\Commerce.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\Checkout\Commerce.Checkout.Contracts\Commerce.Checkout.Contracts.csproj" />
+    <ProjectReference Include="..\..\Customers\Commerce.Customers.Contracts\Commerce.Customers.Contracts.csproj" />
+    <ProjectReference Include="..\..\Pricing\Commerce.Pricing.Contracts\Commerce.Pricing.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Domain\Commerce.Framework.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Modules.Pricing</RootNamespace>
+    <AssemblyName>Commerce.Modules.Pricing</AssemblyName>
+    <Description>Pricing module registration facade.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Pricing.Application\Commerce.Pricing.Application.csproj" />
+    <ProjectReference Include="..\Commerce.Pricing.Infrastructure\Commerce.Pricing.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+  </ItemGroup>
+
+</Project>

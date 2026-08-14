@@ -36,6 +36,9 @@ public sealed record Error
     public static Error Conflict(string message, string? detail = null) =>
         new(ErrorCode.Conflict, message, ErrorType.Conflict, detail);
 
+    public static Error Forbidden(string message, string? detail = null) =>
+        new(ErrorCode.Forbidden, message, ErrorType.Forbidden, detail);
+
     public static Error Failure(string message, ErrorCode code = ErrorCode.OperationFailed, string? detail = null) =>
         new(code, message, ErrorType.Failure, detail);
 }

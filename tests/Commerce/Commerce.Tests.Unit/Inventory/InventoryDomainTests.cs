@@ -138,4 +138,83 @@ public sealed class InventoryDomainTests
 
         Assert.Throws<InvalidOperationException>(() => reservation.Release("late", utcNow));
     }
+
+    [Fact]
+    public void TransferOut_ReducesOnHandAndCreatesMovement()
+    {
+        var item = CreateTrackedItem(10);
+        var movement = item.TransferOut(3, 500, "Warehouse transfer", "admin");
+
+        Assert.Equal(7, item.OnHand);
+        Assert.Equal(InventoryMovementType.TransferOut, movement.MovementType);
+        Assert.Equal(-3, movement.QuantityDelta);
+    }
+
+    [Fact]
+    public void TransferOut_RejectsWhenInsufficientAvailable()
+    {
+        var item = CreateTrackedItem(2);
+        var utcNow = DateTime.UtcNow;
+        item.Reserve(2, InventoryReferenceType.Order, 1, utcNow.AddHours(1), utcNow);
+
+        Assert.Throws<InvalidOperationException>(() =>
+            item.TransferOut(1, 501, "Should fail", "admin"));
+    }
+
+    [Fact]
+    public void TransferIn_IncreasesOnHand()
+    {
+        var item = CreateTrackedItem(5);
+        var movement = item.TransferIn(4, 502, "Received transfer", "admin");
+
+        Assert.Equal(9, item.OnHand);
+        Assert.Equal(InventoryMovementType.TransferIn, movement.MovementType);
+    }
+
+    [Fact]
+    public void AddIncoming_AndReceiveIncoming_UpdatesBalances()
+    {
+        var item = CreateTrackedItem(0);
+        item.AddIncoming(10, "PO expected", "admin");
+        Assert.Equal(10, item.Incoming);
+
+        var movement = item.ReceiveIncoming(
+            6,
+            "Partial receipt",
+            InventoryReferenceType.Manual,
+            77,
+            "admin");
+
+        Assert.Equal(4, item.Incoming);
+        Assert.Equal(6, item.OnHand);
+        Assert.Equal(InventoryMovementType.PurchaseReceipt, movement.MovementType);
+    }
+
+    [Fact]
+    public void ConvertReservationToSale_DeductsOnHand()
+    {
+        var item = CreateTrackedItem(5);
+        var utcNow = DateTime.UtcNow;
+        var reservation = item.Reserve(2, InventoryReferenceType.Order, 99, utcNow.AddHours(1), utcNow);
+
+        var movement = item.ConvertReservationToSale(reservation, utcNow, "system");
+
+        Assert.Equal(3, item.OnHand);
+        Assert.Equal(0, item.Reserved);
+        Assert.Equal(InventoryMovementType.Sale, movement.MovementType);
+        Assert.Equal(-2, movement.QuantityDelta);
+    }
+
+    [Fact]
+    public void IsLowStock_ReflectsThreshold()
+    {
+        var item = InventoryItem.Create(1, 100, 10, null, trackInventory: true, allowBackorder: false, lowStockThreshold: 3);
+        item.AdjustOnHand(5, InventoryMovementType.InitialStock, "seed", InventoryReferenceType.None, null, "test");
+        var utcNow = DateTime.UtcNow;
+
+        Assert.False(item.IsLowStock(utcNow));
+
+        item.AdjustOnHand(-3, InventoryMovementType.Correction, "drop", InventoryReferenceType.Manual, null, "admin");
+        Assert.True(item.IsLowStock(utcNow));
+    }
 }

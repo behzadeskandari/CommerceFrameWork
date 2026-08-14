@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.DisasterRecovery.Contracts</RootNamespace>
+    <AssemblyName>Commerce.DisasterRecovery.Contracts</AssemblyName>
+    <Description>Disaster recovery and backup contracts.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Pricing.Infrastructure</RootNamespace>
+    <AssemblyName>Commerce.Pricing.Infrastructure</AssemblyName>
+    <Description>Pricing and discount infrastructure.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Pricing.Application\Commerce.Pricing.Application.csproj" />
+    <ProjectReference Include="..\Commerce.Pricing.Domain\Commerce.Pricing.Domain.csproj" />
+    <ProjectReference Include="..\..\Orders\Commerce.Orders.Contracts\Commerce.Orders.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+  </ItemGroup>
+
+</Project>

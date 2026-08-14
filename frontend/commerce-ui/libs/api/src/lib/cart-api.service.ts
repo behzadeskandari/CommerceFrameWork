@@ -4,6 +4,7 @@ import { map, Observable } from 'rxjs';
 import { APP_CONFIG, ApiResponse } from '@commerce/core';
 import {
   AddCartItemRequest,
+  ApplyCartCouponRequest,
   Cart,
   CartMergeResult,
   UpdateCartItemQuantityRequest
@@ -48,6 +49,18 @@ export class CartApi {
   mergeGuestCart(): Observable<CartMergeResult> {
     return this.http
       .post<ApiResponse<CartMergeResult>>(`${this.base}/merge`, {})
+      .pipe(map(response => response.data!));
+  }
+
+  applyCoupon(request: ApplyCartCouponRequest): Observable<Cart> {
+    return this.http
+      .post<ApiResponse<Cart>>(`${this.base}/coupons`, request)
+      .pipe(map(response => response.data!));
+  }
+
+  removeCoupon(code: string): Observable<Cart> {
+    return this.http
+      .delete<ApiResponse<Cart>>(`${this.base}/coupons/${encodeURIComponent(code)}`)
       .pipe(map(response => response.data!));
   }
 }

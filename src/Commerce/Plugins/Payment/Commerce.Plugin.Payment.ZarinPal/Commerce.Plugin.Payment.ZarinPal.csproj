@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Plugin.Payment.ZarinPal</RootNamespace>
+    <AssemblyName>Commerce.Plugin.Payment.ZarinPal</AssemblyName>
+    <Description>ZarinPal payment provider plugin.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Commerce.Tests.Unit.PaymentProviders" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\PluginContracts\Commerce.Framework.PluginContracts\Commerce.Framework.PluginContracts.csproj" />
+    <ProjectReference Include="..\..\..\Modules\Payments\Commerce.Payments.Contracts\Commerce.Payments.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Plugin.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="CopyPluginOutput" AfterTargets="Build">
+    <PropertyGroup>
+      <PluginHostDir>$(MSBuildThisFileDirectory)..\..\..\Host\Commerce.Host\Plugins\Payment.ZarinPal\</PluginHostDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(PluginHostDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginHostDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Plugin.json" DestinationFolder="$(PluginHostDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

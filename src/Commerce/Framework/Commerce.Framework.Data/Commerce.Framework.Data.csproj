@@ -12,6 +12,7 @@
     <ProjectReference Include="..\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
     <ProjectReference Include="..\Commerce.Framework.Application\Commerce.Framework.Application.csproj" />
     <ProjectReference Include="..\Commerce.Framework.Infrastructure\Commerce.Framework.Infrastructure.csproj" />
+    <ProjectReference Include="..\Commerce.Framework.Events\Commerce.Framework.Events.csproj" />
   </ItemGroup>
 
   <ItemGroup>

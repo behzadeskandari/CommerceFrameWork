@@ -19,6 +19,7 @@ export const appConfig: ApplicationConfig = {
       return Promise.all([
         auth.initialize(),
         storeContext.initialize(),
+        theme.initializeStorefrontTheme(),
         inject(CartStateService).initialize()
       ]);
     })

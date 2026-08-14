@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Integration.Contracts</RootNamespace>
+    <AssemblyName>Commerce.Integration.Contracts</AssemblyName>
+    <Description>Integration platform public contracts.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Events\Commerce.Framework.Events.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+    <ProjectReference Include="..\Commerce.Integration.Domain\Commerce.Integration.Domain.csproj" />
+  </ItemGroup>
+</Project>

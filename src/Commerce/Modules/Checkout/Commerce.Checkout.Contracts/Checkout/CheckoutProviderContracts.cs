@@ -4,7 +4,7 @@ public sealed record ShippingRateRequest(
     int StoreId,
     int CartId,
     string CurrencyCode,
-    CheckoutAddressDto ShippingAddress,
+    CheckoutAddressDto? ShippingAddress,
     IReadOnlyList<ShippingRateLineItem> Items);
 
 public sealed record ShippingRateLineItem(
@@ -13,7 +13,9 @@ public sealed record ShippingRateLineItem(
     int? VariantId,
     int Quantity,
     decimal UnitPrice,
-    string ProductType);
+    string ProductType,
+    decimal WeightGrams = 0m,
+    decimal LineSubtotal = 0m);
 
 public sealed record ShippingOption(
     string Id,
@@ -21,23 +23,50 @@ public sealed record ShippingOption(
     string ProviderSystemName,
     decimal Price,
     string Currency,
-    string? EstimatedDelivery);
+    string? EstimatedDelivery,
+    bool RequiresAddress = true);
 
 public sealed record TaxCalculationRequest(
     int StoreId,
+    int CartId,
     string CurrencyCode,
     int? CustomerId,
     CheckoutAddressDto? BillingAddress,
     CheckoutAddressDto? ShippingAddress,
     decimal Subtotal,
-    IReadOnlyList<ShippingRateLineItem> Items);
+    IReadOnlyList<ShippingRateLineItem> Items,
+    decimal ShippingTotal = 0m,
+    IReadOnlyList<string> CouponCodes = null!,
+    bool IsGuest = false,
+    bool RequiresShipping = true)
+{
+    public IReadOnlyList<string> CouponCodes { get; init; } = CouponCodes ?? [];
+}
 
 public sealed record TaxCalculationResult(
     decimal TaxTotal,
+    decimal ProductTaxTotal,
+    decimal ShippingTaxTotal,
     string CurrencyCode,
-    IReadOnlyList<TaxLine> Lines);
+    IReadOnlyList<TaxLine> Lines,
+    IReadOnlyList<TaxLineItemResult> LineItems,
+    bool PricesIncludeTax);
 
-public sealed record TaxLine(string Name, decimal Amount, string CurrencyCode);
+public sealed record TaxLine(
+    string Name,
+    decimal Amount,
+    string CurrencyCode,
+    decimal? RatePercentage = null,
+    bool IsShippingTax = false,
+    decimal TaxableAmount = 0m);
+
+public sealed record TaxLineItemResult(
+    int OfferId,
+    decimal TaxableAmount,
+    decimal TaxAmount,
+    int? TaxCategoryId,
+    string? TaxCategoryName,
+    decimal? RatePercentage);
 
 public sealed record DiscountCalculationRequest(
     int StoreId,
@@ -45,14 +74,30 @@ public sealed record DiscountCalculationRequest(
     int CartId,
     string CurrencyCode,
     decimal Subtotal,
-    IReadOnlyList<string> CouponCodes);
+    IReadOnlyList<string> CouponCodes,
+    bool IsGuest = false,
+    IReadOnlyList<DiscountLineItem>? Items = null);
+
+public sealed record DiscountLineItem(
+    int OfferId,
+    int ProductId,
+    int? VariantId,
+    int Quantity,
+    decimal UnitPrice);
 
 public sealed record DiscountCalculationResult(
     decimal DiscountTotal,
     string CurrencyCode,
     IReadOnlyList<DiscountLine> Lines);
 
-public sealed record DiscountLine(string Name, decimal Amount, string CurrencyCode);
+public sealed record DiscountLine(
+    string Name,
+    decimal Amount,
+    string CurrencyCode,
+    int? DiscountId = null,
+    int? OfferId = null,
+    string? CouponCode = null,
+    string Scope = "Cart");
 
 public interface IShippingRateProvider
 {
@@ -90,6 +135,7 @@ public interface IPaymentMethodProvider
 
 public sealed record CheckoutTotalContext(
     int StoreId,
+    int CartId,
     string CurrencyCode,
     int? CustomerId,
     decimal Subtotal,
@@ -97,7 +143,11 @@ public sealed record CheckoutTotalContext(
     CheckoutAddressDto? BillingAddress,
     CheckoutAddressDto? ShippingAddress,
     IReadOnlyList<ShippingRateLineItem> Items,
-    IReadOnlyList<string> CouponCodes);
+    IReadOnlyList<string> CouponCodes,
+    bool IsGuest = false,
+    bool RequiresShipping = true,
+    string? AppliedGiftCardCode = null,
+    decimal AppliedStoreCreditAmount = 0m);
 
 public sealed record CheckoutTotalResult(
     decimal Subtotal,
@@ -105,7 +155,14 @@ public sealed record CheckoutTotalResult(
     decimal ShippingTotal,
     decimal TaxTotal,
     decimal GrandTotal,
-    string CurrencyCode);
+    string CurrencyCode,
+    decimal ProductTaxTotal = 0m,
+    decimal ShippingTaxTotal = 0m,
+    bool PricesIncludeTax = false,
+    IReadOnlyList<TaxLine>? TaxLines = null,
+    IReadOnlyList<TaxLineItemResult>? TaxLineItems = null,
+    decimal GiftCardApplied = 0m,
+    decimal StoreCreditApplied = 0m);
 
 public interface ICheckoutTotalsCalculator
 {

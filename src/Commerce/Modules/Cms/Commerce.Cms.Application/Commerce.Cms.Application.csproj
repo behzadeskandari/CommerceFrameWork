@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Cms.Application</RootNamespace>
+    <AssemblyName>Commerce.Cms.Application</AssemblyName>
+    <Description>CMS application services.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Cms.Contracts\Commerce.Cms.Contracts.csproj" />
+    <ProjectReference Include="..\Commerce.Cms.Domain\Commerce.Cms.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+</Project>

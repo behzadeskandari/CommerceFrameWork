@@ -26,7 +26,8 @@ public sealed class OrdersModule : CommerceModuleBase
             new ModuleDependency("Commerce.Customers"),
             new ModuleDependency("Commerce.Cart"),
             new ModuleDependency("Commerce.Checkout"),
-            new ModuleDependency("Commerce.Inventory")
+            new ModuleDependency("Commerce.Inventory"),
+            new ModuleDependency("Commerce.Pricing")
         ],
         IsRequired: false);
 

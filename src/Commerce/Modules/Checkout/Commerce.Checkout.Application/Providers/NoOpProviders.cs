@@ -7,7 +7,14 @@ public sealed class NoOpTaxCalculator : ITaxCalculator
     public Task<TaxCalculationResult> CalculateAsync(
         TaxCalculationRequest request,
         CancellationToken cancellationToken = default) =>
-        Task.FromResult(new TaxCalculationResult(0m, request.CurrencyCode, []));
+        Task.FromResult(new TaxCalculationResult(
+            0m,
+            0m,
+            0m,
+            request.CurrencyCode,
+            [],
+            [],
+            false));
 }
 
 public sealed class NoOpDiscountCalculator : IDiscountCalculator

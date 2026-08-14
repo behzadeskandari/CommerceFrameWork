@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.DisasterRecovery.Domain</RootNamespace>
+    <AssemblyName>Commerce.DisasterRecovery.Domain</AssemblyName>
+    <Description>Disaster recovery domain model.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,34 @@
+# Staging overlay — TLS via Caddy, no direct commerce port publish
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.staging.yml --env-file .env up -d --build
+
+services:
+  commerce:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Staging
+      Commerce__Environment: Staging
+      Commerce__BaseUrl: https://${COMMERCE_DOMAIN:?Set COMMERCE_DOMAIN}
+      Commerce__Deployment__ApplyMigrationsOnStartup: "true"
+      Commerce__DisasterRecovery__EnableScheduledBackups: "true"
+    ports: !reset []
+
+  caddy:
+    image: caddy:2-alpine
+    depends_on:
+      commerce:
+        condition: service_started
+    environment:
+      COMMERCE_DOMAIN: ${COMMERCE_DOMAIN}
+      CADDY_EMAIL: ${CADDY_EMAIL:-internal@localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile.staging:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    restart: unless-stopped
+
+volumes:
+  caddy-data:
+  caddy-config:

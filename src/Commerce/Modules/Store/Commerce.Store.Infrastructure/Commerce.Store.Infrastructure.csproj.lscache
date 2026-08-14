@@ -1,0 +1,126 @@
+version=1
+
+# This file caches language service data to improve the performance of C# Dev Kit.
+# It is not intended for manual editing. It can safely be deleted and will be
+# regenerated automatically. For more information, see https://aka.ms/lscache
+#
+# To control where cache files are stored, use the following VS Code setting:
+#   "dotnet.projectsystem.cacheInProjectFolder": true
+
+[project]
+language=C#
+primary
+lastDtbSucceeded
+
+[properties]
+AssemblyName=Commerce.Store.Infrastructure
+CommandLineArgsForDesignTimeEvaluation=-langversion:latest -define:TRACE
+CompilerGeneratedFilesOutputPath=
+MaxSupportedLangVersion=
+ProjectAssetsFile=<PATH>obj/project.assets.json
+RootNamespace=Commerce.Store.Infrastructure
+RunAnalyzers=
+RunAnalyzersDuringLiveAnalysis=
+SolutionPath=<PATH>../../../../../Commerce.sln
+TargetFrameworkIdentifier=.NETCoreApp
+TargetPath=<PATH>bin/Debug/net10.0/Commerce.Store.Infrastructure.dll
+TargetRefPath=<PATH>obj/Debug/net10.0/ref/Commerce.Store.Infrastructure.dll
+TemporaryDependencyNodeTargetIdentifier=net10.0
+
+[commandLineArguments]
+/noconfig
+/unsafe-
+/checked-
+/nowarn:1701,1702,1701,1702
+/fullpaths
+/nostdlib+
+/errorreport:prompt
+/warn:1
+/define:TRACE;DEBUG;NET;NET10_0;NETCOREAPP;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP1_0_OR_GREATER;NETCOREAPP1_1_OR_GREATER;NETCOREAPP2_0_OR_GREATER;NETCOREAPP2_1_OR_GREATER;NETCOREAPP2_2_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER
+/highentropyva+
+/nullable:enable
+/debug+
+/debug:portable
+/filealign:512
+/optimize-
+/out:obj\Debug\net10.0\Commerce.Store.Infrastructure.dll
+/refout:obj\Debug\net10.0\refint\Commerce.Store.Infrastructure.dll
+/target:library
+/warnaserror-
+/utf8output
+/deterministic+
+/langversion:latest
+/warnaserror+:NU1605,SYSLIB0011
+
+[sourceFiles]
+Configuration/SettingService.cs
+Currency/CurrencyServices.cs
+DependencyInjection/ServiceCollectionExtensions.cs
+Installation/StoreInstallationProvisioningService.cs
+Localization/LanguageResolver.cs
+Middleware/StoreContextMiddleware.cs
+Migrations/StoreInitialMigration.cs
+obj/Debug/net10.0/
+ .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+ Commerce.Store.Infrastructure.AssemblyInfo.cs
+ Commerce.Store.Infrastructure.GlobalUsings.g.cs
+Persistence/
+ Configurations/StoreConfigurations.cs
+ Repositories/StoreRepositories.cs
+ StoreModelContributor.cs
+Security/StorePermissionContributor.cs
+Seeding/StoreIdentitySeeder.cs
+Tenancy/
+ StoreContextBootstrap.cs
+ StoreResolver.cs
+
+[metadataReferences]
+../../../Framework/
+ Commerce.Framework.Application/obj/Debug/net10.0/ref/Commerce.Framework.Application.dll
+ Commerce.Framework.Contracts/obj/Debug/net10.0/ref/Commerce.Framework.Contracts.dll
+ Commerce.Framework.Core/obj/Debug/net10.0/ref/Commerce.Framework.Core.dll
+ Commerce.Framework.Data/obj/Debug/net10.0/ref/Commerce.Framework.Data.dll
+ Commerce.Framework.Domain/obj/Debug/net10.0/ref/Commerce.Framework.Domain.dll
+ Commerce.Framework.Events/obj/Debug/net10.0/ref/Commerce.Framework.Events.dll
+ Commerce.Framework.Infrastructure/obj/Debug/net10.0/ref/Commerce.Framework.Infrastructure.dll
+../
+ Commerce.Store.Application/obj/Debug/net10.0/ref/Commerce.Store.Application.dll
+ Commerce.Store.Contracts/obj/Debug/net10.0/ref/Commerce.Store.Contracts.dll
+ Commerce.Store.Domain/obj/Debug/net10.0/ref/Commerce.Store.Domain.dll
+<NUGET>/
+ azure.core/1.47.1/lib/net8.0/Azure.Core.dll
+ azure.identity/1.14.2/lib/net8.0/Azure.Identity.dll
+ microsoft.aspnetcore.identity.entityframeworkcore/10.0.0/lib/net10.0/Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+ microsoft.bcl.asyncinterfaces/8.0.0/lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll
+ microsoft.bcl.cryptography/9.0.4/lib/net9.0/Microsoft.Bcl.Cryptography.dll
+ microsoft.data.sqlclient/6.1.1/ref/net9.0/Microsoft.Data.SqlClient.dll
+ microsoft.entityframeworkcore.abstractions/10.0.0/lib/net10.0/Microsoft.EntityFrameworkCore.Abstractions.dll
+ microsoft.entityframeworkcore.inmemory/10.0.0/lib/net10.0/Microsoft.EntityFrameworkCore.InMemory.dll
+ microsoft.entityframeworkcore.relational/10.0.0/lib/net10.0/Microsoft.EntityFrameworkCore.Relational.dll
+ microsoft.entityframeworkcore.sqlserver/10.0.0/lib/net10.0/Microsoft.EntityFrameworkCore.SqlServer.dll
+ microsoft.entityframeworkcore/10.0.0/lib/net10.0/Microsoft.EntityFrameworkCore.dll
+ microsoft.identity.client.extensions.msal/4.73.1/lib/net8.0/Microsoft.Identity.Client.Extensions.Msal.dll
+ microsoft.identity.client/4.73.1/lib/net8.0/Microsoft.Identity.Client.dll
+ microsoft.identitymodel.abstractions/7.7.1/lib/net8.0/Microsoft.IdentityModel.Abstractions.dll
+ microsoft.identitymodel.jsonwebtokens/7.7.1/lib/net8.0/Microsoft.IdentityModel.JsonWebTokens.dll
+ microsoft.identitymodel.logging/7.7.1/lib/net8.0/Microsoft.IdentityModel.Logging.dll
+ microsoft.identitymodel.protocols.openidconnect/7.7.1/lib/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+ microsoft.identitymodel.protocols/7.7.1/lib/net8.0/Microsoft.IdentityModel.Protocols.dll
+ microsoft.identitymodel.tokens/7.7.1/lib/net8.0/Microsoft.IdentityModel.Tokens.dll
+ microsoft.sqlserver.server/1.0.0/lib/netstandard2.0/Microsoft.SqlServer.Server.dll
+ system.clientmodel/1.5.1/lib/net8.0/System.ClientModel.dll
+ system.identitymodel.tokens.jwt/7.7.1/lib/net8.0/System.IdentityModel.Tokens.Jwt.dll
+ system.memory.data/8.0.1/lib/net8.0/System.Memory.Data.dll
+ system.security.cryptography.pkcs/9.0.4/lib/net9.0/System.Security.Cryptography.Pkcs.dll
+ system.security.cryptography.protecteddata/9.0.4/lib/net9.0/System.Security.Cryptography.ProtectedData.dll
+
+[analyzerReferences]
+<DOTNET>/sdk/8.0.302/Sdks/Microsoft.NET.Sdk/analyzers/
+ Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
+ Microsoft.CodeAnalysis.NetAnalyzers.dll
+<NUGET>/
+ microsoft.entityframeworkcore.analyzers/10.0.0/analyzers/dotnet/cs/Microsoft.EntityFrameworkCore.Analyzers.dll
+ system.clientmodel/1.5.1/analyzers/dotnet/cs/System.ClientModel.SourceGeneration.dll
+
+[analyzerConfigFiles]
+obj/Debug/net10.0/Commerce.Store.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Analytics.Application</RootNamespace>
+    <AssemblyName>Commerce.Analytics.Application</AssemblyName>
+    <Description>Analytics and reporting application services.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Analytics.Contracts\Commerce.Analytics.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+</Project>

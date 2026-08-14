@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Search.Infrastructure</RootNamespace>
+    <AssemblyName>Commerce.Search.Infrastructure</AssemblyName>
+    <Description>Search infrastructure.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Search.Application\Commerce.Search.Application.csproj" />
+    <ProjectReference Include="..\Commerce.Search.Domain\Commerce.Search.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Search\Commerce.Framework.Search\Commerce.Framework.Search.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+  </ItemGroup>
+</Project>

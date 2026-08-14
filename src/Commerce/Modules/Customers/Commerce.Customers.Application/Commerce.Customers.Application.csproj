@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Commerce.Customers.Contracts\Commerce.Customers.Contracts.csproj" />
     <ProjectReference Include="..\Commerce.Customers.Domain\Commerce.Customers.Domain.csproj" />
+    <ProjectReference Include="..\..\Orders\Commerce.Orders.Contracts\Commerce.Orders.Contracts.csproj" />
     <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
     <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Application\Commerce.Framework.Application.csproj" />
     <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />

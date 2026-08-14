@@ -46,6 +46,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPermissionService, PermissionService>();
         services.AddScoped<ICustomerRepository, EfCustomerRepository>();
         services.AddScoped<ICustomerAddressRepository, EfCustomerAddressRepository>();
+        services.AddScoped<ICustomerPreferenceRepository, EfCustomerPreferenceRepository>();
+        services.AddScoped<ICustomerSegmentRepository, EfCustomerSegmentRepository>();
+        services.AddScoped<ILoyaltyRepository, EfLoyaltyRepository>();
+        services.AddScoped<IStoreCreditRepository, EfStoreCreditRepository>();
+        services.AddScoped<ICustomerActivityRepository, EfCustomerActivityRepository>();
+        services.AddScoped<IAffiliateRepository, EfAffiliateRepository>();
         services.AddScoped<ICurrentCustomerContext, CurrentCustomerContext>();
 
         return services;

@@ -18,7 +18,8 @@ const emptyCart = (): Cart => ({
     grandTotal: 0,
     currency: ''
   },
-  itemCount: 0
+  itemCount: 0,
+  appliedCouponCode: null
 });
 
 @Injectable({ providedIn: 'root' })
@@ -65,6 +66,14 @@ export class CartStateService {
 
   async clearCart(): Promise<void> {
     await this.mutate(() => this.cartApi.clearCart());
+  }
+
+  async applyCoupon(code: string): Promise<void> {
+    await this.mutate(() => this.cartApi.applyCoupon({ code: code.trim() }));
+  }
+
+  async removeCoupon(code: string): Promise<void> {
+    await this.mutate(() => this.cartApi.removeCoupon(code));
   }
 
   async mergeAfterLogin(): Promise<void> {

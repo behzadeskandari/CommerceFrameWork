@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Shipping.Application</RootNamespace>
+    <AssemblyName>Commerce.Shipping.Application</AssemblyName>
+    <Description>Shipping application services.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Shipping.Contracts\Commerce.Shipping.Contracts.csproj" />
+    <ProjectReference Include="..\Commerce.Shipping.Domain\Commerce.Shipping.Domain.csproj" />
+    <ProjectReference Include="..\..\Catalog\Commerce.Catalog.Contracts\Commerce.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\Checkout\Commerce.Checkout.Contracts\Commerce.Checkout.Contracts.csproj" />
+    <ProjectReference Include="..\..\Orders\Commerce.Orders.Contracts\Commerce.Orders.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Domain\Commerce.Framework.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+
+</Project>

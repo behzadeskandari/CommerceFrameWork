@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Search.Contracts</RootNamespace>
+    <AssemblyName>Commerce.Search.Contracts</AssemblyName>
+    <Description>Search module contracts.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Search\Commerce.Framework.Search\Commerce.Framework.Search.csproj" />
+  </ItemGroup>
+</Project>

@@ -20,6 +20,7 @@ public sealed class CatalogModelContributor : ICommerceModelContributor
         modelBuilder.ApplyConfiguration(new CatalogProductVariantConfiguration());
         modelBuilder.ApplyConfiguration(new CatalogProductVariantAttributeConfiguration());
         modelBuilder.ApplyConfiguration(new CatalogProductOfferConfiguration());
+        modelBuilder.ApplyConfiguration(new CatalogOfferTierPriceConfiguration());
         modelBuilder.ApplyConfiguration(new CatalogProductMediaConfiguration());
         modelBuilder.ApplyConfiguration(new CatalogProductVariantMediaConfiguration());
         modelBuilder.ApplyConfiguration(new CatalogCategoryMediaConfiguration());

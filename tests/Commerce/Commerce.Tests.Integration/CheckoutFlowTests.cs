@@ -76,12 +76,25 @@ public sealed class CheckoutFlowTests
             {
                 FirstName = "Guest",
                 LastName = "User",
-                Country = "IR",
-                City = "Tehran",
+                Country = "US",
+                City = "Los Angeles",
                 Address1 = "Street 1",
-                PostalCode = "1234567890"
+                PostalCode = "90001"
             }
         });
+
+        var getAfterAddress = await client.GetAsync($"/api/checkout/{checkoutId}");
+        using var addressJson = JsonDocument.Parse(await getAfterAddress.Content.ReadAsStreamAsync());
+        var shippingOptions = addressJson.RootElement.GetProperty("data").GetProperty("shippingOptions");
+        if (shippingOptions.GetArrayLength() > 0)
+        {
+            var option = shippingOptions[0];
+            await client.PutAsJsonAsync($"/api/checkout/{checkoutId}/shipping-method", new
+            {
+                methodId = option.GetProperty("id").GetString(),
+                providerSystemName = option.GetProperty("providerSystemName").GetString()
+            });
+        }
 
         var validate = await client.PostAsync($"/api/checkout/{checkoutId}/validate", null);
         Assert.Equal(HttpStatusCode.OK, validate.StatusCode);

@@ -547,12 +547,26 @@ public sealed class InstallationService : IInstallationService
 
     private static bool TryParseProvider(string provider, out CommerceDatabaseProvider parsed)
     {
+        parsed = default;
+        if (string.IsNullOrWhiteSpace(provider))
+        {
+            return false;
+        }
+
+        var normalized = provider.Trim().Replace(" ", string.Empty, StringComparison.Ordinal);
+        if (normalized.Equals("MSSQL", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("MicrosoftSQLServer", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("SQLServer", StringComparison.OrdinalIgnoreCase))
+        {
+            parsed = CommerceDatabaseProvider.SqlServer;
+            return true;
+        }
+
         if (Enum.TryParse<CommerceDatabaseProvider>(provider, true, out parsed))
         {
             return parsed != CommerceDatabaseProvider.PostgreSql;
         }
 
-        return provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase)
-            && Enum.TryParse("SqlServer", true, out parsed);
+        return false;
     }
 }

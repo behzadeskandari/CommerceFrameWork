@@ -1,0 +1,84 @@
+version=1
+
+# This file caches language service data to improve the performance of C# Dev Kit.
+# It is not intended for manual editing. It can safely be deleted and will be
+# regenerated automatically. For more information, see https://aka.ms/lscache
+#
+# To control where cache files are stored, use the following VS Code setting:
+#   "dotnet.projectsystem.cacheInProjectFolder": true
+
+[project]
+language=C#
+primary
+lastDtbSucceeded
+
+[properties]
+AssemblyName=Commerce.Tests.Unit.Scheduling
+CommandLineArgsForDesignTimeEvaluation=-langversion: -define:TRACE
+CompilerGeneratedFilesOutputPath=
+MaxSupportedLangVersion=
+ProjectAssetsFile=<PATH>obj/project.assets.json
+RootNamespace=Commerce.Tests.Unit.Scheduling
+RunAnalyzers=
+RunAnalyzersDuringLiveAnalysis=
+SolutionPath=<PATH>../../../Commerce.sln
+TargetFrameworkIdentifier=.NETCoreApp
+TargetPath=<PATH>bin/Debug/net10.0/Commerce.Tests.Unit.Scheduling.dll
+TargetRefPath=<PATH>obj/Debug/net10.0/ref/Commerce.Tests.Unit.Scheduling.dll
+TemporaryDependencyNodeTargetIdentifier=net10.0
+
+[commandLineArguments]
+/noconfig
+/unsafe-
+/checked-
+/nowarn:1701,1702,1701,1702
+/fullpaths
+/nostdlib+
+/errorreport:prompt
+/warn:1
+/define:TRACE;DEBUG;NET;NET10_0;NETCOREAPP;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP1_0_OR_GREATER;NETCOREAPP1_1_OR_GREATER;NETCOREAPP2_0_OR_GREATER;NETCOREAPP2_1_OR_GREATER;NETCOREAPP2_2_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER
+/highentropyva+
+/nullable:enable
+/debug+
+/debug:portable
+/filealign:512
+/optimize-
+/out:obj\Debug\net10.0\Commerce.Tests.Unit.Scheduling.dll
+/refout:obj\Debug\net10.0\refint\Commerce.Tests.Unit.Scheduling.dll
+/target:library
+/warnaserror-
+/utf8output
+/deterministic+
+/warnaserror+:NU1605,SYSLIB0011
+
+[sourceFiles]
+../Commerce.Tests.Unit/Scheduling/SchedulingTests.cs
+ @folderNames=Scheduling
+obj/Debug/net10.0/
+ .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+ Commerce.Tests.Unit.Scheduling.AssemblyInfo.cs
+ Commerce.Tests.Unit.Scheduling.GlobalUsings.g.cs
+
+[metadataReferences]
+../../../src/Commerce/Framework/
+ Commerce.Framework.Application/obj/Debug/net10.0/ref/Commerce.Framework.Application.dll
+ Commerce.Framework.Contracts/obj/Debug/net10.0/ref/Commerce.Framework.Contracts.dll
+ Commerce.Framework.Core/obj/Debug/net10.0/ref/Commerce.Framework.Core.dll
+ Commerce.Framework.Data/obj/Debug/net10.0/ref/Commerce.Framework.Data.dll
+ Commerce.Framework.Domain/obj/Debug/net10.0/ref/Commerce.Framework.Domain.dll
+ Commerce.Framework.Events/obj/Debug/net10.0/ref/Commerce.Framework.Events.dll
+ Commerce.Framework.Infrastructure/obj/Debug/net10.0/ref/Commerce.Framework.Infrastructure.dll
+ Scheduling/Commerce.Framework.Scheduling/obj/Debug/net10.0/ref/Commerce.Framework.Scheduling.dll
+../../../src/Commerce/Modules/Scheduling/
+ Commerce.Scheduling.Application/obj/Debug/net10.0/ref/Commerce.Scheduling.Application.dll
+ Commerce.Scheduling.Contracts/obj/Debug/net10.0/ref/Commerce.Scheduling.Contracts.dll
+ Commerce.Scheduling.Domain/obj/Debug/net10.0/ref/Commerce.Scheduling.Domain.dll
+ Commerce.Scheduling.Infrastructure/obj/Debug/net10.0/ref/Commerce.Scheduling.Infrastructure.dll
+
+[analyzerReferences]
+<DOTNET>/sdk/8.0.302/Sdks/Microsoft.NET.Sdk/analyzers/
+ Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
+ Microsoft.CodeAnalysis.NetAnalyzers.dll
+
+[analyzerConfigFiles]
+obj/Debug/net10.0/Commerce.Tests.Unit.Scheduling.GeneratedMSBuildEditorConfig.editorconfig

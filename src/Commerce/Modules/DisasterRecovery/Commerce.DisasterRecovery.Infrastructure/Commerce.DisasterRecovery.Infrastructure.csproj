@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.DisasterRecovery.Infrastructure</RootNamespace>
+    <AssemblyName>Commerce.DisasterRecovery.Infrastructure</AssemblyName>
+    <Description>Disaster recovery infrastructure.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.DisasterRecovery.Application\Commerce.DisasterRecovery.Application.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Scheduling\Commerce.Framework.Scheduling\Commerce.Framework.Scheduling.csproj" />
+    <ProjectReference Include="..\..\Scheduling\Commerce.Scheduling.Application\Commerce.Scheduling.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+  </ItemGroup>
+</Project>

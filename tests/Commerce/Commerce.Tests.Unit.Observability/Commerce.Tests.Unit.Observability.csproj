@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Commerce.Tests.Unit.Observability</RootNamespace>
+    <AssemblyName>Commerce.Tests.Unit.Observability</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Observability\Commerce.Observability.Application\Commerce.Observability.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Observability\Commerce.Observability.Infrastructure\Commerce.Observability.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Framework\Commerce.Framework.Application\Commerce.Framework.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Framework\Scheduling\Commerce.Framework.Scheduling\Commerce.Framework.Scheduling.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

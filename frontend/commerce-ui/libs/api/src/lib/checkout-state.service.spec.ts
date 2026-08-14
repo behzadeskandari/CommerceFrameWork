@@ -24,8 +24,16 @@ describe('CheckoutStateService', () => {
       discountTotal: 0,
       shippingTotal: 0,
       taxTotal: 0,
+      productTaxTotal: 0,
+      shippingTaxTotal: 0,
       grandTotal: 100,
-      currency: 'IRR'
+      giftCardApplied: 0,
+      storeCreditApplied: 0,
+      walletAdjustmentTotal: 0,
+      currency: 'IRR',
+      pricesIncludeTax: false,
+      taxLines: [],
+      taxLineItems: []
     },
     shippingOptions: [],
     paymentMethods: [],

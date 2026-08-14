@@ -11,7 +11,10 @@ public sealed class OrdersModelContributor : ICommerceModelContributor
         modelBuilder.ApplyConfiguration(new OrderConfiguration());
         modelBuilder.ApplyConfiguration(new OrderItemConfiguration());
         modelBuilder.ApplyConfiguration(new OrderStatusHistoryConfiguration());
+        modelBuilder.ApplyConfiguration(new OrderTaxLineConfiguration());
         modelBuilder.ApplyConfiguration(new OrderCreationIdempotencyConfiguration());
         modelBuilder.ApplyConfiguration(new StoreOrderNumberSequenceConfiguration());
+        modelBuilder.ApplyConfiguration(new ReturnCaseConfiguration());
+        modelBuilder.ApplyConfiguration(new ReturnCaseItemConfiguration());
     }
 }

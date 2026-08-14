@@ -30,6 +30,12 @@ internal sealed class CheckoutSessionConfiguration : IEntityTypeConfiguration<Ch
         builder.Property(x => x.UpdatedAtUtc).IsRequired();
         builder.Property(x => x.ExpiresAtUtc).IsRequired();
         builder.Property(x => x.CartUpdatedAtUtc).IsRequired();
+        builder.Property(x => x.AppliedCouponCode).HasMaxLength(64);
+        builder.Property(x => x.AppliedGiftCardCode).HasMaxLength(64);
+        builder.Property(x => x.AppliedStoreCreditAmount).HasPrecision(18, 4);
+        builder.Property(x => x.GiftCardApplied).HasPrecision(18, 4);
+        builder.Property(x => x.StoreCreditApplied).HasPrecision(18, 4);
+        builder.Property(x => x.ReferralCode).HasMaxLength(64);
 
         builder.HasIndex(x => x.StoreId);
         builder.HasIndex(x => x.CartId);

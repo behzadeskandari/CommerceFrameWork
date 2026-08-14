@@ -7,7 +7,8 @@ import {
   CustomerAddress,
   CustomersApi,
   CheckoutStep,
-  OrdersApi
+  OrdersApi,
+  PaymentsApi
 } from '@commerce/api';
 import { ApiClientError } from '@commerce/core';
 import { CurrencyFormatPipe, TranslatePipe } from '@commerce/localization';
@@ -147,8 +148,30 @@ import { firstValueFrom } from 'rxjs';
               </ul>
               <dl class="totals">
                 <div><dt>{{ 'cart.subtotal' | translate }}</dt><dd>{{ session.totals.subtotal | currencyFormat: session.currency }}</dd></div>
+                @if (session.totals.discountTotal > 0) {
+                  <div class="discount"><dt>{{ 'cart.discount' | translate }}</dt><dd>−{{ session.totals.discountTotal | currencyFormat: session.currency }}</dd></div>
+                }
                 <div><dt>{{ 'checkout.shipping' | translate }}</dt><dd>{{ session.totals.shippingTotal | currencyFormat: session.currency }}</dd></div>
+                @if (session.totals.productTaxTotal > 0) {
+                  <div><dt>{{ 'checkout.productTax' | translate }}</dt><dd>{{ session.totals.productTaxTotal | currencyFormat: session.currency }}</dd></div>
+                }
+                @if (session.totals.shippingTaxTotal > 0) {
+                  <div><dt>{{ 'checkout.shippingTax' | translate }}</dt><dd>{{ session.totals.shippingTaxTotal | currencyFormat: session.currency }}</dd></div>
+                }
                 <div><dt>{{ 'checkout.tax' | translate }}</dt><dd>{{ session.totals.taxTotal | currencyFormat: session.currency }}</dd></div>
+                @if (session.totals.pricesIncludeTax) {
+                  <div class="note"><dt>{{ 'checkout.pricesIncludeTax' | translate }}</dt><dd>{{ 'tax.yes' | translate }}</dd></div>
+                }
+                @if (session.totals.taxLines.length) {
+                  <div class="tax-lines">
+                    @for (line of session.totals.taxLines; track line.name) {
+                      <div class="tax-line">
+                        <dt>{{ line.name }}@if (line.ratePercentage != null) { ({{ line.ratePercentage }}%) }</dt>
+                        <dd>{{ line.amount | currencyFormat: session.currency }}</dd>
+                      </div>
+                    }
+                  </div>
+                }
                 <div class="grand"><dt>{{ 'checkout.grandTotal' | translate }}</dt><dd>{{ session.totals.grandTotal | currencyFormat: session.currency }}</dd></div>
               </dl>
               <button type="button" class="primary" (click)="finalize()" [disabled]="checkout.loading() || placingOrder">
@@ -189,6 +212,10 @@ import { firstValueFrom } from 'rxjs';
     .items li { display: flex; justify-content: space-between; gap: 1rem; }
     .totals { display: grid; gap: 0.375rem; margin: 1rem 0; }
     .totals div { display: flex; justify-content: space-between; gap: 1rem; }
+    .totals .discount { color: #047857; }
+    .totals .note { font-size: 0.875rem; color: #6b7280; }
+    .tax-lines { margin-top: 0.25rem; padding-inline-start: 0.75rem; border-inline-start: 2px solid #e5e7eb; }
+    .tax-line { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.875rem; color: #4b5563; }
     .grand { font-weight: 700; border-top: 1px solid #e5e7eb; padding-top: 0.5rem; }
     button.primary, button.secondary, form button[type="submit"] {
       width: fit-content; padding: 0.625rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer;
@@ -205,6 +232,7 @@ export class CheckoutPageComponent implements OnInit {
   readonly checkout = inject(CheckoutStateService);
   private readonly customersApi = inject(CustomersApi);
   private readonly ordersApi = inject(OrdersApi);
+  private readonly paymentsApi = inject(PaymentsApi);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
 
@@ -328,7 +356,10 @@ export class CheckoutPageComponent implements OnInit {
     }
 
     const checkoutId = this.session?.id ?? this.checkout.session()?.id;
-    if (!checkoutId) return;
+    if (!checkoutId || !this.session) return;
+
+    const grandTotal = this.session.totals.grandTotal;
+    const paymentMethodId = this.session.selectedPaymentMethodId;
 
     this.placingOrder = true;
     try {
@@ -336,10 +367,60 @@ export class CheckoutPageComponent implements OnInit {
         this.ordersApi.create({ checkoutId }, crypto.randomUUID())
       );
       this.checkout.reset();
-      const queryParams = result.guestAccessToken
+
+      const guestQuery = result.guestAccessToken
         ? { accessToken: result.guestAccessToken }
-        : undefined;
-      await this.router.navigate(['/order-confirmation', result.orderNumber], { queryParams });
+        : {};
+
+      if (grandTotal === 0) {
+        await this.router.navigate(['/order-confirmation', result.orderNumber], {
+          queryParams: Object.keys(guestQuery).length ? guestQuery : undefined
+        });
+        return;
+      }
+
+      try {
+        const payment = await firstValueFrom(
+          this.paymentsApi.createPayment(
+            {
+              orderId: result.id,
+              paymentMethodId: paymentMethodId ?? undefined
+            },
+            crypto.randomUUID()
+          )
+        );
+
+        const baseQuery = { orderNumber: result.orderNumber, ...guestQuery };
+
+        if (payment.status === 'Captured') {
+          await this.router.navigate(['/payment/success'], { queryParams: baseQuery });
+          return;
+        }
+
+        if (
+          payment.status === 'Initiated' ||
+          payment.status === 'Authorized' ||
+          payment.status === 'RedirectRequired'
+        ) {
+          await this.router.navigate(['/payment/processing'], {
+            queryParams: {
+              ...baseQuery,
+              instructions: payment.instructions ?? '',
+              paymentId: payment.paymentId,
+              ...(payment.redirectUrl ? { redirectUrl: payment.redirectUrl } : {})
+            }
+          });
+          return;
+        }
+
+        await this.router.navigate(['/payment/failed'], {
+          queryParams: { orderNumber: result.orderNumber }
+        });
+      } catch {
+        await this.router.navigate(['/payment/failed'], {
+          queryParams: { orderNumber: result.orderNumber }
+        });
+      }
     } catch (error) {
       this.orderError = error instanceof ApiClientError ? error.message : 'Failed to place order.';
     } finally {

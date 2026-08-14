@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Analytics.Infrastructure</RootNamespace>
+    <AssemblyName>Commerce.Analytics.Infrastructure</AssemblyName>
+    <Description>Analytics read repositories and infrastructure.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Analytics.Application\Commerce.Analytics.Application.csproj" />
+    <ProjectReference Include="..\..\Orders\Commerce.Orders.Domain\Commerce.Orders.Domain.csproj" />
+    <ProjectReference Include="..\..\Payments\Commerce.Payments.Domain\Commerce.Payments.Domain.csproj" />
+    <ProjectReference Include="..\..\Customers\Commerce.Customers.Domain\Commerce.Customers.Domain.csproj" />
+    <ProjectReference Include="..\..\Catalog\Commerce.Catalog.Domain\Commerce.Catalog.Domain.csproj" />
+    <ProjectReference Include="..\..\Inventory\Commerce.Inventory.Domain\Commerce.Inventory.Domain.csproj" />
+    <ProjectReference Include="..\..\Pricing\Commerce.Pricing.Domain\Commerce.Pricing.Domain.csproj" />
+    <ProjectReference Include="..\..\Promotions\Commerce.Promotions.Domain\Commerce.Promotions.Domain.csproj" />
+    <ProjectReference Include="..\..\Downloads\Commerce.Downloads.Domain\Commerce.Downloads.Domain.csproj" />
+    <ProjectReference Include="..\..\Cart\Commerce.Cart.Domain\Commerce.Cart.Domain.csproj" />
+    <ProjectReference Include="..\..\Checkout\Commerce.Checkout.Domain\Commerce.Checkout.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+  </ItemGroup>
+</Project>

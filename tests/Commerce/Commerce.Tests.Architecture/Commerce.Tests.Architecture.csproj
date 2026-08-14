@@ -17,6 +17,8 @@
     <ProjectReference Include="..\..\..\src\Commerce\Framework\Commerce.Framework.Application\Commerce.Framework.Application.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Framework\Commerce.Framework.Infrastructure\Commerce.Framework.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Framework\Plugins\Commerce.Framework.Plugins\Commerce.Framework.Plugins.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Host\Commerce.Host\Commerce.Host.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Modules\Catalog\Commerce.Catalog.Domain\Commerce.Catalog.Domain.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Modules\Catalog\Commerce.Catalog.Contracts\Commerce.Catalog.Contracts.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Modules\Catalog\Commerce.Catalog.Application\Commerce.Catalog.Application.csproj" />
@@ -40,6 +42,22 @@
     <ProjectReference Include="..\..\..\src\Commerce\Modules\Inventory\Commerce.Inventory.Domain\Commerce.Inventory.Domain.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Modules\Inventory\Commerce.Inventory.Application\Commerce.Inventory.Application.csproj" />
     <ProjectReference Include="..\..\..\src\Commerce\Modules\Inventory\Commerce.Inventory.Infrastructure\Commerce.Inventory.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Pricing\Commerce.Pricing.Domain\Commerce.Pricing.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Pricing\Commerce.Pricing.Application\Commerce.Pricing.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Tax\Commerce.Tax.Domain\Commerce.Tax.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Tax\Commerce.Tax.Contracts\Commerce.Tax.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Tax\Commerce.Tax.Application\Commerce.Tax.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Tax\Commerce.Tax.Infrastructure\Commerce.Tax.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Payments\Commerce.Payments.Domain\Commerce.Payments.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Payments\Commerce.Payments.Contracts\Commerce.Payments.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Payments\Commerce.Payments.Application\Commerce.Payments.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Payments\Commerce.Payments.Infrastructure\Commerce.Payments.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Plugins\Payment\Commerce.Plugin.Payment.Manual\Commerce.Plugin.Payment.Manual.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Plugins\Payment\Commerce.Plugin.Payment.ZarinPal\Commerce.Plugin.Payment.ZarinPal.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Plugins\Payment\Commerce.Plugin.Payment.Stripe\Commerce.Plugin.Payment.Stripe.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Plugins\Test\Commerce.Plugin.Test\Commerce.Plugin.Test.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Downloads\Commerce.Downloads.Domain\Commerce.Downloads.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Downloads\Commerce.Downloads.Application\Commerce.Downloads.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

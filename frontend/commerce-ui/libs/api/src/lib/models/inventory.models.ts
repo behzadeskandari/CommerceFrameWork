@@ -12,7 +12,9 @@ export type InventoryMovementType =
   | 'Correction'
   | 'Damage'
   | 'Loss'
-  | 'Sale';
+  | 'Sale'
+  | 'TransferOut'
+  | 'TransferIn';
 
 export type InventoryReservationStatus =
   | 'Active'
@@ -27,11 +29,16 @@ export interface InventoryItemSummary {
   offerId: number;
   productId: number;
   variantId: number | null;
+  warehouseId: number | null;
+  stockLocationId: number | null;
   trackInventory: boolean;
   allowBackorder: boolean;
   onHand: number;
   reserved: number;
+  incoming: number;
   available: number;
+  lowStockThreshold: number | null;
+  isLowStock: boolean;
   availabilityStatus: InventoryAvailabilityStatus;
   updatedAtUtc: string;
 }
@@ -71,7 +78,10 @@ export interface CreateInventoryItemRequest {
   trackInventory: boolean;
   allowBackorder: boolean;
   initialOnHand?: number;
+  initialIncoming?: number;
   warehouseId?: number | null;
+  stockLocationId?: number | null;
+  lowStockThreshold?: number | null;
 }
 
 export interface AdjustInventoryStockRequest {
@@ -86,6 +96,7 @@ export interface InventoryListQuery {
   storeId?: number;
   offerId?: number;
   productId?: number;
+  warehouseId?: number;
   availabilityStatus?: InventoryAvailabilityStatus;
 }
 
@@ -94,10 +105,4 @@ export interface PagedInventorySummaryResult {
   page: number;
   pageSize: number;
   totalCount: number;
-}
-
-export interface StorefrontAvailability {
-  status: string;
-  canPurchase: boolean;
-  isBackorder: boolean;
 }

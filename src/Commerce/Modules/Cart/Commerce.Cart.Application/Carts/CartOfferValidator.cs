@@ -93,7 +93,7 @@ public sealed class CartOfferValidator(
             }
         }
 
-        var resolvedPrice = await pricingReader.GetOfferPriceAsync(offerId, cancellationToken).ConfigureAwait(false);
+        var resolvedPrice = await pricingReader.GetOfferPriceAsync(offerId, quantity, cancellationToken).ConfigureAwait(false);
         if (resolvedPrice is null)
         {
             messages.Add("Offer price could not be resolved.");

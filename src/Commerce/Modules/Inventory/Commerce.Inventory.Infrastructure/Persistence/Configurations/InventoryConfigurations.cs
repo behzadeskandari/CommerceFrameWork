@@ -13,16 +13,19 @@ internal sealed class InventoryItemConfiguration : IEntityTypeConfiguration<Inve
         builder.HasKey(x => x.Id);
         builder.Property(x => x.OnHand).IsRequired();
         builder.Property(x => x.Reserved).IsRequired();
+        builder.Property(x => x.Incoming).IsRequired();
         builder.Property(x => x.TrackInventory).IsRequired();
         builder.Property(x => x.AllowBackorder).IsRequired();
         builder.Property(x => x.CreatedAtUtc).IsRequired();
         builder.Property(x => x.UpdatedAtUtc).IsRequired();
         builder.Property(x => x.RowVersion).IsRowVersion();
 
-        builder.HasIndex(x => new { x.StoreId, x.OfferId }).IsUnique();
+        builder.HasIndex(x => new { x.StoreId, x.OfferId, x.WarehouseId }).IsUnique();
         builder.HasIndex(x => x.StoreId);
         builder.HasIndex(x => x.OfferId);
         builder.HasIndex(x => x.ProductId);
+        builder.HasIndex(x => x.WarehouseId);
+        builder.HasIndex(x => x.StockLocationId);
 
         builder.HasMany(x => x.Movements)
             .WithOne()
@@ -66,5 +69,30 @@ internal sealed class InventoryReservationConfiguration : IEntityTypeConfigurati
         builder.HasIndex(x => new { x.ReferenceType, x.ReferenceId });
         builder.HasIndex(x => x.Status);
         builder.HasIndex(x => x.ExpiresAtUtc);
+    }
+}
+
+internal sealed class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
+{
+    public void Configure(EntityTypeBuilder<Warehouse> builder)
+    {
+        builder.ToTable("Warehouse");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Name).HasMaxLength(Warehouse.NameMaxLength).IsRequired();
+        builder.Property(x => x.SystemName).HasMaxLength(Warehouse.SystemNameMaxLength).IsRequired();
+        builder.HasIndex(x => new { x.StoreId, x.SystemName }).IsUnique();
+        builder.HasIndex(x => x.StoreId);
+    }
+}
+
+internal sealed class StockLocationConfiguration : IEntityTypeConfiguration<StockLocation>
+{
+    public void Configure(EntityTypeBuilder<StockLocation> builder)
+    {
+        builder.ToTable("StockLocation");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Code).HasMaxLength(StockLocation.CodeMaxLength).IsRequired();
+        builder.Property(x => x.Name).HasMaxLength(StockLocation.NameMaxLength).IsRequired();
+        builder.HasIndex(x => new { x.WarehouseId, x.Code }).IsUnique();
     }
 }

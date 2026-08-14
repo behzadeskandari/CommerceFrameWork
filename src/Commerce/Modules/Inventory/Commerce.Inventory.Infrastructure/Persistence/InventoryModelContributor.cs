@@ -11,5 +11,7 @@ public sealed class InventoryModelContributor : ICommerceModelContributor
         modelBuilder.ApplyConfiguration(new InventoryItemConfiguration());
         modelBuilder.ApplyConfiguration(new InventoryMovementConfiguration());
         modelBuilder.ApplyConfiguration(new InventoryReservationConfiguration());
+        modelBuilder.ApplyConfiguration(new WarehouseConfiguration());
+        modelBuilder.ApplyConfiguration(new StockLocationConfiguration());
     }
 }

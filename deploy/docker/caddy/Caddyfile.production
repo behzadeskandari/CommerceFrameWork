@@ -1,0 +1,29 @@
+{
+	email {$CADDY_EMAIL}
+}
+
+{$COMMERCE_DOMAIN} {
+	encode gzip zstd
+
+	header {
+		-Server
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+
+	reverse_proxy commerce:8080 {
+		health_uri /health/live
+		health_interval 15s
+		health_timeout 5s
+		transport http {
+			read_timeout 120s
+			write_timeout 120s
+		}
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}

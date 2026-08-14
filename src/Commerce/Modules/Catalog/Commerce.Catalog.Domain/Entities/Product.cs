@@ -36,6 +36,10 @@ public sealed class Product : AggregateRoot
 
     public string? Slug { get; private set; }
 
+    public decimal WeightGrams { get; private set; }
+
+    public int? TaxCategoryId { get; private set; }
+
     public DateTime CreatedAtUtc { get; private set; }
 
     public DateTime UpdatedAtUtc { get; private set; }
@@ -50,7 +54,9 @@ public sealed class Product : AggregateRoot
         bool published = false,
         bool isVisible = true,
         bool isAvailable = true,
-        int displayOrder = 0)
+        int displayOrder = 0,
+        decimal weightGrams = 0m,
+        int? taxCategoryId = null)
     {
         var product = new Product
         {
@@ -64,6 +70,8 @@ public sealed class Product : AggregateRoot
             IsVisible = isVisible,
             IsAvailable = isAvailable,
             DisplayOrder = displayOrder,
+            WeightGrams = weightGrams >= 0 ? weightGrams : 0m,
+            TaxCategoryId = taxCategoryId,
             CreatedAtUtc = DateTime.UtcNow,
             UpdatedAtUtc = DateTime.UtcNow
         };
@@ -81,7 +89,9 @@ public sealed class Product : AggregateRoot
         bool published,
         bool isVisible,
         bool isAvailable,
-        int displayOrder)
+        int displayOrder,
+        decimal weightGrams = 0m,
+        int? taxCategoryId = null)
     {
         EnsureNotDeleted();
 
@@ -94,6 +104,8 @@ public sealed class Product : AggregateRoot
         IsVisible = isVisible;
         IsAvailable = isAvailable;
         DisplayOrder = displayOrder;
+        WeightGrams = weightGrams >= 0 ? weightGrams : WeightGrams;
+        TaxCategoryId = taxCategoryId;
         UpdatedAtUtc = DateTime.UtcNow;
 
         RaiseDomainEvent(new ProductUpdatedEvent(Id, Sku, Name));

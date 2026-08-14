@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Commerce.Tests.Unit.Notifications</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Notifications\Commerce.Notifications.Application\Commerce.Notifications.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Notifications\Commerce.Notifications.Domain\Commerce.Notifications.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Commerce\Modules\Notifications\Commerce.Notifications.Infrastructure\Commerce.Notifications.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Commerce.Tests.Unit\Notifications\NotificationTests.cs" Link="Notifications\NotificationTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

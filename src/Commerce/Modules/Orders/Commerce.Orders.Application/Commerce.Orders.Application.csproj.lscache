@@ -1,0 +1,128 @@
+version=1
+
+# This file caches language service data to improve the performance of C# Dev Kit.
+# It is not intended for manual editing. It can safely be deleted and will be
+# regenerated automatically. For more information, see https://aka.ms/lscache
+#
+# To control where cache files are stored, use the following VS Code setting:
+#   "dotnet.projectsystem.cacheInProjectFolder": true
+
+[project]
+language=C#
+primary
+lastDtbSucceeded
+
+[properties]
+AssemblyName=Commerce.Orders.Application
+CommandLineArgsForDesignTimeEvaluation=-langversion:latest -define:TRACE
+CompilerGeneratedFilesOutputPath=
+MaxSupportedLangVersion=
+ProjectAssetsFile=<PATH>obj/project.assets.json
+RootNamespace=Commerce.Orders.Application
+RunAnalyzers=
+RunAnalyzersDuringLiveAnalysis=
+SolutionPath=<PATH>../../../../../Commerce.sln
+TargetFrameworkIdentifier=.NETCoreApp
+TargetPath=<PATH>bin/Debug/net10.0/Commerce.Orders.Application.dll
+TargetRefPath=<PATH>obj/Debug/net10.0/ref/Commerce.Orders.Application.dll
+TemporaryDependencyNodeTargetIdentifier=net10.0
+
+[commandLineArguments]
+/noconfig
+/unsafe-
+/checked-
+/nowarn:1701,1702,1701,1702
+/fullpaths
+/nostdlib+
+/errorreport:prompt
+/warn:1
+/define:TRACE;DEBUG;NET;NET10_0;NETCOREAPP;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP1_0_OR_GREATER;NETCOREAPP1_1_OR_GREATER;NETCOREAPP2_0_OR_GREATER;NETCOREAPP2_1_OR_GREATER;NETCOREAPP2_2_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER
+/highentropyva+
+/nullable:enable
+/debug+
+/debug:portable
+/filealign:512
+/optimize-
+/out:obj\Debug\net10.0\Commerce.Orders.Application.dll
+/refout:obj\Debug\net10.0\refint\Commerce.Orders.Application.dll
+/target:library
+/warnaserror-
+/utf8output
+/deterministic+
+/langversion:latest
+/warnaserror+:NU1605,SYSLIB0011
+
+[sourceFiles]
+Abstractions/OrderAbstractions.cs
+DependencyInjection/ServiceCollectionExtensions.cs
+Integration/OrderWalletHandlers.cs
+Lifecycle/
+ OrderLifecycleService.cs
+ ReturnCaseService.cs
+obj/Debug/net10.0/
+ .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+ Commerce.Orders.Application.AssemblyInfo.cs
+ Commerce.Orders.Application.GlobalUsings.g.cs
+Orders/
+ OrderErrors.cs
+ OrderFulfillmentUpdater.cs
+ OrderMapper.cs
+ OrderNotificationReader.cs
+ OrderNumberGenerator.cs
+ OrderService.cs
+
+[metadataReferences]
+../../../Framework/
+ Commerce.Framework.Application/obj/Debug/net10.0/ref/Commerce.Framework.Application.dll
+ Commerce.Framework.Contracts/obj/Debug/net10.0/ref/Commerce.Framework.Contracts.dll
+ Commerce.Framework.Core/obj/Debug/net10.0/ref/Commerce.Framework.Core.dll
+ Commerce.Framework.Domain/obj/Debug/net10.0/ref/Commerce.Framework.Domain.dll
+../../Cart/
+ Commerce.Cart.Contracts/obj/Debug/net10.0/ref/Commerce.Cart.Contracts.dll
+ Commerce.Cart.Domain/obj/Debug/net10.0/ref/Commerce.Cart.Domain.dll
+../../Checkout/
+ Commerce.Checkout.Contracts/obj/Debug/net10.0/ref/Commerce.Checkout.Contracts.dll
+ Commerce.Checkout.Domain/obj/Debug/net10.0/ref/Commerce.Checkout.Domain.dll
+../../Customers/
+ Commerce.Customers.Contracts/obj/Debug/net10.0/ref/Commerce.Customers.Contracts.dll
+ Commerce.Customers.Domain/obj/Debug/net10.0/ref/Commerce.Customers.Domain.dll
+../../Inventory/
+ Commerce.Inventory.Contracts/obj/Debug/net10.0/ref/Commerce.Inventory.Contracts.dll
+ Commerce.Inventory.Domain/obj/Debug/net10.0/ref/Commerce.Inventory.Domain.dll
+../../Payments/
+ Commerce.Payments.Contracts/obj/Debug/net10.0/ref/Commerce.Payments.Contracts.dll
+ Commerce.Payments.Domain/obj/Debug/net10.0/ref/Commerce.Payments.Domain.dll
+../../Pricing/
+ Commerce.Pricing.Contracts/obj/Debug/net10.0/ref/Commerce.Pricing.Contracts.dll
+ Commerce.Pricing.Domain/obj/Debug/net10.0/ref/Commerce.Pricing.Domain.dll
+../../Promotions/
+ Commerce.Promotions.Contracts/obj/Debug/net10.0/ref/Commerce.Promotions.Contracts.dll
+ Commerce.Promotions.Domain/obj/Debug/net10.0/ref/Commerce.Promotions.Domain.dll
+../../Shipping/
+ Commerce.Shipping.Contracts/obj/Debug/net10.0/ref/Commerce.Shipping.Contracts.dll
+ Commerce.Shipping.Domain/obj/Debug/net10.0/ref/Commerce.Shipping.Domain.dll
+../
+ Commerce.Orders.Contracts/obj/Debug/net10.0/ref/Commerce.Orders.Contracts.dll
+ Commerce.Orders.Domain/obj/Debug/net10.0/ref/Commerce.Orders.Domain.dll
+<NUGET>/
+ microsoft.extensions.configuration.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.Configuration.Abstractions.dll
+ microsoft.extensions.configuration.binder/10.0.0/lib/net10.0/Microsoft.Extensions.Configuration.Binder.dll
+ microsoft.extensions.configuration/10.0.0/lib/net10.0/Microsoft.Extensions.Configuration.dll
+ microsoft.extensions.dependencyinjection.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
+ microsoft.extensions.diagnostics.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.Diagnostics.Abstractions.dll
+ microsoft.extensions.fileproviders.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.FileProviders.Abstractions.dll
+ microsoft.extensions.hosting.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.Hosting.Abstractions.dll
+ microsoft.extensions.logging.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.Logging.Abstractions.dll
+ microsoft.extensions.options/10.0.0/lib/net10.0/Microsoft.Extensions.Options.dll
+ microsoft.extensions.primitives/10.0.0/lib/net10.0/Microsoft.Extensions.Primitives.dll
+
+[analyzerReferences]
+<DOTNET>/sdk/8.0.302/Sdks/Microsoft.NET.Sdk/analyzers/
+ Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
+ Microsoft.CodeAnalysis.NetAnalyzers.dll
+<NUGET>/
+ microsoft.extensions.logging.abstractions/10.0.0/analyzers/dotnet/roslyn4.4/cs/Microsoft.Extensions.Logging.Generators.dll
+ microsoft.extensions.options/10.0.0/analyzers/dotnet/roslyn4.4/cs/Microsoft.Extensions.Options.SourceGeneration.dll
+
+[analyzerConfigFiles]
+obj/Debug/net10.0/Commerce.Orders.Application.GeneratedMSBuildEditorConfig.editorconfig

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.SmartstoreImport.Infrastructure</RootNamespace>
+    <AssemblyName>Commerce.SmartstoreImport.Infrastructure</AssemblyName>
+    <Description>Smartstore SQL import infrastructure.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.SmartstoreImport.Application\Commerce.SmartstoreImport.Application.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+    <ProjectReference Include="..\..\Store\Commerce.Store.Domain\Commerce.Store.Domain.csproj" />
+    <ProjectReference Include="..\..\Customers\Commerce.Customers.Domain\Commerce.Customers.Domain.csproj" />
+    <ProjectReference Include="..\..\Catalog\Commerce.Catalog.Domain\Commerce.Catalog.Domain.csproj" />
+    <ProjectReference Include="..\..\Orders\Commerce.Orders.Domain\Commerce.Orders.Domain.csproj" />
+    <ProjectReference Include="..\..\Media\Commerce.Media.Domain\Commerce.Media.Domain.csproj" />
+    <ProjectReference Include="..\..\Cms\Commerce.Cms.Domain\Commerce.Cms.Domain.csproj" />
+    <ProjectReference Include="..\..\Seo\Commerce.Seo.Domain\Commerce.Seo.Domain.csproj" />
+    <ProjectReference Include="..\..\Pricing\Commerce.Pricing.Domain\Commerce.Pricing.Domain.csproj" />
+    <ProjectReference Include="..\..\Reviews\Commerce.Reviews.Domain\Commerce.Reviews.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+  </ItemGroup>
+</Project>

@@ -43,9 +43,42 @@ import { firstValueFrom } from 'rxjs';
           <div><dt>{{ 'inventory.onHand' | translate }}</dt><dd>{{ item.onHand }}</dd></div>
           <div><dt>{{ 'inventory.reserved' | translate }}</dt><dd>{{ item.reserved }}</dd></div>
           <div><dt>{{ 'inventory.available' | translate }}</dt><dd>{{ item.available }}</dd></div>
+          <div><dt>Incoming</dt><dd>{{ item.incoming }}</dd></div>
+          @if (item.warehouseId != null) {
+            <div><dt>Warehouse</dt><dd>#{{ item.warehouseId }}</dd></div>
+          }
+          <div><dt>Low stock</dt><dd>{{ item.isLowStock ? 'Yes' : 'No' }}</dd></div>
           <div><dt>{{ 'inventory.status' | translate }}</dt><dd>{{ item.availabilityStatus }}</dd></div>
           <div><dt>{{ 'inventory.backorder' | translate }}</dt><dd>{{ item.allowBackorder ? 'Yes' : 'No' }}</dd></div>
         </dl>
+      </section>
+
+      <section class="card">
+        <h2>Receive incoming</h2>
+        <form class="adjust-form" (ngSubmit)="submitReceiveIncoming()">
+          <label>
+            Quantity
+            <input type="number" [(ngModel)]="receiveIncoming.quantity" name="receiveQty" min="1" required />
+          </label>
+          <label>
+            Reason
+            <input type="text" [(ngModel)]="receiveIncoming.reason" name="receiveReason" required />
+          </label>
+          <button type="submit" [disabled]="receiving">Receive</button>
+        </form>
+        @if (receiveMessage) { <p role="status">{{ receiveMessage }}</p> }
+      </section>
+
+      <section class="card">
+        <h2>Low stock threshold</h2>
+        <form class="adjust-form" (ngSubmit)="submitLowStockThreshold()">
+          <label>
+            Threshold
+            <input type="number" [(ngModel)]="lowStockThreshold" name="lowStockThreshold" min="0" />
+          </label>
+          <button type="submit" [disabled]="settingThreshold">Save threshold</button>
+        </form>
+        @if (thresholdMessage) { <p role="status">{{ thresholdMessage }}</p> }
       </section>
 
       <section class="card">
@@ -144,6 +177,12 @@ export class InventoryDetailPageComponent implements OnInit {
   reservations: InventoryReservation[] = [];
   adjusting = false;
   adjustMessage = '';
+  receiving = false;
+  receiveMessage = '';
+  settingThreshold = false;
+  thresholdMessage = '';
+  lowStockThreshold: number | null = null;
+  receiveIncoming = { quantity: 1, reason: '' };
   readonly movementTypes: InventoryMovementType[] = [
     'InitialStock',
     'PurchaseReceipt',
@@ -174,6 +213,7 @@ export class InventoryDetailPageComponent implements OnInit {
         firstValueFrom(this.inventoryApi.listReservations(inventoryId))
       ]);
       this.item = item;
+      this.lowStockThreshold = item.lowStockThreshold;
       this.movements = movements;
       this.reservations = reservations;
       this.state = 'success';
@@ -196,6 +236,38 @@ export class InventoryDetailPageComponent implements OnInit {
       this.adjustMessage = error instanceof ApiClientError ? error.message : 'Adjustment failed.';
     } finally {
       this.adjusting = false;
+    }
+  }
+
+  async submitReceiveIncoming(): Promise<void> {
+    if (!this.item) return;
+    this.receiving = true;
+    this.receiveMessage = '';
+    try {
+      this.item = await firstValueFrom(this.inventoryApi.receiveIncoming(this.item.id, this.receiveIncoming));
+      this.movements = await firstValueFrom(this.inventoryApi.listMovements(this.item.id));
+      this.receiveMessage = 'Incoming stock received.';
+      this.receiveIncoming = { quantity: 1, reason: '' };
+    } catch (error) {
+      this.receiveMessage = error instanceof ApiClientError ? error.message : 'Receive failed.';
+    } finally {
+      this.receiving = false;
+    }
+  }
+
+  async submitLowStockThreshold(): Promise<void> {
+    if (!this.item) return;
+    this.settingThreshold = true;
+    this.thresholdMessage = '';
+    try {
+      this.item = await firstValueFrom(
+        this.inventoryApi.setLowStockThreshold(this.item.id, { threshold: this.lowStockThreshold })
+      );
+      this.thresholdMessage = 'Threshold updated.';
+    } catch (error) {
+      this.thresholdMessage = error instanceof ApiClientError ? error.message : 'Update failed.';
+    } finally {
+      this.settingThreshold = false;
     }
   }
 }

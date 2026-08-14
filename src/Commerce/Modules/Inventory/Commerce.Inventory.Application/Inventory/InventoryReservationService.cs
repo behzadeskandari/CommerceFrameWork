@@ -108,9 +108,16 @@ public sealed class InventoryReservationService(
             return Result.Failure(InventoryErrors.InvalidReservationState(reservationId));
         }
 
-        reservation.Convert(DateTime.UtcNow);
-        await inventoryRepository.SaveAsync(item, cancellationToken).ConfigureAwait(false);
-        logger.LogInformation("Converted inventory reservation {ReservationId}.", reservationId);
-        return Result.Success();
+        try
+        {
+            item.ConvertReservationToSale(reservation, DateTime.UtcNow, "reservation-convert");
+            await inventoryRepository.SaveAsync(item, cancellationToken).ConfigureAwait(false);
+            logger.LogInformation("Converted inventory reservation {ReservationId}.", reservationId);
+            return Result.Success();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result.Failure(InventoryErrors.InvalidReservationState(reservationId, ex.Message));
+        }
     }
 }

@@ -68,4 +68,40 @@ export class CheckoutApi {
       .post<ApiResponse<CheckoutValidationResult>>(`${this.base}/${checkoutId}/validate`, {})
       .pipe(map(response => response.data!));
   }
+
+  applyGiftCard(checkoutId: number, code: string): Observable<CheckoutSession> {
+    return this.http
+      .post<ApiResponse<CheckoutSession>>(`${this.base}/${checkoutId}/gift-cards`, { code })
+      .pipe(map(response => response.data!));
+  }
+
+  removeGiftCard(checkoutId: number): Observable<CheckoutSession> {
+    return this.http
+      .delete<ApiResponse<CheckoutSession>>(`${this.base}/${checkoutId}/gift-cards`)
+      .pipe(map(response => response.data!));
+  }
+
+  applyStoreCredit(checkoutId: number, amount: number): Observable<CheckoutSession> {
+    return this.http
+      .post<ApiResponse<CheckoutSession>>(`${this.base}/${checkoutId}/store-credit`, { amount })
+      .pipe(map(response => response.data!));
+  }
+
+  removeStoreCredit(checkoutId: number): Observable<CheckoutSession> {
+    return this.http
+      .delete<ApiResponse<CheckoutSession>>(`${this.base}/${checkoutId}/store-credit`)
+      .pipe(map(response => response.data!));
+  }
+
+  applyReferralCode(checkoutId: number, referralCode: string): Observable<CheckoutSession> {
+    return this.http
+      .post<ApiResponse<CheckoutSession>>(`${this.base}/${checkoutId}/referral-code`, { referralCode })
+      .pipe(map(response => response.data!));
+  }
+
+  removeReferralCode(checkoutId: number): Observable<CheckoutSession> {
+    return this.http
+      .delete<ApiResponse<CheckoutSession>>(`${this.base}/${checkoutId}/referral-code`)
+      .pipe(map(response => response.data!));
+  }
 }

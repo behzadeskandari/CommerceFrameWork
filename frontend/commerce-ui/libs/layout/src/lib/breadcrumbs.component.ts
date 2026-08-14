@@ -27,7 +27,7 @@ export interface BreadcrumbItem {
   `,
   styles: [`
     .breadcrumbs { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; padding: 0; margin: 0 0 1rem; color: var(--text-muted); font-size: 0.875rem; }
-    .breadcrumbs li:not(:last-child)::after { content: '/'; margin-left: 0.5rem; }
+    .breadcrumbs li:not(:last-child)::after { content: '/'; margin-inline-start: 0.5rem; }
     a { color: inherit; text-decoration: none; }
     a:hover { text-decoration: underline; }
   `]

@@ -1,3 +1,4 @@
+using Commerce.Framework.Contracts.Audit;
 using Commerce.Framework.Contracts.Configuration;
 using Commerce.Framework.Data.Db;
 using Commerce.Framework.Data.Entities;
@@ -26,7 +27,8 @@ public sealed class StoreSettingDefinitionProvider : ISettingDefinitionProvider
 
 public sealed class SettingService(
     CommerceDbContext dbContext,
-    IEnumerable<ISettingDefinitionProvider> definitionProviders) : ISettingService
+    IEnumerable<ISettingDefinitionProvider> definitionProviders,
+    IAuditPublisher auditPublisher) : ISettingService
 {
     public async Task<string?> GetRawAsync(
         string key,
@@ -92,6 +94,8 @@ public sealed class SettingService(
             .FirstOrDefaultAsync(x => x.Name == key && x.StoreId == normalizedStoreId, cancellationToken)
             .ConfigureAwait(false);
 
+        var oldValue = setting?.Value;
+
         if (setting is null)
         {
             dbContext.Settings.Add(new Setting
@@ -109,6 +113,20 @@ public sealed class SettingService(
         }
 
         await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        await auditPublisher.PublishAsync(new AuditPublishRequest(
+            AuditCategory.Settings,
+            AuditActions.SettingChanged,
+            Success: true,
+            EntityType: "Setting",
+            EntityId: key,
+            StoreId: normalizedStoreId > 0 ? normalizedStoreId : null,
+            Details: new Dictionary<string, string?>
+            {
+                ["key"] = key,
+                ["oldValue"] = oldValue,
+                ["newValue"] = value
+            }), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<SettingEntryDto>> ListAsync(

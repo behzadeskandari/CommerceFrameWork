@@ -34,6 +34,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<CheckoutRequiresShippingEvaluator>();
 
         services.AddScoped<ICheckoutTotalsCalculator, CheckoutTotalsCalculator>();
+        services.AddScoped<ICheckoutWalletCalculator, CheckoutWalletCalculator>();
 
         services.AddSingleton<ITaxCalculator, NoOpTaxCalculator>();
 

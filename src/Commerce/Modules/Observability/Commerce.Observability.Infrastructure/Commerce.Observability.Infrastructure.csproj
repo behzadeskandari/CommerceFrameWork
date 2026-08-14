@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Observability.Infrastructure</RootNamespace>
+    <AssemblyName>Commerce.Observability.Infrastructure</AssemblyName>
+    <Description>Observability middleware, health checks, and instrumentation.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Observability.Application\Commerce.Observability.Application.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Application\Commerce.Framework.Application.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+    <ProjectReference Include="..\..\..\Framework\PluginContracts\Commerce.Framework.PluginContracts\Commerce.Framework.PluginContracts.csproj" />
+    <ProjectReference Include="..\..\Payments\Commerce.Payments.Contracts\Commerce.Payments.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+  </ItemGroup>
+</Project>

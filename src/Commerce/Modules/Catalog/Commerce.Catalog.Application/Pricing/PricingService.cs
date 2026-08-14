@@ -103,6 +103,9 @@ public sealed class PricingService(
             : await MapOfferAsync(offer, cancellationToken).ConfigureAwait(false);
     }
 
+    public Task<ResolvedPriceDto?> GetOfferPriceAsync(int offerId, int quantity, CancellationToken cancellationToken = default) =>
+        GetOfferPriceAsync(offerId, cancellationToken);
+
     private async Task<ResolvedPriceDto> MapOfferAsync(
         Domain.Entities.ProductOffer offer,
         CancellationToken cancellationToken)

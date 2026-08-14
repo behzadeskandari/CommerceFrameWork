@@ -31,6 +31,11 @@ public sealed class InstallationFlowTests
         var contentRoot = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(contentRoot);
 
+        var pluginsRoot = Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory,
+            "..", "..", "..", "..", "..",
+            "src", "Commerce", "Host", "Commerce.Host", "Plugins"));
+
         return new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
             {
@@ -41,7 +46,13 @@ public sealed class InstallationFlowTests
                     {
                         ["Commerce:ApplicationName"] = "Commerce",
                         ["Commerce:Environment"] = "Development",
-                        ["Commerce:BaseUrl"] = "https://localhost:5100"
+                        ["Commerce:BaseUrl"] = "https://localhost:5100",
+                        ["Commerce:Shipping:SeedDevelopmentData"] = "true",
+                        ["Commerce:Tax:SeedDevelopmentData"] = "true",
+                        ["Commerce:Payments:SeedDevelopmentData"] = "true",
+                        ["Commerce:Plugins:SeedDevelopmentData"] = "true",
+                        ["Commerce:Plugins:RegisterServicesAtStartup"] = "false",
+                        ["Commerce:Plugins:RootPath"] = pluginsRoot
                     });
                 });
             });

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Downloads.Infrastructure</RootNamespace>
+    <AssemblyName>Commerce.Downloads.Infrastructure</AssemblyName>
+    <Description>Digital downloads infrastructure.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Downloads.Application\Commerce.Downloads.Application.csproj" />
+    <ProjectReference Include="..\Commerce.Downloads.Domain\Commerce.Downloads.Domain.csproj" />
+    <ProjectReference Include="..\..\Media\Commerce.Media.Application\Commerce.Media.Application.csproj" />
+    <ProjectReference Include="..\..\Media\Commerce.Media.Contracts\Commerce.Media.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+  </ItemGroup>
+
+</Project>

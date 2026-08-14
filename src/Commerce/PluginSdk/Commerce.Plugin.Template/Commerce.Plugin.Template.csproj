@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Plugin.Template</RootNamespace>
+    <AssemblyName>Commerce.Plugin.Template</AssemblyName>
+    <Description>Commerce plugin project template content.</Description>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="content\**\*.cs" />
+    <None Include="content\**\*.*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

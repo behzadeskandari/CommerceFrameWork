@@ -1,4 +1,5 @@
 using Commerce.Orders.Application.Abstractions;
+using Commerce.Orders.Contracts.Orders;
 using Commerce.Orders.Domain.Entities;
 using Commerce.Orders.Domain.Enums;
 using Commerce.Framework.Data.Db;
@@ -6,8 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Commerce.Orders.Infrastructure.Persistence.Repositories;
 
-public sealed class EfOrderRepository(CommerceDbContext dbContext) : IOrderRepository
+public sealed class EfOrderRepository(CommerceDbContext dbContext) : IOrderRepository, IOrderPaymentSyncRepository
 {
+    Task<Order?> IOrderPaymentSyncRepository.GetByIdAsync(int orderId, CancellationToken cancellationToken) =>
+        GetByIdWithDetailsAsync(orderId, cancellationToken);
     public Task<Order?> GetByIdWithDetailsAsync(int orderId, CancellationToken cancellationToken = default) =>
         dbContext.Set<Order>()
             .Include(x => x.Items)

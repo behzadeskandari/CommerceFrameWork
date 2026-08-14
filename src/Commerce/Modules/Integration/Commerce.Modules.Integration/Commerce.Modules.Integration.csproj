@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Modules.Integration</RootNamespace>
+    <AssemblyName>Commerce.Modules.Integration</AssemblyName>
+    <Description>Integration commerce module.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Integration.Infrastructure\Commerce.Integration.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Events\Commerce.Framework.Events.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Scheduling\Commerce.Framework.Scheduling\Commerce.Framework.Scheduling.csproj" />
+  </ItemGroup>
+</Project>

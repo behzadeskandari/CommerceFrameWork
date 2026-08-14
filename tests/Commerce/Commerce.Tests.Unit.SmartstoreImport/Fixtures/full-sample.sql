@@ -1,0 +1,41 @@
+-- Full-ish fixture extending small-sample with SEO, media, reviews, settings, topics, discounts.
+
+CREATE TABLE [dbo].[Language] ([Id] INT, [Name] NVARCHAR(200), [UniqueSeoCode] NVARCHAR(10), [LanguageCulture] NVARCHAR(20), [Rtl] BIT, [DisplayOrder] INT, [Published] BIT);
+CREATE TABLE [dbo].[Currency] ([Id] INT, [Name] NVARCHAR(200), [CurrencyCode] NVARCHAR(5), [Rate] DECIMAL(18,8), [DisplayOrder] INT, [Published] BIT);
+CREATE TABLE [dbo].[Store] ([Id] INT, [Name] NVARCHAR(400), [Url] NVARCHAR(400), [DisplayOrder] INT, [PrimaryStoreCurrencyId] INT);
+CREATE TABLE [dbo].[Setting] ([Id] INT, [Name] NVARCHAR(400), [Value] NVARCHAR(MAX), [StoreId] INT);
+CREATE TABLE [dbo].[Category] ([Id] INT, [Name] NVARCHAR(400), [Description] NVARCHAR(MAX), [Published] BIT, [DisplayOrder] INT, [ParentCategoryId] INT);
+CREATE TABLE [dbo].[Manufacturer] ([Id] INT, [Name] NVARCHAR(400), [Published] BIT, [DisplayOrder] INT);
+CREATE TABLE [dbo].[Product] ([Id] INT, [Name] NVARCHAR(400), [Sku] NVARCHAR(400), [ShortDescription] NVARCHAR(1000), [FullDescription] NVARCHAR(MAX), [Published] BIT, [Deleted] BIT, [DisplayOrder] INT, [ProductTypeId] INT, [Price] DECIMAL(18,4), [Weight] DECIMAL(18,4));
+CREATE TABLE [dbo].[Product_Category_Mapping] ([ProductId] INT, [CategoryId] INT, [DisplayOrder] INT);
+CREATE TABLE [dbo].[MediaFile] ([Id] INT, [Name] NVARCHAR(400), [MimeType] NVARCHAR(200), [Extension] NVARCHAR(50), [Size] INT, [Path] NVARCHAR(500), [Width] INT);
+CREATE TABLE [dbo].[Product_MediaFile_Mapping] ([ProductId] INT, [MediaFileId] INT, [DisplayOrder] INT);
+CREATE TABLE [dbo].[Customer] ([Id] INT, [Email] NVARCHAR(500), [FirstName] NVARCHAR(225), [LastName] NVARCHAR(225), [Active] BIT, [Deleted] BIT, [IsSystemAccount] BIT);
+CREATE TABLE [dbo].[Discount] ([Id] INT, [Name] NVARCHAR(200), [DiscountTypeId] INT, [DiscountPercentage] DECIMAL(18,4), [DiscountAmount] DECIMAL(18,4), [IsActive] BIT);
+CREATE TABLE [dbo].[ProductReview] ([Id] INT, [ProductId] INT, [CustomerId] INT, [Rating] INT, [Title] NVARCHAR(200), [ReviewText] NVARCHAR(MAX), [IsApproved] BIT, [IsVerifiedPurchase] BIT);
+CREATE TABLE [dbo].[Topic] ([Id] INT, [SystemName] NVARCHAR(200), [Title] NVARCHAR(400), [Body] NVARCHAR(MAX), [IsPublished] BIT);
+CREATE TABLE [dbo].[UrlRecord] ([Id] INT, [EntityName] NVARCHAR(200), [EntityId] INT, [Slug] NVARCHAR(400), [LanguageId] INT, [StoreId] INT, [IsActive] BIT);
+CREATE TABLE [dbo].[LocalizedProperty] ([Id] INT, [EntityId] INT, [LanguageId] INT, [LocaleKeyGroup] NVARCHAR(200), [LocaleKey] NVARCHAR(200), [LocaleValue] NVARCHAR(MAX));
+CREATE TABLE [dbo].[LocaleStringResource] ([Id] INT, [LanguageId] INT, [ResourceName] NVARCHAR(200), [ResourceValue] NVARCHAR(MAX));
+CREATE TABLE [dbo].[Order] ([Id] INT, [OrderNumber] NVARCHAR(400), [StoreId] INT, [CustomerId] INT, [CustomerCurrencyCode] NVARCHAR(5), [OrderSubtotalInclTax] DECIMAL(18,4), [OrderDiscount] DECIMAL(18,4), [OrderShippingInclTax] DECIMAL(18,4), [OrderTax] DECIMAL(18,4), [OrderTotal] DECIMAL(18,4), [OrderStatusId] INT, [PaymentStatusId] INT, [ShippingStatusId] INT);
+CREATE TABLE [dbo].[OrderItem] ([Id] INT, [OrderId] INT, [ProductId] INT, [Quantity] INT, [UnitPriceInclTax] DECIMAL(18,4), [PriceInclTax] DECIMAL(18,4), [ProductName] NVARCHAR(400), [Sku] NVARCHAR(400));
+
+INSERT INTO [dbo].[Language] ([Id], [Name], [UniqueSeoCode], [LanguageCulture], [Rtl], [DisplayOrder], [Published]) VALUES (1, N'English', N'en', N'en-US', 0, 0, 1);
+INSERT INTO [dbo].[Currency] ([Id], [Name], [CurrencyCode], [Rate], [DisplayOrder], [Published]) VALUES (1, N'US Dollar', N'USD', 1.00000000, 0, 1);
+INSERT INTO [dbo].[Store] ([Id], [Name], [Url], [DisplayOrder], [PrimaryStoreCurrencyId]) VALUES (1, N'Full Demo Store', N'https://full-demo.local/', 0, 1);
+INSERT INTO [dbo].[Setting] ([Id], [Name], [Value], [StoreId]) VALUES (1, N'CatalogSettings.ShowProductSku', N'True', 0);
+INSERT INTO [dbo].[Category] ([Id], [Name], [Description], [Published], [DisplayOrder], [ParentCategoryId]) VALUES (1, N'Electronics', N'Electronics root', 1, 0, 0);
+INSERT INTO [dbo].[Manufacturer] ([Id], [Name], [Published], [DisplayOrder]) VALUES (1, N'Acme', 1, 0);
+INSERT INTO [dbo].[Product] ([Id], [Name], [Sku], [ShortDescription], [FullDescription], [Published], [Deleted], [DisplayOrder], [ProductTypeId], [Price], [Weight]) VALUES (1, N'Phone', N'PHONE-1', N'Smartphone', N'Full phone description', 1, 0, 0, 5, 499.0000, 0.2000);
+INSERT INTO [dbo].[Product_Category_Mapping] ([ProductId], [CategoryId], [DisplayOrder]) VALUES (1, 1, 0);
+INSERT INTO [dbo].[MediaFile] ([Id], [Name], [MimeType], [Extension], [Size], [Path], [Width]) VALUES (1, N'phone.jpg', N'image/jpeg', N'jpg', 12000, N'/media/phone.jpg', 800);
+INSERT INTO [dbo].[Product_MediaFile_Mapping] ([ProductId], [MediaFileId], [DisplayOrder]) VALUES (1, 1, 0);
+INSERT INTO [dbo].[Customer] ([Id], [Email], [FirstName], [LastName], [Active], [Deleted], [IsSystemAccount]) VALUES (1, N'buyer@example.com', N'Buyer', N'One', 1, 0, 0);
+INSERT INTO [dbo].[Discount] ([Id], [Name], [DiscountTypeId], [DiscountPercentage], [DiscountAmount], [IsActive]) VALUES (1, N'Launch 10%', 1, 10.0000, 0.0000, 1);
+INSERT INTO [dbo].[ProductReview] ([Id], [ProductId], [CustomerId], [Rating], [Title], [ReviewText], [IsApproved], [IsVerifiedPurchase]) VALUES (1, 1, 1, 5, N'Great phone', N'Works well.', 1, 1);
+INSERT INTO [dbo].[Topic] ([Id], [SystemName], [Title], [Body], [IsPublished]) VALUES (1, N'about-us', N'About us', N'<p>About content</p>', 1);
+INSERT INTO [dbo].[UrlRecord] ([Id], [EntityName], [EntityId], [Slug], [LanguageId], [StoreId], [IsActive]) VALUES (1, N'Product', 1, N'phone', 1, 1, 1);
+INSERT INTO [dbo].[LocalizedProperty] ([Id], [EntityId], [LanguageId], [LocaleKeyGroup], [LocaleKey], [LocaleValue]) VALUES (1, 1, 1, N'Product', N'Name', N'Phone EN');
+INSERT INTO [dbo].[LocaleStringResource] ([Id], [LanguageId], [ResourceName], [ResourceValue]) VALUES (1, 1, N'Common.OK', N'OK');
+INSERT INTO [dbo].[Order] ([Id], [OrderNumber], [StoreId], [CustomerId], [CustomerCurrencyCode], [OrderSubtotalInclTax], [OrderDiscount], [OrderShippingInclTax], [OrderTax], [OrderTotal], [OrderStatusId], [PaymentStatusId], [ShippingStatusId]) VALUES (1, N'SS-2001', 1, 1, N'USD', 499.0000, 0.0000, 0.0000, 0.0000, 499.0000, 30, 30, 10);
+INSERT INTO [dbo].[OrderItem] ([Id], [OrderId], [ProductId], [Quantity], [UnitPriceInclTax], [PriceInclTax], [ProductName], [Sku]) VALUES (1, 1, 1, 1, 499.0000, 499.0000, N'Phone', N'PHONE-1');

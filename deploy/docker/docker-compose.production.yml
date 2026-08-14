@@ -1,0 +1,45 @@
+# Production overlay — HTTPS reverse proxy, startup migrations, persistent volumes
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.production.yml --env-file .env up -d --build
+#
+# Secrets: supply via `.env` (gitignored) or Docker secrets / orchestrator env — never in source control.
+
+services:
+  sqlserver:
+    restart: always
+
+  redis:
+    restart: always
+
+  commerce:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Commerce__Environment: Production
+      Commerce__BaseUrl: https://${COMMERCE_DOMAIN:?Set COMMERCE_DOMAIN}
+      Commerce__Deployment__ApplyMigrationsOnStartup: "true"
+      Commerce__Deployment__WaitForDatabaseSeconds: "120"
+      Commerce__DisasterRecovery__EnableScheduledBackups: "true"
+      Commerce__DisasterRecovery__BackupRoot: App_Data/backups
+    ports: !reset []
+    restart: always
+
+  caddy:
+    image: caddy:2-alpine
+    depends_on:
+      commerce:
+        condition: service_healthy
+    environment:
+      COMMERCE_DOMAIN: ${COMMERCE_DOMAIN}
+      CADDY_EMAIL: ${CADDY_EMAIL:?Set CADDY_EMAIL for ACME registration}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile.production:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    restart: always
+
+volumes:
+  caddy-data:
+  caddy-config:

@@ -1,13 +1,21 @@
 using Commerce.Cart.Contracts.Carts;
 using Commerce.Checkout.Contracts.Checkout;
 using Commerce.Customers.Contracts.Customers;
+using Commerce.Framework.Application.Observability;
+using Commerce.Framework.Contracts.Audit;
+using Commerce.Framework.Contracts.Observability;
 using Commerce.Framework.Contracts.Tenancy;
 using Commerce.Framework.Core.Results;
 using Commerce.Inventory.Contracts.Inventory;
+using Commerce.Payments.Contracts.Payments;
+using Commerce.Pricing.Contracts.Pricing;
+using Commerce.Promotions.Contracts.Usage;
 using Commerce.Orders.Application.Abstractions;
 using Commerce.Orders.Contracts.Orders;
 using Commerce.Orders.Domain.Entities;
+using Commerce.Orders.Domain.Enums;
 using Commerce.Orders.Domain.ValueObjects;
+using Commerce.Shipping.Contracts.Shipments;
 using Microsoft.Extensions.Logging;
 
 namespace Commerce.Orders.Application.Orders;
@@ -23,7 +31,15 @@ public sealed class OrderService(
     IGuestCartContext guestCartContext,
     ICustomerReader customerReader,
     IInventoryOrderService inventoryOrderService,
+    ICouponUsageService couponUsageService,
+    IPromotionUsageService promotionUsageService,
     IStoreContext storeContext,
+    IPaymentService? paymentService,
+    IEnumerable<IOrderCreatedHandler> orderCreatedHandlers,
+    IEnumerable<IOrderCancelledHandler> orderCancelledHandlers,
+    IShipmentAdminService shipmentAdminService,
+    IAuditPublisher auditPublisher,
+    ICorrelationContext correlationContext,
     ILogger<OrderService> logger) : IOrderService, IAdminOrderService
 {
     public async Task<Result<CreateOrderResultDto>> CreateFromCheckoutAsync(
@@ -150,12 +166,27 @@ public sealed class OrderService(
                 line.Quantity,
                 line.UnitPrice,
                 line.LineSubtotal,
-                0m,
-                0m,
-                line.LineSubtotal,
+                line.LineDiscount,
+                line.LineTax,
+                line.LineTotal,
                 line.CurrencyCode,
                 line.PrimaryImageUrl,
-                line.PrimaryImageThumbnailUrl)));
+                line.PrimaryImageThumbnailUrl)),
+            prep.OrderTaxLines.Select(x => OrderTaxLine.Create(
+                0,
+                x.Name,
+                x.RatePercentage,
+                x.TaxableAmount,
+                x.Amount,
+                prep.Totals.Currency,
+                x.IsShippingTax,
+                null,
+                null)),
+            prep.Totals.StoreCreditApplied,
+            prep.Totals.GiftCardApplied,
+            prep.AppliedGiftCardCode,
+            prep.ReferralCode,
+            prep.AffiliateId);
 
         var transactionResult = await orderCreationTransaction.ExecuteAsync(
             new OrderCreationTransactionRequest(order, prep.CheckoutId, prep.CartId, storeId.Value, normalizedKey),
@@ -182,10 +213,74 @@ public sealed class OrderService(
                 OrderErrors.OrderCreationConflict(transactionResult.ErrorMessage ?? "Order creation failed."));
         }
 
-        logger.LogInformation(
-            "Order {OrderNumber} created from checkout {CheckoutId}",
-            order.OrderNumber,
-            prep.CheckoutId);
+        using (CommerceLogging.BeginOperationScope(
+            logger,
+            correlationContext,
+            "order.created",
+            ("OrderNumber", order.OrderNumber),
+            ("CheckoutId", prep.CheckoutId)))
+        {
+            CommerceMetrics.OrderOperations.Add(1, new KeyValuePair<string, object?>("operation", "created"));
+            logger.LogInformation(
+                "Order {OrderNumber} created from checkout {CheckoutId}",
+                order.OrderNumber,
+                prep.CheckoutId);
+        }
+
+        foreach (var handler in orderCreatedHandlers)
+        {
+            await handler.HandleOrderCreatedAsync(transactionResult.OrderId!.Value, cancellationToken).ConfigureAwait(false);
+        }
+
+        if (!string.IsNullOrWhiteSpace(prep.AppliedCouponCode))
+        {
+            var couponResult = await couponUsageService.TryConsumeAsync(
+                new CouponUsageRequest(
+                    prep.AppliedCouponCode,
+                    prep.StoreId,
+                    transactionResult.OrderId!.Value,
+                    prep.CustomerId),
+                cancellationToken).ConfigureAwait(false);
+
+            if (!couponResult.Success)
+            {
+                logger.LogWarning(
+                    "Coupon {CouponCode} could not be consumed for order {OrderId}: {Error}",
+                    prep.AppliedCouponCode,
+                    transactionResult.OrderId,
+                    couponResult.ErrorMessage);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(prep.AppliedCouponCode))
+        {
+            await promotionUsageService.RecordOrderUsageAsync(
+                new PromotionOrderUsageRequest(
+                    prep.StoreId,
+                    transactionResult.OrderId!.Value,
+                    prep.CustomerId,
+                    prep.AppliedCouponCode,
+                    DateTime.UtcNow),
+                cancellationToken).ConfigureAwait(false);
+        }
+
+        if (paymentService is not null && prep.Totals.GrandTotal == 0)
+        {
+            var paymentResult = await paymentService.CreateForOrderAsync(
+                new CreatePaymentForOrderRequest(
+                    transactionResult.OrderId!.Value,
+                    PaymentMethodSystemName: PaymentProviderNames.FreeMethod),
+                $"{normalizedKey}-payment",
+                cancellationToken).ConfigureAwait(false);
+
+            if (!paymentResult.IsSuccess)
+            {
+                logger.LogWarning(
+                    "Free-order payment auto-create failed for order {OrderId}: {Error}",
+                    transactionResult.OrderId,
+                    paymentResult.Error?.Message);
+            }
+        }
 
         return Result.Success(new CreateOrderResultDto(
             transactionResult.OrderId!.Value,
@@ -332,7 +427,33 @@ public sealed class OrderService(
             order,
             request.Reason ?? "Cancelled by administrator.",
             actor,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false) switch
+        {
+            { IsSuccess: true } success => await PublishOrderCancelledAuditAsync(order, actor, success, cancellationToken).ConfigureAwait(false),
+            var failure => failure
+        };
+    }
+
+    private async Task<Result<OrderDetailDto>> PublishOrderCancelledAuditAsync(
+        Order order,
+        string? actor,
+        Result<OrderDetailDto> result,
+        CancellationToken cancellationToken)
+    {
+        await auditPublisher.PublishAsync(new AuditPublishRequest(
+            AuditCategory.Order,
+            AuditActions.OrderCancelled,
+            Success: true,
+            EntityType: nameof(Order),
+            EntityId: order.Id.ToString(),
+            StoreId: order.StoreId,
+            ActorType: AuditActorType.Administrator,
+            ActorDisplay: actor,
+            Details: new Dictionary<string, string?>
+            {
+                ["orderNumber"] = order.OrderNumber
+            }), cancellationToken).ConfigureAwait(false);
+        return result;
     }
 
     async Task<Result<OrderDetailDto>> IAdminOrderService.CancelAsync(
@@ -368,19 +489,47 @@ public sealed class OrderService(
 
         await orderRepository.SaveAsync(order, cancellationToken).ConfigureAwait(false);
 
-        var releaseResult = await inventoryOrderService
-            .ReleaseForOrderAsync(order.Id, order.StoreId, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (!releaseResult.IsSuccess)
+        var isPaid = order.PaymentStatus is PaymentStatus.Paid or PaymentStatus.PartiallyRefunded;
+        if (isPaid)
         {
-            logger.LogWarning(
-                "Order {OrderNumber} cancelled but inventory release failed: {Error}",
-                order.OrderNumber,
-                releaseResult.Error!.Message);
+            var restockLines = order.Items
+                .Where(x => x.ActiveQuantity > 0)
+                .Select(x => new InventoryOrderLineAdjustment(x.OfferId, x.ActiveQuantity))
+                .ToList();
+
+            if (restockLines.Count > 0)
+            {
+                await inventoryOrderService
+                    .RestockForOrderAsync(order.Id, order.StoreId, restockLines, reason, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+        }
+        else
+        {
+            var releaseResult = await inventoryOrderService
+                .ReleaseForOrderAsync(order.Id, order.StoreId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!releaseResult.IsSuccess)
+            {
+                logger.LogWarning(
+                    "Order {OrderNumber} cancelled but inventory release failed: {Error}",
+                    order.OrderNumber,
+                    releaseResult.Error!.Message);
+            }
         }
 
+        await shipmentAdminService
+            .CancelOpenShipmentsForOrderAsync(order.Id, reason, cancellationToken)
+            .ConfigureAwait(false);
+
         logger.LogInformation("Order {OrderNumber} cancelled.", order.OrderNumber);
+
+        foreach (var handler in orderCancelledHandlers)
+        {
+            await handler.HandleOrderCancelledAsync(order.Id, reason, cancellationToken).ConfigureAwait(false);
+        }
+
         return Result.Success(OrderMapper.ToDetail(order));
     }
 

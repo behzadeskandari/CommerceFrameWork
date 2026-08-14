@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Plugin.Theme.Default</RootNamespace>
+    <AssemblyName>Commerce.Plugin.Theme.Default</AssemblyName>
+    <Description>Default storefront theme provider.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Themes\Commerce.Framework.Themes\Commerce.Framework.Themes.csproj" />
+    <ProjectReference Include="..\..\..\Framework\PluginContracts\Commerce.Framework.PluginContracts\Commerce.Framework.PluginContracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Plugin.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CopyPluginOutput" AfterTargets="Build">
+    <PropertyGroup>
+      <PluginHostDir>$(MSBuildThisFileDirectory)..\..\..\Host\Commerce.Host\Plugins\Themes.Default\</PluginHostDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(PluginHostDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginHostDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Plugin.json" DestinationFolder="$(PluginHostDir)" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

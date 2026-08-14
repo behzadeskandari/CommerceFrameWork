@@ -7,7 +7,9 @@ namespace Commerce.Host.Inventory;
 
 [ApiController]
 [Route("api/admin/inventory")]
-public sealed class AdminInventoryController(IInventoryAdminService inventoryAdminService) : ControllerBase
+public sealed class AdminInventoryController(
+    IInventoryAdminService inventoryAdminService,
+    IInventoryTransferService transferService) : ControllerBase
 {
     [HttpGet]
     [RequirePermission(InventoryPermissions.View)]
@@ -64,6 +66,40 @@ public sealed class AdminInventoryController(IInventoryAdminService inventoryAdm
         var result = await inventoryAdminService.ListReservationsAsync(id, cancellationToken).ConfigureAwait(false);
         return InventoryActionResults.ToActionResult(this, result, value => value);
     }
+
+    [HttpPost("{id:int}/low-stock-threshold")]
+    [RequirePermission(InventoryPermissions.Manage)]
+    public async Task<IActionResult> SetLowStockThreshold(
+        int id,
+        [FromBody] SetLowStockThresholdRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await inventoryAdminService.SetLowStockThresholdAsync(id, request, cancellationToken).ConfigureAwait(false);
+        return InventoryActionResults.ToActionResult(this, result, value => value);
+    }
+
+    [HttpPost("transfer")]
+    [RequirePermission(InventoryPermissions.Adjust)]
+    public async Task<IActionResult> Transfer([FromBody] TransferInventoryStockRequest request, CancellationToken cancellationToken)
+    {
+        var result = await transferService.TransferAsync(request, "admin", cancellationToken).ConfigureAwait(false);
+        return InventoryActionResults.ToActionResult(this, result, value => new
+        {
+            sourceMovement = value.SourceMovement,
+            destinationMovement = value.DestinationMovement
+        });
+    }
+
+    [HttpPost("{id:int}/receive-incoming")]
+    [RequirePermission(InventoryPermissions.Adjust)]
+    public async Task<IActionResult> ReceiveIncoming(
+        int id,
+        [FromBody] ReceiveIncomingStockRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await transferService.ReceiveIncomingAsync(id, request, "admin", cancellationToken).ConfigureAwait(false);
+        return InventoryActionResults.ToActionResult(this, result, value => value);
+    }
 }
 
 internal static class InventoryActionResults
@@ -77,6 +113,19 @@ internal static class InventoryActionResults
         if (result.IsSuccess)
         {
             return controller.StatusCode(successStatusCode, new { success = true, data = dataSelector(result.Value!) });
+        }
+
+        return MapFailure(controller, result.Error!);
+    }
+
+    internal static IActionResult ToActionResult(
+        ControllerBase controller,
+        Commerce.Framework.Core.Results.Result result,
+        int successStatusCode = StatusCodes.Status200OK)
+    {
+        if (result.IsSuccess)
+        {
+            return controller.StatusCode(successStatusCode, new { success = true });
         }
 
         return MapFailure(controller, result.Error!);

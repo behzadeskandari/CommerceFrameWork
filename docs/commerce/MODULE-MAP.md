@@ -28,8 +28,8 @@ These are not business modules — they provide platform capabilities consumed b
 | `Commerce.Framework.Data` | DbContext, migrations, repositories (specific, not generic) | `CommerceDbContext`, `ICommerceMigration` |
 | `Commerce.Framework.Security` | Auth, permissions, password hashing | `IPermissionService`, `ICurrentCustomer` |
 | `Commerce.Framework.Logging` | Structured logging, audit | `IAuditLogger` |
-| `Commerce.Framework.Caching` | Cache management | `ICacheManager` |
-| `Commerce.Framework.Events` | Event bus | `IEventBus`, `IEventHandler<T>` |
+| `Commerce.Framework.Contracts.Caching` | Cache management | `ICacheManager`, `ICacheKeyBuilder`, `ICacheInvalidator` |
+| `Commerce.Framework.Events` | Integration event bus, domain event dispatch | `IEventBus`, `IIntegrationEvent`, `IDomainEventDispatcher` |
 | `Commerce.Framework.Scheduling` | Background tasks | `IScheduledTask`, `IScheduler` |
 | `Commerce.Framework.Plugins` | Plugin discovery, lifecycle | `ICommercePlugin`, `IPluginManager` |
 | `Commerce.Framework.Media` | Media abstraction | `IMediaStorage`, `IMediaService` |
@@ -127,48 +127,54 @@ These are not business modules — they provide platform capabilities consumed b
 **Depends on:** Cart.Contracts, Catalog.Contracts, Customers.Contracts, Store.Contracts  
 **Does NOT depend on:** Cart/Catalog/Customers Infrastructure, Order, Payment, Shipping, Tax Infrastructure
 
-### 3.4.1 Orders Module (PHASE 12 — implemented)
+### 3.4.1 Orders Module (PHASE 12 + PHASE 31 — implemented)
 
 **Path:** `src/Commerce/Modules/Orders/`
 
 | Layer | Contents |
 |---|---|
-| Domain | `Order`, `OrderItem`, `OrderStatusHistory`, `OrderCreationIdempotency`, `StoreOrderNumberSequence`, `OrderAddressSnapshot` |
-| Contracts | `IOrderService`, `IAdminOrderService`, order DTOs |
-| Application | `OrderService`, `OrderNumberGenerator`, `OrderMapper` |
-| Infrastructure | `EfOrderRepository`, `OrderCreationTransaction`, `OrdersPermissionContributor`, `OrdersModelContributor` |
+| Domain | `Order`, `OrderItem`, `OrderStatusHistory`, **`ReturnCase`**, **`ReturnCaseItem`**, `OrderCreationIdempotency`, `StoreOrderNumberSequence`, `OrderAddressSnapshot` |
+| Contracts | `IOrderService`, `IAdminOrderService`, **`IOrderLifecycleService`**, **`IReturnAdminService`**, order/return DTOs |
+| Application | `OrderService`, **`OrderLifecycleService`**, **`ReturnCaseService`**, `OrderNumberGenerator`, `OrderMapper` |
+| Infrastructure | `EfOrderRepository`, **`EfReturnCaseRepository`**, `OrderCreationTransaction`, `OrdersPermissionContributor`, `OrdersModelContributor` |
 
 **Purchase chain:** `ReadyForOrder Checkout → ICheckoutOrderPreparationService → immutable Order + snapshots`
 
-**Order invariant:** one order per checkout; totals computed server-side; historical snapshots never reference live catalog/customer rows
+**Post-order lifecycle (Phase 31):** confirm → processing → complete; partial cancel; server-side refund; return cases (request → approve/reject → return shipment → receive → restock → refund → complete)
+
+**Status dimensions (separate):** `OrderStatus`, `PaymentStatus`, `FulfillmentStatus`, `ReturnStatus` (on ReturnCase), shipment status in Shipping module, refund status in Payments module
+
+**Order invariant:** one order per checkout; totals computed server-side; financial/audit history append-only
 
 **Order numbering:** `ORD-{year}-{sequence:D6}` per store via `StoreOrderNumberSequence`
 
-**API:** `/api/orders/*`, `/api/admin/orders/*`
+**API:** `/api/orders/*`, `/api/admin/orders/*`, **`/api/admin/returns/*`**
 
-**Depends on:** Checkout.Contracts, Cart.Contracts, Catalog.Contracts, Customers.Contracts, Store.Contracts, **Inventory.Contracts**  
-**Does NOT depend on:** Checkout/Cart/Catalog/Customers Infrastructure, Payment, Shipping, Inventory Infrastructure
+**Depends on:** Checkout.Contracts, Cart.Contracts, Catalog.Contracts, Customers.Contracts, Store.Contracts, **Inventory.Contracts**, **Payments.Contracts**, **Shipping.Contracts**  
+**Does NOT depend on:** Checkout/Cart/Catalog/Customers Infrastructure, Payment/Shipping/Inventory Infrastructure
 
-### 3.4.2 Inventory Module (PHASE 13 — implemented)
+### 3.4.2 Inventory Module (PHASE 13 + PHASE 29 — implemented)
 
 **Path:** `src/Commerce/Modules/Inventory/`
 
 | Layer | Contents |
 |---|---|
-| Domain | `InventoryItem`, `InventoryMovement`, `InventoryReservation` |
-| Contracts | `IInventoryReader`, `IInventoryOrderService`, `IInventoryReservationService`, `IInventoryAdminService` |
-| Application | `InventoryReader`, `InventoryOrderService`, `InventoryAdminService`, `InventoryReservationService` |
-| Infrastructure | `EfInventoryRepository`, `InventoryModelContributor`, `InventoryPermissionContributor` |
+| Domain | `InventoryItem`, `InventoryMovement`, `InventoryReservation`, **`Warehouse`**, **`StockLocation`** |
+| Contracts | `IInventoryReader`, `IInventoryOrderService`, `IInventoryReservationService`, `IInventoryAdminService`, **`IWarehouseAdminService`**, **`IInventoryTransferService`** |
+| Application | `InventoryReader`, `InventoryOrderService`, `InventoryAdminService`, `InventoryReservationService`, **`WarehouseAdminService`**, **`InventoryTransferService`**, **`InventoryWarehouseAllocator`**, **`OrderPaidInventoryHandler`**, expiration job handler |
+| Infrastructure | `EfInventoryRepository`, `InventoryModelContributor`, `InventoryPermissionContributor`, recurring job registration |
 
-**Purchase chain:** `OfferId → InventoryItem (StoreId + OfferId) → OnHand / Reserved / Available`
+**Stock model:** `OnHand`, `Reserved`, `Available`, `Incoming`; optional `LowStockThreshold`; one row per `(StoreId, OfferId, WarehouseId)`
 
-**Reservation lifecycle:** `Active → Released | Converted | Expired | Cancelled` (expired excluded from availability without background worker)
+**Purchase chain:** `OfferId → InventoryItem(s) per warehouse → aggregated availability for cart/checkout`
 
-**Order integration:** reserve in `OrderCreationTransaction`; release on cancel via `IInventoryOrderService`
+**Reservation lifecycle:** `Active → Released | Converted | Expired | Cancelled`; expiration via recurring job `inventory.reservations.expire`
 
-**API:** `/api/admin/inventory/*`
+**Order integration:** reserve on create; release on cancel; **convert to sale on payment** via `IOrderPaidHandler`; **partial release on partial cancel**; **restock on cancel/refund/return** (Phase 31)
 
-**Depends on:** Catalog.Contracts, Store.Contracts, Orders.Contracts (application only where needed)  
+**API:** `/api/admin/inventory/*`, `/api/admin/inventory/warehouses/*`
+
+**Depends on:** Catalog.Contracts, Store.Contracts, Orders.Contracts, **Commerce.Framework.Scheduling**  
 **Does NOT depend on:** Catalog/Orders Infrastructure
 
 **Depended on by:** Cart, Checkout, Orders (via Contracts), Catalog storefront pricing (via Contracts)
@@ -179,8 +185,8 @@ These are not business modules — they provide platform capabilities consumed b
 
 | Layer | Contents |
 |---|---|
-| Domain | `Customer`, `CustomerRole`, `Address`, `ExternalAuthRecord`, `NewsletterSubscription`, `Affiliate` |
-| Application | `ICustomerService`, `ICustomerRegistrationService`, `ICustomerAuthenticationService`, `IAddressService`, `ICustomerRoleService` |
+| Domain | `Customer`, `CustomerRole`, `Address`, `ExternalAuthRecord`, `NewsletterSubscription`, `Affiliate`, `CustomerPreference`, `CustomerSegment`, `LoyaltyAccount`, `LoyaltyReward`, `StoreCreditAccount`, `CustomerActivityLog` |
+| Application | `ICustomerService`, `ICustomerRegistrationService`, `ICustomerAuthenticationService`, `IAddressService`, `ICustomerRoleService`, `ICustomerPreferenceService`, `ICustomerSegmentAdminService`, `ILoyaltyService`, `ILoyaltyRewardAdminService`, `IStoreCreditService`, `ICustomerActivityService`, `ICustomerAccountAdminService`, `ICustomerAccountStorefrontService` |
 | Events | `CustomerRegisteredEvent`, `CustomerLoggedInEvent`, `CustomerPasswordChangedEvent` |
 
 **Responsibilities:**
@@ -189,7 +195,10 @@ These are not business modules — they provide platform capabilities consumed b
 - Roles and permissions (via Security framework)
 - Customer attributes (via GenericAttribute)
 - Newsletter subscriptions
-- Wallet and reward points (future)
+- Customer preferences, segments, loyalty points/rewards, store credit (transaction-ledgers)
+- Purchase history and activity (admin + storefront)
+- Order-paid loyalty earning (`IOrderPaidHandler`)
+- Affiliates, referral codes, commission ledger (Phase 33)
 
 **Depends on:** Framework (Core, Data, Security, Events)  
 **Depended on by:** ShoppingCart, Checkout, Orders, Discounts
@@ -303,41 +312,198 @@ These are not business modules — they provide platform capabilities consumed b
 **Depends on:** Framework (Contracts, Plugins)  
 **Depended on by:** ShoppingCart, Checkout
 
-### 3.8 Tax Module
+### 3.8 Tax Module (Phase 16 — IMPLEMENTED)
 
-**Path:** `Commerce.Modules/Tax/`
+**Path:** `src/Commerce/Modules/Tax/`
 
 | Layer | Contents |
 |---|---|
-| Domain | `TaxCategory`, `TaxRate`, `Country`, `StateProvince` |
-| Application | `ITaxService`, `ITaxCalculator` |
+| Domain | `TaxCategory`, `TaxRate`, `TaxZone`, zone rules (country/state/postal) |
+| Contracts | `ITaxCalculationService`, `ITaxProvider`, calculation DTOs, admin DTOs |
+| Application | `TaxCalculationService`, `InternalTaxProvider`, `CheckoutTaxCalculator`, `TaxZoneMatcher`, `TaxAmountCalculator`, `TaxAdminService` |
+| Infrastructure | EF persistence, permissions, settings, development seeder |
+
+**Responsibilities:**
+- Store-scoped tax categories, zones, and rates
+- Centralized tax calculation (never in controllers)
+- Built-in `InternalTaxProvider` with geographic zone matching
+- Inclusive/exclusive pricing via store setting
+- Customer and category exemptions
+- Post-discount taxable base (Pricing integration)
+- Shipping tax when applicable
+- Checkout integration via existing `ITaxCalculator`
+- Order tax snapshots (`OrderTaxLine`)
 
 **Plugin contract:** `ITaxProvider`
 
-**Supports:** Inclusive/exclusive tax, store-specific, customer exemption, country/state rates
+**Depends on:** Framework, Store, Catalog (contracts), Customers (contracts), Pricing (contracts), Checkout (contracts)  
+**Depended on by:** Checkout (calculator bridge), Orders (snapshots via checkout preparation)
 
-**Depends on:** Framework (Contracts, Plugins), Stores  
-**Depended on by:** ShoppingCart, Checkout
+### 3.9 Pricing / Discounts Module (Phase 14 — IMPLEMENTED)
 
-### 3.9 Discounts Module
-
-**Path:** `Commerce.Modules/Discounts/`
+**Path:** `src/Commerce/Modules/Pricing/`
 
 | Layer | Contents |
 |---|---|
-| Domain | `Discount`, `Rule`, `RuleSet`, `Campaign`, `DiscountUsageHistory` |
-| Application | `IDiscountService`, `IRuleEngine`, `IRuleEvaluator`, `ICampaignService` |
+| Domain | `Discount`, `DiscountTarget`, `Coupon`, `CouponUsage` |
+| Contracts | `IPriceCalculationService`, `ICouponValidationService`, `ICouponUsageService`, admin DTOs |
+| Application | `DiscountCalculationEngine`, `PriceCalculationService`, `DiscountAwarePricingService`, `CheckoutDiscountCalculator` |
+| Infrastructure | EF persistence, `EfPricingRepository`, permissions, migrations |
 
 **Responsibilities:**
-- Composable rule conditions (product, category, role, order total, payment method, shipping method, date, quantity)
-- Rule set grouping with M:N mappings
-- Discount application and usage tracking
-- Campaign management
+- Authoritative pricing pipeline (base offer price + discount layer)
+- Percentage/fixed discounts with caps, minimums, eligibility, store/currency scoping
+- Targeting: Product, Variant, Offer, Category, Cart
+- Priority and stacking (compound sequential for stackable)
+- Coupon engine with case-insensitive codes and usage limits
+- Atomic coupon consumption at order creation
 
-**Depends on:** Catalog (contracts), Customers (contracts)  
-**Depended on by:** ShoppingCart, Checkout
+**Depends on:** Catalog (contracts + application for pricing decorator), Customers (contracts), Checkout (contracts for `IDiscountCalculator`)  
+**Depended on by:** Cart, Checkout, Orders (via contracts only)
 
-### 3.10 Marketing Module
+### 3.10 Shipping Module (Phase 15 + Phase 30 — IMPLEMENTED)
+
+**Path:** `src/Commerce/Modules/Shipping/`
+
+| Layer | Contents |
+|---|---|
+| Domain | `ShippingMethod`, `ShippingZone`, `ShippingRate`, zone rules, **`Shipment`**, **`ShipmentItem`** |
+| Contracts | `IShippingCalculationService`, `IShippingProvider`, **`IShipmentAdminService`**, admin + shipment DTOs |
+| Application | `ShippingCalculationService`, `FlatRateShippingProvider`, **`PickupShippingProvider`**, `ShippingZoneMatcher`, `ShippingRateCalculator`, `ShippingAdminService`, **`ShipmentAdminService`**, **`OrderFulfillmentSync`** |
+| Infrastructure | EF persistence (incl. shipments), permissions, settings |
+| Plugins | **`Commerce.Plugin.Shipping.FlatRate`**, **`Commerce.Plugin.Shipping.Pickup`** |
+
+**Responsibilities:**
+- Zones, methods, rates (flat, weight, subtotal, quantity, free shipping)
+- Provider plugin architecture via `IShippingProvider`
+- Pickup methods without shipping address
+- Shipment records, tracking, fulfillment sync
+- Resilient multi-provider checkout calculation
+- Digital/mixed cart behavior (Phase 15 + 20)
+
+**Depends on:** Framework, Store, Catalog (contracts), Checkout (contracts), Orders (contracts)  
+**Depended on by:** Checkout, Orders, Notifications (`IShipmentCreatedHandler`)
+
+### 3.11 Payments Module (Phase 17 — IMPLEMENTED)
+
+**Path:** `src/Commerce/Modules/Payments/`
+
+| Layer | Contents |
+|---|---|
+| Domain | `Payment`, `PaymentTransaction`, `PaymentMethod`, `PaymentAttempt`, `Refund`, `RefundTransaction`, `PaymentCallbackRecord` |
+| Contracts | `IPaymentProvider`, `IPaymentService`, `IOrderPaymentSyncService`, admin/callback DTOs |
+| Application | `PaymentService`, `PaymentCheckoutMethodProvider`, `PaymentAdminService`, `PaymentCallbackDispatcher`, `OrderPaymentSyncService`, `PaymentProviderSettingsReader` |
+| Infrastructure | EF persistence, permissions, settings, development seeder |
+
+**Plugins:**
+| Plugin | SystemName | Phase |
+|---|---|---|
+| Manual | `Payment.Manual` | 17 |
+| ZarinPal | `Payment.ZarinPal` | 35 |
+| Stripe | `Payment.Stripe` | 35 |
+
+**Responsibilities:**
+- Provider-independent payment orchestration
+- Transaction history and refund lifecycle
+- Checkout method discovery via `IPaymentMethodProvider`
+- Idempotent payment creation and callbacks
+- Order payment status synchronization
+- Store-scoped payment method configuration
+
+**Depends on:** Framework, Store, Checkout (contracts), Orders (contracts)  
+**Depended on by:** Orders (payment sync), Host (API controllers)
+
+### 3.13 Plugin Runtime (Phase 18 — IMPLEMENTED)
+
+**Path:** `src/Commerce/Framework/Plugins/`, `src/Commerce/Framework/PluginContracts/`
+
+| Layer | Contents |
+|---|---|
+| PluginContracts | `ICommercePlugin`, `PluginDescriptor`, discovery/lifecycle/admin contracts, `IPluginUiContributor` |
+| Framework.Plugins | Discovery, manifest validation, `CollectibleAssemblyLoadContext` loading, lifecycle manager, package service, static files, persistence |
+
+**First plugin:** `Commerce.Plugin.Payment.Manual` deployed to `Plugins/Payment.Manual/`
+
+**Responsibilities:**
+- Runtime discovery from configurable `Plugins/` directory
+- Manifest validation before code execution
+- Plugin install/enable/disable/uninstall with DB state
+- ZIP package install with path traversal protection
+- Dynamic provider registration (`IPaymentProvider`, future providers)
+- Plugin static file serving
+
+**Does NOT replace:** compile-time Commerce module runtime
+
+### 3.13a Plugin SDK (Phase 41 — IMPLEMENTED)
+
+**Path:** `src/Commerce/PluginSdk/`
+
+| Project | Contents |
+|---|---|
+| `Commerce.Plugin.Contracts` | Package layout, reference rules, compatibility models |
+| `Commerce.Plugin.Sdk` | Validation, ZIP pack/archive validation, MSBuild targets |
+| `Commerce.Plugin.Testing` | `PluginTestHostBuilder`, manifest test factory |
+| `Commerce.Plugin.Template` | CLI scaffold template |
+| `Commerce.Plugin.Cli` | Global tool: `commerce plugin create/build/test/pack/validate` |
+
+**Shared contracts:** `Commerce.Framework.PluginContracts.Manifest` (parser + validator used by runtime and SDK)
+
+**Security:** validate/pack inspect static files only — no plugin code execution
+
+**Docs:** `docs/commerce/PLUGIN-DEVELOPMENT.md`
+
+### 3.13b Disaster Recovery (Phase 43 — IMPLEMENTED)
+
+**Path:** `src/Commerce/Modules/DisasterRecovery/`
+
+| Layer | Contents |
+|---|---|
+| Contracts | Backup/recovery/integrity APIs, validity status model |
+| Application | Backup orchestration, retention, verification, recovery test |
+| Infrastructure | SQL backup/verify, file archivers, jobs, health probe, admin permissions |
+
+**RPO/RTO defaults:** 24h / 4h — see `docs/commerce/DISASTER-RECOVERY.md`
+
+**Rule:** Backups are not valid for production recovery until recovery testing passes.
+
+### 3.13c Deployment / Docker (Phase 44 — IMPLEMENTED)
+
+**Path:** `deploy/docker/`, `scripts/deploy/`
+
+| Artifact | Purpose |
+|---|---|
+| `Dockerfile` | Multi-stage Commerce.Host image |
+| `docker-compose.yml` | Development stack (SQL Server, Redis, commerce) |
+| `docker-compose.staging.yml` / `.production.yml` | Caddy HTTPS, restart policies, startup migrations |
+| `.env.example` | Non-secret template — production secrets stay out of git |
+| `DeploymentStartupHostedService` | DB wait + auto-migrate when installed |
+
+**Docs:** `docs/commerce/DEPLOYMENT.md`, `docs/commerce/ENVIRONMENT-CONFIGURATION.md`
+
+### 3.13d Smartstore Import (Phase 46 — IMPLEMENTED)
+
+**Path:** `src/Commerce/Modules/SmartstoreImport/`
+
+| Layer | Contents |
+|---|---|
+| Domain | `ImportRun`, `ImportIdMapping`, `ImportIssue` |
+| Contracts | `ISmartstoreImportService`, import options/result DTOs |
+| Application | Importer abstractions, Smartstore table/entity constants |
+| Infrastructure | SQL parser, orchestration, 16 entity importers |
+
+**Behavior:** Discovers schema from supplied SQL export; imports only present tables; tracks legacy IDs; logs warnings/errors for every skipped or partial row.
+
+**Docs:** `docs/commerce/SMARTSTORE-IMPORT-MAPPING.md`, `data/smartstore/README.md`
+
+**Script:** `scripts/migration/run-smartstore-import.ps1`
+
+**Tests:** `Commerce.Tests.Unit.SmartstoreImport` (14 passing)
+
+**Reconciliation (Phase 47):** `ISmartstoreReconciliationService` — classified discrepancy reports after import
+
+**Docs:** `docs/commerce/SMARTSTORE-RECONCILIATION.md`
+
+### 3.14 Marketing Module
 
 **Path:** `Commerce.Modules/Marketing/`
 
@@ -387,7 +553,90 @@ These are not business modules — they provide platform capabilities consumed b
 **Depends on:** Catalog (contracts), Framework (Search)  
 **Depended on by:** Commerce.Web, API
 
-### 3.14 Localization Module
+### 3.14 Reviews Module (Phase 25 — IMPLEMENTED)
+
+**Path:** `Commerce.Modules/Reviews/`
+
+| Layer | Contents |
+|---|---|
+| Domain | `ProductReview`, `Wishlist`, `WishlistItem`, `ReviewModerationStatus` |
+| Application | `IReviewStorefrontService`, `IWishlistStorefrontService`, `IReviewAdminService`, `IWishlistAdminService` |
+| Infrastructure | EF repository, permissions, migration contributor |
+
+**Depends on:** Catalog, Customers, Orders (purchase verification), Store  
+**Depended on by:** Storefront, Administration
+
+### 3.15 Promotions Module (Phase 26 — IMPLEMENTED)
+
+**Path:** `Commerce.Modules/Promotions/`
+
+| Layer | Contents |
+|---|---|
+| Domain | `Promotion`, `PromotionCondition`, `PromotionAction`, `PromotionUsage` |
+| Application | `PromotionRuleEngine`, `PromotionEvaluationService`, `PromotionAdminService` |
+| Infrastructure | EF repository, permissions, migration contributor |
+
+**Depends on:** Pricing, Catalog, Customers, Store  
+**Depended on by:** Pricing (`PriceCalculationService`), Administration
+
+### 3.16 SEO Module (Phase 26 — IMPLEMENTED)
+
+**Path:** `Commerce.Modules/Seo/`
+
+| Layer | Contents |
+|---|---|
+| Framework | `Commerce.Framework.Seo` — slug normalization |
+| Domain | `UrlRecord`, `SeoMetadata`, `SeoSettings` |
+| Application | `ISeoAdminService`, `ISeoStorefrontService` |
+| Infrastructure | EF repository, permissions, migration contributor |
+
+**Depends on:** Framework (Seo), Store  
+**Depended on by:** Host (`/robots.txt`, `/sitemap.xml`), Storefront slug resolution
+
+### 3.17 Notifications Module (Phase 27 — IMPLEMENTED)
+
+**Path:** `Commerce.Modules/Notifications/`
+
+| Layer | Contents |
+|---|---|
+| Domain | `NotificationTemplate`, `NotificationLog`, `InAppNotification` |
+| Contracts | Admin DTOs, `INotificationEventPublisher`, `INotificationChannelProvider`, in-app storefront service |
+| Application | Template renderer/selector, dispatcher, channel providers, event handlers, retry hosted service |
+| Infrastructure | EF repository, permissions, migration contributor |
+
+**Depends on:** Framework (Email, SMS abstractions), Customers, Orders, Downloads (handler contracts), Scheduling  
+**Depended on by:** Administration, Storefront (in-app notifications)
+
+### 3.18 Scheduling Module (Phase 28 — IMPLEMENTED)
+
+**Path:** `Commerce.Modules/Scheduling/`
+
+| Layer | Contents |
+|---|---|
+| Framework | `Commerce.Framework.Scheduling` — scheduler/handler/lock abstractions |
+| Domain | `BackgroundJob`, `BackgroundJobExecution`, `RecurringJobSchedule`, `JobDistributedLock` |
+| Application | Scheduler, executor, processor hosted service, admin service, stub handlers |
+| Infrastructure | EF repository (atomic claim), permissions, migration contributor |
+
+**Depends on:** Framework (Core, Data)  
+**Depended on by:** Notifications, Search, Integration, all modules enqueueing background work
+
+### 3.19 Integration Module (Phase 34 — IMPLEMENTED)
+
+**Path:** `Commerce.Modules/Integration/`
+
+| Layer | Contents |
+|---|---|
+| Framework | `Commerce.Framework.Events` — `IEventBus`, domain event interceptor |
+| Domain | `WebhookSubscription`, `WebhookDelivery`, `ApiClient`, `ProcessedIntegrationEvent` |
+| Contracts | Integration event records, webhook/API admin, external API DTOs |
+| Application | Webhook dispatch/delivery, signature service, API client auth, event bridges |
+| Infrastructure | EF repository, permissions, migration contributor |
+
+**Depends on:** Framework (Events, Data, Scheduling), Orders, Customers, Catalog, Inventory  
+**Depended on by:** Host (admin + external API controllers)
+
+### 3.20 Localization Module
 
 **Path:** `Commerce.Modules/Localization/`
 
@@ -399,19 +648,19 @@ These are not business modules — they provide platform capabilities consumed b
 **Depends on:** Framework (Localization), Stores  
 **Depended on by:** All modules (via localization service)
 
-### 3.15 SEO Module
+### 3.17 Localization Module
 
-**Path:** `Commerce.Modules/Seo/`
+**Path:** `Commerce.Modules/Localization/`
 
 | Layer | Contents |
 |---|---|
-| Domain | `UrlRecord` |
-| Application | `IUrlService`, `ISlugService`, `ISeoService`, `ISitemapService` |
+| Domain | `Language`, `LocaleStringResource`, `LocalizedProperty` |
+| Application | `ILanguageService`, `ILocalizationService`, `ILocalizedEntityService` |
 
-**Depends on:** Framework (Seo), Localization, Catalog, CMS  
-**Depended on by:** Commerce.Web (routing middleware)
+**Depends on:** Framework (Localization), Stores  
+**Depended on by:** All modules (via localization service)
 
-### 3.16 Administration Module
+### 3.18 Administration Module
 
 **Path:** `Commerce.Modules/Administration/`
 
@@ -421,6 +670,76 @@ These are not business modules — they provide platform capabilities consumed b
 
 **Depends on:** All business modules (via their application services)  
 **Depended on by:** Commerce.Web (Areas/Admin)
+
+### 3.19 Analytics Module
+
+**Path:** `Commerce.Modules/Analytics/`
+
+| Layer | Contents |
+|---|---|
+| Contracts | `IDashboardService`, `IReportsService`, report DTOs, `ReportFilterQuery` |
+| Application | `DashboardService`, `ReportsService`, filter normalization |
+| Infrastructure | `EfAnalyticsReadRepository`, `AnalyticsPermissionContributor` |
+
+**Depends on:** Orders, Payments, Customers, Catalog, Inventory, Pricing, Promotions, Downloads, Cart, Checkout (read-only EF projections)  
+**Depended on by:** Host (`/api/admin/dashboard`, `/api/admin/reports/*`)
+
+### 3.20 Audit Module (PHASE 37 — implemented)
+
+**Path:** `Commerce.Modules/Audit/`
+
+| Layer | Contents |
+|---|---|
+| Domain | `AuditEntry` (append-only, hash chain) |
+| Contracts | `IAuditQueryService`, audit DTOs, query models |
+| Application | `AuditWriter`, `AuditSanitizer`, `AuditQueryService` |
+| Infrastructure | `EfAuditRepository`, security/admin middleware, permissions, actor context |
+
+**Cross-cutting:** `Commerce.Framework.Contracts.Audit.IAuditPublisher` — modules publish audit events without depending on Audit infrastructure.
+
+**Depends on:** Core; Framework.Data  
+**Depended on by:** Host (`/api/admin/audit/*`); all modules via `IAuditPublisher` hooks
+
+### 3.21 Observability Module (PHASE 38 — implemented)
+
+**Path:** `Commerce.Modules/Observability/`
+
+| Layer | Contents |
+|---|---|
+| Application | `LogSanitizer` |
+| Infrastructure | Correlation/request middleware, health checks, `HttpCorrelationContext` |
+| Framework | `ICorrelationContext`, `CommerceLogging`, `CommerceMetrics`, `CommerceTracing` |
+
+**Depends on:** Core, Framework.Application, Framework.Data, PluginContracts  
+**Depended on by:** Host (`/health/*`, middleware pipeline)
+
+### 3.22 Cache Module (PHASE 39 — implemented)
+
+**Path:** `Commerce.Modules/Cache/`
+
+| Layer | Contents |
+|---|---|
+| Application | `CachedStorefrontCatalogService`, `CachedSearchQueryService`, `CachedSettingService`, `CacheCatalogInvalidator`, `CachePerformanceProfiler` |
+| Infrastructure | Redis provider, output cache policies, DI decorators |
+| Framework | `ICacheManager`, `ICacheKeyBuilder`, `ICacheInvalidator`, `IDistributedLockProvider`, memory/distributed/composite managers |
+
+**Depends on:** Catalog, Search, Store, Framework.Infrastructure  
+**Depended on by:** Host (storefront output cache, cached reads)
+
+**Safety:** `CacheGuard` blocks financial/transactional key segments. Cart, checkout, payment, order paths are not decorated.
+
+### 3.23 Admin UI (PHASE 40 — implemented)
+
+**Path:** `frontend/commerce-ui/`
+
+| Library | Role |
+|---|---|
+| `@commerce/ui` | Admin page shell, data table, filters, bulk actions, form fields, toasts, store context |
+| `@commerce/layout` | Grouped admin navigation (`ADMIN_NAV_GROUPS`), responsive shell |
+| `@commerce/shared` | Enhanced pagination, confirm dialog, `PageState` including `ready` |
+| `@commerce/localization` | Persisted locale, admin i18n keys, RTL/LTR |
+
+**Reference pages:** products (sort/bulk/export), orders (filters/export), settings (typed/search)
 
 ### 3.17 Stores Module
 
@@ -592,6 +911,10 @@ Aligned with IMPLEMENTATION-ROADMAP phases:
 | 13 | (Themes — framework) |
 | 14 | Media |
 | 15 | Search |
+| 25 | Reviews (ratings, moderation, wishlist) |
+| 26 | Promotions (rule engine) + SEO (URLs, metadata, sitemap, robots) |
+| 27 | Notifications (email, SMS, in-app templates, event handlers, delivery log) |
+| 28 | Scheduling (background jobs, retry, recurring, distributed locks) |
 | 16 | Administration |
 
 ---

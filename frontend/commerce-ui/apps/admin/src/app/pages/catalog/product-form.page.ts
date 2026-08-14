@@ -1,12 +1,16 @@
 import { Component, OnInit, inject, input } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
   CatalogApi,
   CurrencySummary,
+  DownloadsApi,
   MediaApiService,
   MediaSummary,
   OfferSummary,
+  ProductDownloadFile,
+  ProductDownloadSettings,
   ProductMediaSummary,
   ProductType,
   StoreApi,
@@ -22,7 +26,7 @@ import { firstValueFrom } from 'rxjs';
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, BreadcrumbsComponent, LoadingStateComponent, ErrorStateComponent, TranslatePipe, MediaPickerComponent],
+  imports: [DecimalPipe, ReactiveFormsModule, RouterLink, BreadcrumbsComponent, LoadingStateComponent, ErrorStateComponent, TranslatePipe, MediaPickerComponent],
   template: `
     <cmr-breadcrumbs [items]="[
       { label: 'Dashboard', link: '/dashboard' },
@@ -124,6 +128,42 @@ import { firstValueFrom } from 'rxjs';
         </section>
       }
 
+      @if (isEdit() && isDigitalProduct()) {
+        <section class="panel">
+          <h2>Digital downloads</h2>
+          @if (permissions.hasPermission('Downloads.Configure')) {
+            <form [formGroup]="downloadSettingsForm" (ngSubmit)="saveDownloadSettings()" class="offer-form">
+              <label><input type="checkbox" formControlName="isEnabled" /> Enabled</label>
+              <label>Max downloads<input type="number" formControlName="maxDownloadCount" placeholder="Unlimited" /></label>
+              <label>Expiration (days)<input type="number" formControlName="expirationDays" placeholder="Never" /></label>
+              <button type="submit">Save download settings</button>
+            </form>
+            <cmr-media-picker (picked)="addDownloadFile($event)" />
+          }
+          @if (downloadFiles.length) {
+            <table>
+              <thead><tr><th>File</th><th>Size</th><th>Active</th><th></th></tr></thead>
+              <tbody>
+                @for (file of downloadFiles; track file.id) {
+                  <tr>
+                    <td>{{ file.displayName || file.fileName }}</td>
+                    <td>{{ file.fileSizeBytes | number }} bytes</td>
+                    <td>{{ file.isActive ? 'Yes' : 'No' }}</td>
+                    <td>
+                      @if (permissions.hasPermission('Downloads.Configure')) {
+                        <button type="button" (click)="removeDownloadFile(file.id)">Remove</button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          } @else {
+            <p>No download files configured.</p>
+          }
+        </section>
+      }
+
       @if (isEdit()) {
         <section class="panel">
           <h2>Offers</h2>
@@ -192,6 +232,7 @@ import { firstValueFrom } from 'rxjs';
 export class ProductFormPageComponent implements OnInit {
   readonly id = input<string | undefined>();
   private readonly catalogApi = inject(CatalogApi);
+  private readonly downloadsApi = inject(DownloadsApi);
   private readonly mediaApi = inject(MediaApiService);
   private readonly storeApi = inject(StoreApi);
   private readonly router = inject(Router);
@@ -210,6 +251,7 @@ export class ProductFormPageComponent implements OnInit {
   offers: OfferSummary[] = [];
   offersLoading = false;
   productMedia: ProductMediaSummary[] = [];
+  downloadFiles: ProductDownloadFile[] = [];
   stores: StoreSummary[] = [];
   currencies: CurrencySummary[] = [];
 
@@ -243,12 +285,23 @@ export class ProductFormPageComponent implements OnInit {
     compareAtPrice: [null as number | null]
   });
 
+  readonly downloadSettingsForm = this.fb.group({
+    isEnabled: [true],
+    maxDownloadCount: [null as number | null],
+    expirationDays: [null as number | null]
+  });
+
   isEdit(): boolean {
     return !!this.id() && this.id() !== 'new';
   }
 
   isVariantProduct(): boolean {
     return this.form.controls.productType.value === 'Variant';
+  }
+
+  isDigitalProduct(): boolean {
+    const type = this.form.controls.productType.value;
+    return type === 'Digital' || type === 'Downloadable' || type === 'Virtual';
   }
 
   ngOnInit(): void {
@@ -279,6 +332,7 @@ export class ProductFormPageComponent implements OnInit {
       }
       void this.loadOffers(id);
       void this.loadProductMedia(id);
+      void this.loadDownloadConfig(id);
       void this.loadOfferFormData();
     } catch (error) {
       this.errorMessage = error instanceof ApiClientError ? error.message : 'Failed to load product.';
@@ -457,5 +511,65 @@ export class ProductFormPageComponent implements OnInit {
     if (!this.isEdit()) return;
     await firstValueFrom(this.mediaApi.removeProductMedia(Number(this.id()), mediaAssetId));
     await this.loadProductMedia(Number(this.id()));
+  }
+
+  async loadDownloadConfig(productId: number): Promise<void> {
+    if (!this.isDigitalProduct()) return;
+    try {
+      const [settings, files] = await Promise.all([
+        firstValueFrom(this.downloadsApi.getProductSettings(productId)),
+        firstValueFrom(this.downloadsApi.listProductFiles(productId))
+      ]);
+      this.downloadFiles = files;
+      if (settings) {
+        this.downloadSettingsForm.patchValue({
+          isEnabled: settings.isEnabled,
+          maxDownloadCount: settings.maxDownloadCount,
+          expirationDays: settings.expirationDays
+        });
+      }
+    } catch (error) {
+      this.errorMessage = error instanceof ApiClientError ? error.message : 'Failed to load download configuration.';
+    }
+  }
+
+  async saveDownloadSettings(): Promise<void> {
+    if (!this.isEdit()) return;
+    const value = this.downloadSettingsForm.getRawValue();
+    try {
+      await firstValueFrom(this.downloadsApi.saveProductSettings(Number(this.id()), {
+        isEnabled: value.isEnabled ?? true,
+        maxDownloadCount: value.maxDownloadCount,
+        expirationDays: value.expirationDays
+      }));
+      await this.loadDownloadConfig(Number(this.id()));
+    } catch (error) {
+      this.errorMessage = error instanceof ApiClientError ? error.message : 'Failed to save download settings.';
+    }
+  }
+
+  async addDownloadFile(item: MediaSummary): Promise<void> {
+    if (!this.isEdit()) return;
+    try {
+      await firstValueFrom(this.downloadsApi.addProductFile(Number(this.id()), {
+        mediaAssetId: item.id,
+        displayName: item.fileName,
+        displayOrder: this.downloadFiles.length,
+        isActive: true
+      }));
+      await this.loadDownloadConfig(Number(this.id()));
+    } catch (error) {
+      this.errorMessage = error instanceof ApiClientError ? error.message : 'Failed to add download file.';
+    }
+  }
+
+  async removeDownloadFile(fileId: number): Promise<void> {
+    if (!this.isEdit()) return;
+    try {
+      await firstValueFrom(this.downloadsApi.removeProductFile(Number(this.id()), fileId));
+      await this.loadDownloadConfig(Number(this.id()));
+    } catch (error) {
+      this.errorMessage = error instanceof ApiClientError ? error.message : 'Failed to remove download file.';
+    }
   }
 }

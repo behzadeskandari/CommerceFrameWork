@@ -26,6 +26,14 @@ public sealed class OrderItem : Commerce.Framework.Core.Entities.Entity
 
     public int Quantity { get; private set; }
 
+    public int CancelledQuantity { get; private set; }
+
+    public int ReturnedQuantity { get; private set; }
+
+    public int ActiveQuantity => Quantity - CancelledQuantity;
+
+    public int ReturnableQuantity => ActiveQuantity - ReturnedQuantity;
+
     public decimal UnitPrice { get; private set; }
 
     public decimal LineSubtotal { get; private set; }
@@ -93,5 +101,50 @@ public sealed class OrderItem : Commerce.Framework.Core.Entities.Entity
             PrimaryImageUrl = primaryImageUrl,
             PrimaryImageThumbnailUrl = primaryImageThumbnailUrl
         };
+    }
+
+    public void RecordCancellation(int quantity)
+    {
+        if (quantity <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(quantity));
+        }
+
+        if (quantity > ActiveQuantity)
+        {
+            throw new InvalidOperationException("Cancellation quantity exceeds active quantity.");
+        }
+
+        CancelledQuantity += quantity;
+    }
+
+    public void RecordReturn(int quantity)
+    {
+        if (quantity <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(quantity));
+        }
+
+        if (quantity > ReturnableQuantity)
+        {
+            throw new InvalidOperationException("Return quantity exceeds returnable quantity.");
+        }
+
+        ReturnedQuantity += quantity;
+    }
+
+    public decimal CalculateLineRefundAmount(int quantity)
+    {
+        if (quantity <= 0 || quantity > ReturnableQuantity)
+        {
+            throw new ArgumentOutOfRangeException(nameof(quantity));
+        }
+
+        if (Quantity == 0)
+        {
+            return 0m;
+        }
+
+        return Math.Round(LineTotal * quantity / Quantity, 4, MidpointRounding.AwayFromZero);
     }
 }

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Search.Application</RootNamespace>
+    <AssemblyName>Commerce.Search.Application</AssemblyName>
+    <Description>Search application services.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Search.Contracts\Commerce.Search.Contracts.csproj" />
+    <ProjectReference Include="..\Commerce.Search.Domain\Commerce.Search.Domain.csproj" />
+    <ProjectReference Include="..\..\Catalog\Commerce.Catalog.Application\Commerce.Catalog.Application.csproj" />
+    <ProjectReference Include="..\..\Catalog\Commerce.Catalog.Contracts\Commerce.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\Store\Commerce.Store.Contracts\Commerce.Store.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Search\Commerce.Framework.Search\Commerce.Framework.Search.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Scheduling\Commerce.Framework.Scheduling\Commerce.Framework.Scheduling.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <PackageReference Include="System.Text.Json" Version="10.0.0" />
+  </ItemGroup>
+</Project>

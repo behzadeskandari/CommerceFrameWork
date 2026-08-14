@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Commerce deployment secrets (Phase 44)
+deploy/docker/.env
+deploy/docker/secrets/
+*.pfx

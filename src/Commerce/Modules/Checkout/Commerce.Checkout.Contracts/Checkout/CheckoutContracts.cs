@@ -23,11 +23,13 @@ public sealed record CheckoutItemDto(
     string ProductName,
     string? VariantName,
     string Sku,
+    string ProductType,
     int Quantity,
     decimal UnitPrice,
     decimal LineSubtotal,
     string Currency,
     bool PriceChanged,
+    decimal WeightGrams,
     CheckoutItemImageDto? PrimaryImage);
 
 public sealed record CheckoutItemImageDto(string Url, string? ThumbnailUrl, string? AltText);
@@ -37,8 +39,31 @@ public sealed record CheckoutTotalsDto(
     decimal DiscountTotal,
     decimal ShippingTotal,
     decimal TaxTotal,
+    decimal ProductTaxTotal,
+    decimal ShippingTaxTotal,
+    decimal GiftCardApplied,
+    decimal StoreCreditApplied,
+    decimal WalletAdjustmentTotal,
     decimal GrandTotal,
-    string Currency);
+    string Currency,
+    bool PricesIncludeTax,
+    IReadOnlyList<TaxLineDto> TaxLines,
+    IReadOnlyList<TaxLineItemDto> TaxLineItems);
+
+public sealed record TaxLineDto(
+    string Name,
+    decimal Amount,
+    decimal? RatePercentage,
+    bool IsShippingTax,
+    decimal TaxableAmount = 0m);
+
+public sealed record TaxLineItemDto(
+    int OfferId,
+    decimal TaxableAmount,
+    decimal TaxAmount,
+    int? TaxCategoryId,
+    string? TaxCategoryName,
+    decimal? RatePercentage);
 
 public sealed record ShippingOptionDto(
     string Id,
@@ -46,7 +71,8 @@ public sealed record ShippingOptionDto(
     string ProviderSystemName,
     decimal Price,
     string Currency,
-    string? EstimatedDelivery);
+    string? EstimatedDelivery,
+    bool RequiresAddress = true);
 
 public sealed record PaymentMethodDto(
     string Id,
@@ -84,7 +110,12 @@ public sealed record CheckoutDto(
     IReadOnlyList<string> ValidationErrors,
     IReadOnlyList<string> Warnings,
     DateTime ExpiresAtUtc,
-    DateTime CartUpdatedAtUtc);
+    DateTime CartUpdatedAtUtc,
+    string? AppliedCouponCode = null,
+    string? AppliedGiftCardCode = null,
+    decimal AppliedStoreCreditAmount = 0m,
+    string? ReferralCode = null,
+    int? AffiliateId = null);
 
 public sealed record CheckoutAddressRequest(
     string FirstName,
@@ -112,6 +143,12 @@ public sealed record SelectShippingMethodRequest(string MethodId, string Provide
 
 public sealed record SelectPaymentMethodRequest(string MethodId, string SystemName);
 
+public sealed record ApplyGiftCardRequest(string Code);
+
+public sealed record ApplyStoreCreditRequest(decimal Amount);
+
+public sealed record ApplyReferralCodeRequest(string ReferralCode);
+
 public sealed record CheckoutValidationResultDto(
     CheckoutDto Checkout,
     bool IsValid,
@@ -130,7 +167,11 @@ public sealed record OrderPreparationLineDto(
     int Quantity,
     decimal UnitPrice,
     decimal LineSubtotal,
+    decimal LineDiscount,
+    decimal LineTax,
+    decimal LineTotal,
     string CurrencyCode,
+    int? TaxCategoryId = null,
     string? PrimaryImageUrl = null,
     string? PrimaryImageThumbnailUrl = null);
 
@@ -151,7 +192,14 @@ public sealed record OrderPreparationResult(
     string? SelectedPaymentMethodId,
     string? SelectedPaymentMethodSystemName,
     IReadOnlyList<OrderPreparationLineDto> Items,
-    CheckoutTotalsDto Totals);
+    CheckoutTotalsDto Totals,
+    IReadOnlyList<TaxLineDto> OrderTaxLines,
+    string? AppliedCouponCode = null,
+    string? AppliedGiftCardCode = null,
+    decimal GiftCardApplied = 0m,
+    decimal StoreCreditApplied = 0m,
+    string? ReferralCode = null,
+    int? AffiliateId = null);
 
 public interface ICheckoutService
 {
@@ -187,6 +235,33 @@ public interface ICheckoutService
     Task<Result<CheckoutDto>> RefreshAsync(int checkoutId, CancellationToken cancellationToken = default);
 
     Task<Result<CheckoutValidationResultDto>> ValidateAsync(
+        int checkoutId,
+        CancellationToken cancellationToken = default);
+
+    Task<Result<CheckoutDto>> ApplyGiftCardAsync(
+        int checkoutId,
+        ApplyGiftCardRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task<Result<CheckoutDto>> RemoveGiftCardAsync(
+        int checkoutId,
+        CancellationToken cancellationToken = default);
+
+    Task<Result<CheckoutDto>> ApplyStoreCreditAsync(
+        int checkoutId,
+        ApplyStoreCreditRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task<Result<CheckoutDto>> RemoveStoreCreditAsync(
+        int checkoutId,
+        CancellationToken cancellationToken = default);
+
+    Task<Result<CheckoutDto>> ApplyReferralCodeAsync(
+        int checkoutId,
+        ApplyReferralCodeRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task<Result<CheckoutDto>> RemoveReferralCodeAsync(
         int checkoutId,
         CancellationToken cancellationToken = default);
 }

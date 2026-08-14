@@ -40,6 +40,7 @@ public sealed record CartDto(
     IReadOnlyList<CartItemDto> Items,
     CartTotalsDto Totals,
     int ItemCount,
+    string? AppliedCouponCode,
     DateTime UpdatedAtUtc);
 
 public sealed record CartMergeConflictDto(
@@ -57,6 +58,8 @@ public sealed record AddCartItemRequest(int OfferId, int Quantity);
 
 public sealed record UpdateCartItemQuantityRequest(int Quantity);
 
+public sealed record ApplyCartCouponRequest(string Code);
+
 public interface ICartService
 {
     Task<Result<CartDto>> GetCartAsync(CancellationToken cancellationToken = default);
@@ -71,6 +74,10 @@ public interface ICartService
     Task<Result<CartDto>> RemoveItemAsync(int cartItemId, CancellationToken cancellationToken = default);
 
     Task<Result<CartDto>> ClearCartAsync(CancellationToken cancellationToken = default);
+
+    Task<Result<CartDto>> ApplyCouponAsync(ApplyCartCouponRequest request, CancellationToken cancellationToken = default);
+
+    Task<Result<CartDto>> RemoveCouponAsync(string code, CancellationToken cancellationToken = default);
 
     Task<Result<CartMergeResultDto>> MergeGuestCartAsync(CancellationToken cancellationToken = default);
 }

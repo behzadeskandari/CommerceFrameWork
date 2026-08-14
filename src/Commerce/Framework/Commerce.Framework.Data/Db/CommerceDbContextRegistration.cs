@@ -1,4 +1,5 @@
 using Commerce.Framework.Data.Configuration;
+using Commerce.Framework.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,12 @@ public static class CommerceDbContextRegistration
             serviceProvider
                 .GetRequiredService<ICommerceDbContextConfigurator>()
                 .Configure(optionsBuilder, dataOptions);
+
+            var interceptor = serviceProvider.GetService<DomainEventSaveChangesInterceptor>();
+            if (interceptor is not null)
+            {
+                optionsBuilder.AddInterceptors(interceptor);
+            }
 
             optionsBuilder.ReplaceService<IModelCacheKeyFactory, CommerceModelCacheKeyFactory>();
 

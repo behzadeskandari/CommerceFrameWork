@@ -4,6 +4,7 @@ using Commerce.Customers.Contracts.Customers;
 using Commerce.Framework.Core.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Commerce.Host.Customers;
 
@@ -16,6 +17,7 @@ public sealed class CustomersController(
 {
     [HttpPost("register")]
     [AllowAnonymous]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Register([FromBody] RegisterCustomerApiRequest request, CancellationToken cancellationToken)
     {
         var result = await authenticationService.RegisterAsync(
@@ -32,6 +34,7 @@ public sealed class CustomersController(
 
     [HttpPost("login")]
     [AllowAnonymous]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Login([FromBody] LoginCustomerApiRequest request, CancellationToken cancellationToken)
     {
         var result = await authenticationService.LoginAsync(

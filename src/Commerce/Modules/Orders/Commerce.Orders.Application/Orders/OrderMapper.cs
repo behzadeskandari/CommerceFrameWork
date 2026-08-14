@@ -49,6 +49,7 @@ internal static class OrderMapper
             order.SelectedPaymentMethodId,
             order.SelectedPaymentMethodSystemName,
             order.Items.Select(ToItem).ToList(),
+            order.TaxLines.Select(ToTaxLine).ToList(),
             order.StatusHistory.Select(ToHistory).ToList(),
             order.CreatedAtUtc,
             order.UpdatedAtUtc);
@@ -71,6 +72,18 @@ internal static class OrderMapper
             item.CurrencyCode,
             item.PrimaryImageUrl,
             item.PrimaryImageThumbnailUrl);
+
+    private static OrderTaxLineDto ToTaxLine(OrderTaxLine line) =>
+        new(
+            line.Id,
+            line.Name,
+            line.RatePercentage,
+            line.TaxableAmount,
+            line.TaxAmount,
+            line.CurrencyCode,
+            line.IsShippingTax,
+            line.TaxCategoryId,
+            line.TaxCategoryName);
 
     private static OrderStatusHistoryDto ToHistory(OrderStatusHistory history) =>
         new(

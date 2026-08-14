@@ -1,0 +1,9 @@
+<Project>
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Commerce.Tests.Integration'">
+    <Using Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+</Project>

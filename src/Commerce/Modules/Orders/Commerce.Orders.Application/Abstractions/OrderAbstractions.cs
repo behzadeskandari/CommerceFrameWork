@@ -20,6 +20,17 @@ public interface IOrderRepository
         CancellationToken cancellationToken = default);
 }
 
+public interface IReturnCaseRepository
+{
+    Task<ReturnCase?> GetByIdWithItemsAsync(int returnCaseId, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<ReturnCase>> ListByOrderAsync(int orderId, CancellationToken cancellationToken = default);
+
+    Task AddAsync(ReturnCase returnCase, CancellationToken cancellationToken = default);
+
+    Task SaveAsync(ReturnCase returnCase, CancellationToken cancellationToken = default);
+}
+
 public sealed record OrderListCriteria(
     int Page,
     int PageSize,

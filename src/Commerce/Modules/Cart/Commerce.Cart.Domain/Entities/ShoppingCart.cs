@@ -32,6 +32,8 @@ public sealed class ShoppingCart : AggregateRoot
 
     public DateTime ExpiresAtUtc { get; private set; }
 
+    public string? AppliedCouponCode { get; private set; }
+
     public IReadOnlyCollection<CartItem> Items => _items;
 
     public static ShoppingCart CreateForCustomer(
@@ -153,6 +155,20 @@ public sealed class ShoppingCart : AggregateRoot
     {
         EnsureModifiable(DateTime.UtcNow);
         _items.Clear();
+        Touch();
+    }
+
+    public void ApplyCoupon(string normalizedCouponCode)
+    {
+        EnsureModifiable(DateTime.UtcNow);
+        AppliedCouponCode = normalizedCouponCode.Trim().ToUpperInvariant();
+        Touch();
+    }
+
+    public void RemoveCoupon()
+    {
+        EnsureModifiable(DateTime.UtcNow);
+        AppliedCouponCode = null;
         Touch();
     }
 

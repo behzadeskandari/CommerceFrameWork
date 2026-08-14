@@ -17,7 +17,7 @@ public sealed class CheckoutRequiresShippingEvaluator(IProductReader productRead
                 continue;
             }
 
-            if (!IsDigitalOnly(product.Value.ProductType))
+            if (!DigitalProductTypes.IsDigital(product.Value.ProductType))
             {
                 return true;
             }
@@ -25,7 +25,4 @@ public sealed class CheckoutRequiresShippingEvaluator(IProductReader productRead
 
         return false;
     }
-
-    private static bool IsDigitalOnly(string productType) =>
-        string.Equals(productType, "Digital", StringComparison.OrdinalIgnoreCase);
 }

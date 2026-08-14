@@ -17,6 +17,7 @@ internal sealed class ShoppingCartConfiguration : IEntityTypeConfiguration<Shopp
         builder.Property(x => x.CreatedAtUtc).IsRequired();
         builder.Property(x => x.UpdatedAtUtc).IsRequired();
         builder.Property(x => x.ExpiresAtUtc).IsRequired();
+        builder.Property(x => x.AppliedCouponCode).HasMaxLength(64);
 
         builder.HasIndex(x => x.StoreId);
         builder.HasIndex(x => x.CustomerId);

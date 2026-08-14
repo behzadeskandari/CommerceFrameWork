@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.SmartstoreImport.Domain</RootNamespace>
+    <AssemblyName>Commerce.SmartstoreImport.Domain</AssemblyName>
+    <Description>Smartstore import domain model.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+  </ItemGroup>
+</Project>

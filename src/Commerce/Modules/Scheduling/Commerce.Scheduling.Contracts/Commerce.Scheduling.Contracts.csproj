@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Scheduling.Contracts</RootNamespace>
+    <AssemblyName>Commerce.Scheduling.Contracts</AssemblyName>
+    <Description>Background job admin and integration contracts.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Scheduling\Commerce.Framework.Scheduling\Commerce.Framework.Scheduling.csproj" />
+    <ProjectReference Include="..\Commerce.Scheduling.Domain\Commerce.Scheduling.Domain.csproj" />
+  </ItemGroup>
+</Project>

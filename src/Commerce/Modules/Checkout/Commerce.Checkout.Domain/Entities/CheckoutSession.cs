@@ -72,6 +72,20 @@ public sealed class CheckoutSession : AggregateRoot
 
     public DateTime ExpiresAtUtc { get; private set; }
 
+    public string? AppliedCouponCode { get; private set; }
+
+    public string? AppliedGiftCardCode { get; private set; }
+
+    public decimal AppliedStoreCreditAmount { get; private set; }
+
+    public decimal GiftCardApplied { get; private set; }
+
+    public decimal StoreCreditApplied { get; private set; }
+
+    public string? ReferralCode { get; private set; }
+
+    public int? AffiliateId { get; private set; }
+
     public IReadOnlyCollection<CheckoutSessionItem> Items => _items;
 
     public static CheckoutSession Create(
@@ -184,6 +198,7 @@ public sealed class CheckoutSession : AggregateRoot
     public void SetShippingAddress(CheckoutAddressSnapshot address)
     {
         ArgumentNullException.ThrowIfNull(address);
+        ClearShippingSelection();
         ShippingAddress = address;
         if (UseShippingAsBilling)
         {
@@ -213,6 +228,24 @@ public sealed class CheckoutSession : AggregateRoot
         ShippingTotal = 0m;
         MarkRequiresReviewIfReady();
         RecalculateGrandTotal();
+        Touch();
+    }
+
+    public void UpdateRequiresShipping(bool requiresShipping)
+    {
+        if (RequiresShipping == requiresShipping)
+        {
+            return;
+        }
+
+        RequiresShipping = requiresShipping;
+        if (!requiresShipping)
+        {
+            ShippingAddress = null;
+            ClearShippingSelection();
+        }
+
+        MarkRequiresReviewIfReady();
         Touch();
     }
 
@@ -256,12 +289,69 @@ public sealed class CheckoutSession : AggregateRoot
         }
     }
 
-    public void ApplyTotals(decimal discountTotal, decimal shippingTotal, decimal taxTotal)
+    public void ApplyTotals(
+        decimal discountTotal,
+        decimal shippingTotal,
+        decimal taxTotal,
+        decimal giftCardApplied = 0m,
+        decimal storeCreditApplied = 0m)
     {
         DiscountTotal = discountTotal;
         ShippingTotal = shippingTotal;
         TaxTotal = taxTotal;
+        GiftCardApplied = giftCardApplied;
+        StoreCreditApplied = storeCreditApplied;
         RecalculateGrandTotal();
+        Touch();
+    }
+
+    public void SetAppliedCouponCode(string? couponCode)
+    {
+        AppliedCouponCode = string.IsNullOrWhiteSpace(couponCode)
+            ? null
+            : couponCode.Trim().ToUpperInvariant();
+        MarkRequiresReviewIfReady();
+        Touch();
+    }
+
+    public void SetAppliedGiftCardCode(string? giftCardCode)
+    {
+        AppliedGiftCardCode = string.IsNullOrWhiteSpace(giftCardCode)
+            ? null
+            : giftCardCode.Trim().ToUpperInvariant();
+        MarkRequiresReviewIfReady();
+        Touch();
+    }
+
+    public void SetAppliedStoreCreditAmount(decimal amount)
+    {
+        if (amount < 0m)
+        {
+            throw new ArgumentOutOfRangeException(nameof(amount));
+        }
+
+        AppliedStoreCreditAmount = amount;
+        MarkRequiresReviewIfReady();
+        Touch();
+    }
+
+    public void SetReferralCode(string? referralCode, int? affiliateId)
+    {
+        ReferralCode = string.IsNullOrWhiteSpace(referralCode)
+            ? null
+            : referralCode.Trim().ToUpperInvariant();
+        AffiliateId = affiliateId;
+        MarkRequiresReviewIfReady();
+        Touch();
+    }
+
+    public void ClearWalletSelections()
+    {
+        AppliedGiftCardCode = null;
+        AppliedStoreCreditAmount = 0m;
+        GiftCardApplied = 0m;
+        StoreCreditApplied = 0m;
+        MarkRequiresReviewIfReady();
         Touch();
     }
 
@@ -322,7 +412,7 @@ public sealed class CheckoutSession : AggregateRoot
 
     private void RecalculateGrandTotal()
     {
-        GrandTotal = Subtotal + ShippingTotal + TaxTotal - DiscountTotal;
+        GrandTotal = Subtotal + ShippingTotal + TaxTotal - DiscountTotal - GiftCardApplied - StoreCreditApplied;
         if (GrandTotal < 0)
         {
             GrandTotal = 0m;

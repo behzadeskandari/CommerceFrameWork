@@ -21,6 +21,12 @@ import { firstValueFrom } from 'rxjs';
         <button type="submit" [disabled]="saving">{{ 'action.save' | translate }}</button>
       </form>
       <p><a routerLink="/account/addresses">{{ 'nav.addresses' | translate }}</a></p>
+      <p><a routerLink="/account/orders">Orders</a></p>
+      <p><a routerLink="/account/preferences">Preferences</a></p>
+      <p><a routerLink="/account/loyalty">Loyalty & Rewards</a></p>
+      <p><a routerLink="/account/activity">Activity & Store Credit</a></p>
+      <p><a routerLink="/account/downloads">{{ 'downloads.title' | translate }}</a></p>
+      <p><a routerLink="/account/wishlist">{{ 'wishlist.title' | translate }}</a></p>
       @if (errorMessage) { <cmr-error-state [message]="errorMessage" [retryLabel]="''" /> }
     }
   `,

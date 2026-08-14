@@ -3,9 +3,12 @@ using Commerce.Cart.Contracts.Carts;
 using Commerce.Cart.Domain.Entities;
 using Commerce.Cart.Domain.Enums;
 using Commerce.Customers.Contracts.Customers;
+using Commerce.Framework.Application.Observability;
+using Commerce.Framework.Contracts.Observability;
 using Commerce.Framework.Contracts.Tenancy;
 using Commerce.Framework.Core.Errors;
 using Commerce.Framework.Core.Results;
+using Commerce.Pricing.Contracts.Pricing;
 using Microsoft.Extensions.Logging;
 
 namespace Commerce.Cart.Application.Carts;
@@ -19,7 +22,10 @@ public sealed class CartService(
     ICartGuestTokenGenerator guestTokenGenerator,
     ICurrentCustomerContext currentCustomerContext,
     IStoreContext storeContext,
+    IPriceCalculationService priceCalculationService,
+    ICouponValidationService couponValidationService,
     CartSettings cartSettings,
+    ICorrelationContext correlationContext,
     ILogger<CartService> logger) : ICartService
 {
     public Task<Result<CartDto>> GetCartAsync(CancellationToken cancellationToken = default) =>
@@ -70,7 +76,11 @@ public sealed class CartService(
         {
             cart.AddOrIncreaseItem(request.OfferId, request.Quantity, maxItemQuantity, maxDistinctItems);
             await cartRepository.SaveAsync(cart, cancellationToken).ConfigureAwait(false);
-            logger.LogInformation("Cart item added for cart {CartId}, offer {OfferId}", cart.Id, request.OfferId);
+            using (CommerceLogging.BeginOperationScope(logger, correlationContext, "cart.item.added", ("CartId", cart.Id), ("OfferId", request.OfferId)))
+            {
+                CommerceMetrics.CartOperations.Add(1, new KeyValuePair<string, object?>("operation", "item.added"));
+                logger.LogInformation("Cart item added for cart {CartId}, offer {OfferId}", cart.Id, request.OfferId);
+            }
             return await MapCartAsync(cart, cancellationToken).ConfigureAwait(false);
         }
         catch (ArgumentOutOfRangeException ex)
@@ -199,8 +209,98 @@ public sealed class CartService(
         try
         {
             cart.ClearItems();
+            cart.RemoveCoupon();
             await cartRepository.SaveAsync(cart, cancellationToken).ConfigureAwait(false);
             logger.LogInformation("Cart cleared for cart {CartId}", cart.Id);
+            return await MapCartAsync(cart, cancellationToken).ConfigureAwait(false);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result.Failure<CartDto>(MapDomainException(ex));
+        }
+    }
+
+    public async Task<Result<CartDto>> ApplyCouponAsync(
+        ApplyCartCouponRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var context = await ResolveStoreCurrencyContextAsync(cancellationToken).ConfigureAwait(false);
+        if (!context.IsSuccess)
+        {
+            return Result.Failure<CartDto>(context.Error!);
+        }
+
+        var cartResult = await ResolveCurrentCartAsync(context.Value!, createIfMissing: false, cancellationToken).ConfigureAwait(false);
+        if (!cartResult.IsSuccess)
+        {
+            return Result.Failure<CartDto>(CartErrors.CartNotFound());
+        }
+
+        var cart = cartResult.Value!;
+        if (cart.Items.Count == 0)
+        {
+            return Result.Failure<CartDto>(CartErrors.OfferUnavailable("Cart is empty."));
+        }
+
+        var preview = await BuildDiscountPreviewLinesAsync(cart, cancellationToken).ConfigureAwait(false);
+        var subtotal = preview.Sum(x => x.LineSubtotal);
+
+        var validation = await couponValidationService.ValidateAsync(
+            new CouponValidationRequest(
+                request.Code,
+                cart.StoreId,
+                cart.CurrencyCode,
+                cart.CustomerId,
+                !cart.CustomerId.HasValue,
+                null,
+                subtotal,
+                DateTime.UtcNow),
+            cancellationToken).ConfigureAwait(false);
+
+        if (!validation.IsValid || string.IsNullOrWhiteSpace(validation.NormalizedCode))
+        {
+            return Result.Failure<CartDto>(CartErrors.OfferUnavailable(string.Join(' ', validation.Errors)));
+        }
+
+        try
+        {
+            cart.ApplyCoupon(validation.NormalizedCode);
+            await cartRepository.SaveAsync(cart, cancellationToken).ConfigureAwait(false);
+            return await MapCartAsync(cart, cancellationToken).ConfigureAwait(false);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result.Failure<CartDto>(MapDomainException(ex));
+        }
+    }
+
+    public async Task<Result<CartDto>> RemoveCouponAsync(string code, CancellationToken cancellationToken = default)
+    {
+        var context = await ResolveStoreCurrencyContextAsync(cancellationToken).ConfigureAwait(false);
+        if (!context.IsSuccess)
+        {
+            return Result.Failure<CartDto>(context.Error!);
+        }
+
+        var cartResult = await ResolveCurrentCartAsync(context.Value!, createIfMissing: false, cancellationToken).ConfigureAwait(false);
+        if (!cartResult.IsSuccess)
+        {
+            return Result.Failure<CartDto>(CartErrors.CartNotFound());
+        }
+
+        var cart = cartResult.Value!;
+        var normalized = code.Trim().ToUpperInvariant();
+        if (!string.Equals(cart.AppliedCouponCode, normalized, StringComparison.Ordinal))
+        {
+            return Result.Failure<CartDto>(CartErrors.OfferUnavailable("Coupon is not applied to this cart."));
+        }
+
+        try
+        {
+            cart.RemoveCoupon();
+            await cartRepository.SaveAsync(cart, cancellationToken).ConfigureAwait(false);
             return await MapCartAsync(cart, cancellationToken).ConfigureAwait(false);
         }
         catch (InvalidOperationException ex)
@@ -547,7 +647,7 @@ public sealed class CartService(
             })
             .ToList();
 
-        var aggregate = totalsCalculator.CalculateCart(lineTotals, cart.CurrencyCode);
+        var aggregate = await CalculateCartTotalsAsync(cart, lineTotals, itemDtos, cancellationToken).ConfigureAwait(false);
         var totals = new CartTotalsDto(
             aggregate.Subtotal,
             aggregate.DiscountTotal,
@@ -564,7 +664,66 @@ public sealed class CartService(
             itemDtos,
             totals,
             itemDtos.Sum(x => x.Quantity),
+            cart.AppliedCouponCode,
             cart.UpdatedAtUtc));
+    }
+
+    private async Task<CartAggregateTotals> CalculateCartTotalsAsync(
+        ShoppingCart cart,
+        IReadOnlyList<CartLineTotals> lineTotals,
+        IReadOnlyList<CartItemDto> itemDtos,
+        CancellationToken cancellationToken)
+    {
+        if (lineTotals.Count == 0)
+        {
+            return totalsCalculator.CalculateCart(lineTotals, cart.CurrencyCode);
+        }
+
+        var discountContext = new CartDiscountCalculationContext(
+            cart.StoreId,
+            cart.Id,
+            cart.CurrencyCode,
+            cart.CustomerId,
+            !cart.CustomerId.HasValue,
+            CustomerGroupId: null,
+            itemDtos.Where(x => x.IsValid).Select(x => new CartDiscountLineContext(
+                x.OfferId,
+                x.ProductId,
+                x.VariantId,
+                x.Quantity,
+                x.UnitPrice)).ToList(),
+            cart.AppliedCouponCode,
+            DateTime.UtcNow);
+
+        var discountResult = await priceCalculationService
+            .CalculateCartAsync(discountContext, cancellationToken)
+            .ConfigureAwait(false);
+
+        return totalsCalculator.CalculateFromDiscountResult(discountResult);
+    }
+
+    private async Task<IReadOnlyList<CartLineTotals>> BuildDiscountPreviewLinesAsync(
+        ShoppingCart cart,
+        CancellationToken cancellationToken)
+    {
+        var lines = new List<CartLineTotals>();
+        foreach (var item in cart.Items)
+        {
+            var validation = await offerValidator.ValidateAsync(
+                item.OfferId,
+                cart.StoreId,
+                cart.CurrencyId,
+                cart.CurrencyCode,
+                item.Quantity,
+                cancellationToken).ConfigureAwait(false);
+
+            if (validation.IsValid)
+            {
+                lines.Add(totalsCalculator.CalculateLine(validation.UnitPrice, item.Quantity, validation.CurrencyCode));
+            }
+        }
+
+        return lines;
     }
 
     private static CartDto CreateEmptyCartDto(StoreCurrencyContext context) =>
@@ -576,6 +735,7 @@ public sealed class CartService(
             [],
             new CartTotalsDto(0m, 0m, 0m, 0m, 0m, context.CurrencyCode),
             0,
+            null,
             DateTime.UtcNow);
 
     private static Error MapDomainException(InvalidOperationException ex) =>

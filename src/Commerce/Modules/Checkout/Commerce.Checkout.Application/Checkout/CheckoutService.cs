@@ -4,11 +4,15 @@ using Commerce.Checkout.Contracts.Checkout;
 using Commerce.Checkout.Domain.Entities;
 using Commerce.Checkout.Domain.Enums;
 using Commerce.Checkout.Domain.ValueObjects;
+using Commerce.Customers.Contracts.Affiliates;
 using Commerce.Customers.Contracts.Customers;
+using Commerce.Framework.Application.Observability;
+using Commerce.Framework.Contracts.Observability;
 using Commerce.Framework.Contracts.Tenancy;
 using Commerce.Framework.Core.Errors;
 using Commerce.Framework.Core.Results;
 using Commerce.Framework.Domain.ValueObjects;
+using Commerce.Payments.Contracts.GiftCards;
 using Microsoft.Extensions.Logging;
 
 namespace Commerce.Checkout.Application.Checkout;
@@ -24,10 +28,13 @@ public sealed class CheckoutService(
     ICheckoutItemEnricher itemEnricher,
     CheckoutRequiresShippingEvaluator requiresShippingEvaluator,
     ICheckoutTotalsCalculator totalsCalculator,
+    IGiftCardValidationService giftCardValidationService,
+    IAffiliateValidationService affiliateValidationService,
     IEnumerable<IShippingRateProvider> shippingProviders,
     IEnumerable<IPaymentMethodProvider> paymentProviders,
     IStoreContext storeContext,
     CheckoutSettings checkoutSettings,
+    ICorrelationContext correlationContext,
     ILogger<CheckoutService> logger) : ICheckoutService, ICheckoutOrderPreparationService
 {
     public async Task<Result<CheckoutDto>> StartAsync(CancellationToken cancellationToken = default)
@@ -103,6 +110,8 @@ public sealed class CheckoutService(
             session.MarkRequiresReview();
         }
 
+        session.SetAppliedCouponCode(cart.AppliedCouponCode);
+
         if (context.Value.CustomerId is int customerId)
         {
             var customer = await customerReader.GetByIdAsync(customerId, cancellationToken).ConfigureAwait(false);
@@ -126,10 +135,11 @@ public sealed class CheckoutService(
         }
 
         await checkoutRepository.AddAsync(session, cancellationToken).ConfigureAwait(false);
-        var initialDto = await MapAsync(session, cancellationToken).ConfigureAwait(false);
-        await ApplyTotalsAsync(session, initialDto, cancellationToken).ConfigureAwait(false);
-        await checkoutRepository.SaveAsync(session, cancellationToken).ConfigureAwait(false);
-        logger.LogInformation("Checkout started {CheckoutId} for cart {CartId}", session.Id, cart.Id);
+        using (CommerceLogging.BeginOperationScope(logger, correlationContext, "checkout.started", ("CheckoutId", session.Id), ("CartId", cart.Id)))
+        {
+            CommerceMetrics.CheckoutOperations.Add(1, new KeyValuePair<string, object?>("operation", "started"));
+            logger.LogInformation("Checkout started {CheckoutId} for cart {CartId}", session.Id, cart.Id);
+        }
         return Result.Success(await MapAsync(session, cancellationToken).ConfigureAwait(false));
     }
 
@@ -147,7 +157,7 @@ public sealed class CheckoutService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var sessionResult = await LoadModifiableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
+        var sessionResult = await GetMutableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
         if (!sessionResult.IsSuccess)
         {
             return Result.Failure<CheckoutDto>(sessionResult.Error!);
@@ -171,7 +181,7 @@ public sealed class CheckoutService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var sessionResult = await LoadModifiableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
+        var sessionResult = await GetMutableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
         if (!sessionResult.IsSuccess)
         {
             return Result.Failure<CheckoutDto>(sessionResult.Error!);
@@ -195,7 +205,7 @@ public sealed class CheckoutService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var sessionResult = await LoadModifiableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
+        var sessionResult = await GetMutableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
         if (!sessionResult.IsSuccess)
         {
             return Result.Failure<CheckoutDto>(sessionResult.Error!);
@@ -224,7 +234,7 @@ public sealed class CheckoutService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var sessionResult = await LoadModifiableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
+        var sessionResult = await GetMutableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
         if (!sessionResult.IsSuccess)
         {
             return Result.Failure<CheckoutDto>(sessionResult.Error!);
@@ -241,7 +251,6 @@ public sealed class CheckoutService(
         }
 
         sessionResult.Value!.SelectShippingMethod(option.Id, option.ProviderSystemName, option.Price);
-        await ApplyTotalsAsync(sessionResult.Value, dto, cancellationToken).ConfigureAwait(false);
         await checkoutRepository.SaveAsync(sessionResult.Value, cancellationToken).ConfigureAwait(false);
         return Result.Success(await MapAsync(sessionResult.Value, cancellationToken).ConfigureAwait(false));
     }
@@ -252,7 +261,7 @@ public sealed class CheckoutService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var sessionResult = await LoadModifiableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
+        var sessionResult = await GetMutableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
         if (!sessionResult.IsSuccess)
         {
             return Result.Failure<CheckoutDto>(sessionResult.Error!);
@@ -288,9 +297,14 @@ public sealed class CheckoutService(
         }
 
         var refreshed = await RefreshSessionAsync(sessionResult.Value!, cartResult.Value!, cancellationToken).ConfigureAwait(false);
-        return refreshed.IsSuccess
-            ? Result.Success(await MapAsync(refreshed.Value!, cancellationToken).ConfigureAwait(false))
-            : Result.Failure<CheckoutDto>(refreshed.Error!);
+        if (!refreshed.IsSuccess)
+        {
+            return Result.Failure<CheckoutDto>(refreshed.Error!);
+        }
+
+        var dto = await MapAsync(refreshed.Value!, cancellationToken).ConfigureAwait(false);
+        await checkoutRepository.SaveAsync(refreshed.Value!, cancellationToken).ConfigureAwait(false);
+        return Result.Success(dto);
     }
 
     public async Task<Result<CheckoutValidationResultDto>> ValidateAsync(
@@ -334,6 +348,139 @@ public sealed class CheckoutService(
         CancellationToken cancellationToken = default) =>
         PrepareOrderAsync(checkoutId, cancellationToken);
 
+    public async Task<Result<CheckoutDto>> ApplyGiftCardAsync(
+        int checkoutId,
+        ApplyGiftCardRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var sessionResult = await GetMutableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
+        if (!sessionResult.IsSuccess)
+        {
+            return Result.Failure<CheckoutDto>(sessionResult.Error!);
+        }
+
+        var validation = await giftCardValidationService.ValidateAsync(
+            new GiftCardValidationRequest(
+                request.Code,
+                sessionResult.Value!.StoreId,
+                sessionResult.Value.CurrencyCode,
+                0m,
+                DateTime.UtcNow),
+            cancellationToken).ConfigureAwait(false);
+
+        if (!validation.IsValid || string.IsNullOrWhiteSpace(validation.NormalizedCode))
+        {
+            return Result.Failure<CheckoutDto>(Error.Validation(string.Join(' ', validation.Errors)));
+        }
+
+        sessionResult.Value.SetAppliedGiftCardCode(validation.NormalizedCode);
+        await checkoutRepository.SaveAsync(sessionResult.Value, cancellationToken).ConfigureAwait(false);
+        return Result.Success(await MapAsync(sessionResult.Value, cancellationToken).ConfigureAwait(false));
+    }
+
+    public async Task<Result<CheckoutDto>> RemoveGiftCardAsync(
+        int checkoutId,
+        CancellationToken cancellationToken = default)
+    {
+        var sessionResult = await GetMutableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
+        if (!sessionResult.IsSuccess)
+        {
+            return Result.Failure<CheckoutDto>(sessionResult.Error!);
+        }
+
+        sessionResult.Value.SetAppliedGiftCardCode(null);
+        await checkoutRepository.SaveAsync(sessionResult.Value, cancellationToken).ConfigureAwait(false);
+        return Result.Success(await MapAsync(sessionResult.Value, cancellationToken).ConfigureAwait(false));
+    }
+
+    public async Task<Result<CheckoutDto>> ApplyStoreCreditAsync(
+        int checkoutId,
+        ApplyStoreCreditRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (request.Amount < 0m)
+        {
+            return Result.Failure<CheckoutDto>(Error.Validation("Store credit amount cannot be negative."));
+        }
+
+        var sessionResult = await GetMutableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
+        if (!sessionResult.IsSuccess)
+        {
+            return Result.Failure<CheckoutDto>(sessionResult.Error!);
+        }
+
+        if (!sessionResult.Value!.CustomerId.HasValue)
+        {
+            return Result.Failure<CheckoutDto>(Error.Validation("Store credit requires an authenticated customer."));
+        }
+
+        sessionResult.Value.SetAppliedStoreCreditAmount(request.Amount);
+        await checkoutRepository.SaveAsync(sessionResult.Value, cancellationToken).ConfigureAwait(false);
+        return Result.Success(await MapAsync(sessionResult.Value, cancellationToken).ConfigureAwait(false));
+    }
+
+    public async Task<Result<CheckoutDto>> RemoveStoreCreditAsync(
+        int checkoutId,
+        CancellationToken cancellationToken = default)
+    {
+        var sessionResult = await GetMutableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
+        if (!sessionResult.IsSuccess)
+        {
+            return Result.Failure<CheckoutDto>(sessionResult.Error!);
+        }
+
+        sessionResult.Value!.SetAppliedStoreCreditAmount(0m);
+        await checkoutRepository.SaveAsync(sessionResult.Value, cancellationToken).ConfigureAwait(false);
+        return Result.Success(await MapAsync(sessionResult.Value, cancellationToken).ConfigureAwait(false));
+    }
+
+    public async Task<Result<CheckoutDto>> ApplyReferralCodeAsync(
+        int checkoutId,
+        ApplyReferralCodeRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var sessionResult = await GetMutableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
+        if (!sessionResult.IsSuccess)
+        {
+            return Result.Failure<CheckoutDto>(sessionResult.Error!);
+        }
+
+        var validation = await affiliateValidationService.ValidateReferralCodeAsync(
+            request.ReferralCode,
+            sessionResult.Value!.StoreId,
+            cancellationToken).ConfigureAwait(false);
+
+        if (!validation.IsValid)
+        {
+            return Result.Failure<CheckoutDto>(Error.Validation(string.Join(' ', validation.Errors)));
+        }
+
+        sessionResult.Value.SetReferralCode(validation.NormalizedReferralCode, validation.AffiliateId);
+        await checkoutRepository.SaveAsync(sessionResult.Value, cancellationToken).ConfigureAwait(false);
+        return Result.Success(await MapAsync(sessionResult.Value, cancellationToken).ConfigureAwait(false));
+    }
+
+    public async Task<Result<CheckoutDto>> RemoveReferralCodeAsync(
+        int checkoutId,
+        CancellationToken cancellationToken = default)
+    {
+        var sessionResult = await GetMutableSessionAsync(checkoutId, cancellationToken).ConfigureAwait(false);
+        if (!sessionResult.IsSuccess)
+        {
+            return Result.Failure<CheckoutDto>(sessionResult.Error!);
+        }
+
+        sessionResult.Value!.SetReferralCode(null, null);
+        await checkoutRepository.SaveAsync(sessionResult.Value, cancellationToken).ConfigureAwait(false);
+        return Result.Success(await MapAsync(sessionResult.Value, cancellationToken).ConfigureAwait(false));
+    }
+
     private async Task<Result<OrderPreparationResult>> PrepareOrderAsync(
         int checkoutId,
         CancellationToken cancellationToken)
@@ -351,6 +498,7 @@ public sealed class CheckoutService(
         }
 
         var checkout = validation.Value.Checkout;
+        var taxByOffer = checkout.Totals.TaxLineItems.ToDictionary(x => x.OfferId);
         return Result.Success(new OrderPreparationResult(
             checkout.Id,
             checkout.StoreId,
@@ -367,21 +515,40 @@ public sealed class CheckoutService(
             checkout.Totals.ShippingTotal,
             checkout.SelectedPaymentMethodId,
             checkout.PaymentMethods.FirstOrDefault(x => x.Id == checkout.SelectedPaymentMethodId)?.SystemName,
-            checkout.Items.Select(x => new OrderPreparationLineDto(
-                x.CartItemId,
-                x.OfferId,
-                x.ProductId,
-                x.VariantId,
-                x.ProductName,
-                x.VariantName,
-                x.Sku,
-                x.Quantity,
-                x.UnitPrice,
-                x.LineSubtotal,
-                x.Currency,
-                x.PrimaryImage?.Url,
-                x.PrimaryImage?.ThumbnailUrl)).ToList(),
-            checkout.Totals));
+            checkout.Items.Select(x =>
+            {
+                var taxItem = taxByOffer.GetValueOrDefault(x.OfferId);
+                var lineTax = taxItem?.TaxAmount ?? 0m;
+                var taxable = taxItem?.TaxableAmount ?? x.LineSubtotal;
+                var lineDiscount = Math.Max(0m, x.LineSubtotal - taxable);
+                var lineTotal = taxable + lineTax;
+                return new OrderPreparationLineDto(
+                    x.CartItemId,
+                    x.OfferId,
+                    x.ProductId,
+                    x.VariantId,
+                    x.ProductName,
+                    x.VariantName,
+                    x.Sku,
+                    x.Quantity,
+                    x.UnitPrice,
+                    x.LineSubtotal,
+                    lineDiscount,
+                    lineTax,
+                    lineTotal,
+                    x.Currency,
+                    taxItem?.TaxCategoryId,
+                    x.PrimaryImage?.Url,
+                    x.PrimaryImage?.ThumbnailUrl);
+            }).ToList(),
+            checkout.Totals,
+            checkout.Totals.TaxLines,
+            checkout.AppliedCouponCode,
+            checkout.AppliedGiftCardCode,
+            checkout.Totals.GiftCardApplied,
+            checkout.Totals.StoreCreditApplied,
+            checkout.ReferralCode,
+            checkout.AffiliateId));
     }
 
     private async Task<Result<CheckoutSession>> RefreshSessionAsync(
@@ -444,39 +611,68 @@ public sealed class CheckoutService(
                 validation.PreviousUnitPrice));
         }
 
+        session.SetAppliedCouponCode(cart.AppliedCouponCode);
+
+        var requiresShipping = await requiresShippingEvaluator
+            .RequiresShippingAsync(items.Select(x => x.ProductId).ToList(), cancellationToken)
+            .ConfigureAwait(false);
+        session.UpdateRequiresShipping(requiresShipping);
+
+        var hadShippingSelection = !string.IsNullOrWhiteSpace(session.SelectedShippingMethodId);
         session.ReplaceItems(items, cart.UpdatedAtUtc, priceChangeDetected);
-        var dto = await MapAsync(session, cancellationToken).ConfigureAwait(false);
-        await ApplyTotalsAsync(session, dto, cancellationToken).ConfigureAwait(false);
+        if (hadShippingSelection && (priceChangeDetected || session.Status is CheckoutStatus.RequiresReview))
+        {
+            session.ClearShippingSelection();
+        }
         await checkoutRepository.SaveAsync(session, cancellationToken).ConfigureAwait(false);
         logger.LogInformation("Checkout refreshed {CheckoutId}", session.Id);
         return Result.Success(session);
     }
 
-    private async Task ApplyTotalsAsync(
+    private async Task<CheckoutTotalResult> CalculateTotalsAsync(
         CheckoutSession session,
-        CheckoutDto dto,
+        CheckoutAddressDto? billingAddress,
+        CheckoutAddressDto? shippingAddress,
+        IReadOnlyList<CheckoutItemDto> items,
         CancellationToken cancellationToken)
     {
-        var totals = await totalsCalculator.CalculateAsync(
+        var couponCodes = string.IsNullOrWhiteSpace(session.AppliedCouponCode)
+            ? Array.Empty<string>()
+            : new[] { session.AppliedCouponCode };
+
+        return await totalsCalculator.CalculateAsync(
             new CheckoutTotalContext(
                 session.StoreId,
+                session.CartId,
                 session.CurrencyCode,
                 session.CustomerId,
                 session.Subtotal,
                 session.ShippingTotal,
-                dto.BillingAddress,
-                dto.ShippingAddress,
-                dto.Items.Select(x => new ShippingRateLineItem(
-                    x.OfferId,
-                    x.ProductId,
-                    x.VariantId,
-                    x.Quantity,
-                    x.UnitPrice,
-                    string.Empty)).ToList(),
-                []),
+                billingAddress,
+                shippingAddress,
+                items.Select(ToShippingRateLineItem).ToList(),
+                couponCodes,
+                !session.CustomerId.HasValue,
+                session.RequiresShipping,
+                session.AppliedGiftCardCode,
+                session.AppliedStoreCreditAmount),
             cancellationToken).ConfigureAwait(false);
+    }
 
-        session.ApplyTotals(totals.DiscountTotal, totals.ShippingTotal, totals.TaxTotal);
+    private async Task ApplyTotalsAsync(
+        CheckoutSession session,
+        CheckoutAddressDto? billingAddress,
+        CheckoutAddressDto? shippingAddress,
+        IReadOnlyList<CheckoutItemDto> items,
+        CancellationToken cancellationToken)
+    {
+        var totals = await CalculateTotalsAsync(session, billingAddress, shippingAddress, items, cancellationToken).ConfigureAwait(false);
+        session.ApplyTotals(
+            totals.DiscountTotal,
+            totals.ShippingTotal,
+            totals.TaxTotal,
+            totals.GiftCardApplied,
+            totals.StoreCreditApplied);
     }
 
     private async Task<Result<List<CheckoutSessionItem>>> BuildValidatedItemsAsync(
@@ -616,7 +812,7 @@ public sealed class CheckoutService(
         return Result.Success(session);
     }
 
-    private async Task<Result<CheckoutSession>> LoadModifiableSessionAsync(
+    private async Task<Result<CheckoutSession>> GetMutableSessionAsync(
         int checkoutId,
         CancellationToken cancellationToken)
     {
@@ -672,11 +868,13 @@ public sealed class CheckoutService(
                 validation.ProductName,
                 validation.VariantName,
                 validation.Sku,
+                validation.ProductType,
                 item.Quantity,
                 item.UnitPrice,
                 item.LineSubtotal,
                 item.CurrencyCode,
                 item.UnitPrice != item.PreviousUnitPrice,
+                validation.WeightGrams,
                 images.GetValueOrDefault(item.OfferId)));
         }
 
@@ -705,25 +903,54 @@ public sealed class CheckoutService(
 
         if (session.RequiresShipping && session.ShippingAddress is null)
         {
-            errors.Add("Shipping address is required.");
+            var selectedOption = string.IsNullOrWhiteSpace(session.SelectedShippingMethodId)
+                ? null
+                : shippingOptions.FirstOrDefault(x =>
+                    x.Id == session.SelectedShippingMethodId &&
+                    string.Equals(x.ProviderSystemName, session.SelectedShippingProviderSystemName, StringComparison.OrdinalIgnoreCase));
+
+            var addressRequired = selectedOption?.RequiresAddress == true ||
+                (selectedOption is null && shippingOptions.Count > 0 && shippingOptions.All(x => x.RequiresAddress));
+
+            if (addressRequired)
+            {
+                errors.Add("Shipping address is required.");
+            }
         }
 
         if (session.RequiresShipping && shippingOptions.Count == 0)
         {
             warnings.Add("Shipping options are currently unavailable.");
         }
-        else if (session.RequiresShipping && shippingOptions.Count > 0 && string.IsNullOrWhiteSpace(session.SelectedShippingMethodId))
+        else if (session.RequiresShipping && shippingOptions.Count > 0)
         {
-            errors.Add("Shipping method is required.");
+            if (!string.IsNullOrWhiteSpace(session.SelectedShippingMethodId))
+            {
+                var selected = shippingOptions.FirstOrDefault(x =>
+                    x.Id == session.SelectedShippingMethodId &&
+                    string.Equals(x.ProviderSystemName, session.SelectedShippingProviderSystemName, StringComparison.OrdinalIgnoreCase));
+
+                if (selected is null || selected.Price != session.SelectedShippingPrice)
+                {
+                    session.ClearShippingSelection();
+                    await checkoutRepository.SaveAsync(session, cancellationToken).ConfigureAwait(false);
+                    warnings.Add("Selected shipping method is no longer available. Please select another option.");
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(session.SelectedShippingMethodId))
+            {
+                errors.Add("Shipping method is required.");
+            }
         }
 
-        if (paymentMethods.Count == 0)
+        if (!string.IsNullOrWhiteSpace(session.AppliedCouponCode) && session.DiscountTotal <= 0)
         {
-            warnings.Add("No payment methods are currently available.");
-        }
-        else if (string.IsNullOrWhiteSpace(session.SelectedPaymentMethodId))
-        {
-            errors.Add("Payment method is required.");
+            warnings.Add("Coupon no longer valid.");
+            if (session.Status is CheckoutStatus.ReadyForOrder)
+            {
+                session.MarkRequiresReview();
+            }
         }
 
         string? customerEmail = session.GuestEmail;
@@ -733,13 +960,75 @@ public sealed class CheckoutService(
             customerEmail = customer.Value?.Email ?? customerEmail;
         }
 
+        var calculatedTotals = await CalculateTotalsAsync(
+            session,
+            billing,
+            shipping,
+            itemDtos,
+            cancellationToken).ConfigureAwait(false);
+
+        session.ApplyTotals(
+            calculatedTotals.DiscountTotal,
+            calculatedTotals.ShippingTotal,
+            calculatedTotals.TaxTotal,
+            calculatedTotals.GiftCardApplied,
+            calculatedTotals.StoreCreditApplied);
+
+        if (calculatedTotals.GrandTotal == 0)
+        {
+            paymentMethods = paymentMethods
+                .Where(x => string.Equals(x.SystemName, "free", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+        else
+        {
+            paymentMethods = paymentMethods
+                .Where(x => !string.Equals(x.SystemName, "free", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        if (calculatedTotals.GrandTotal == 0)
+        {
+            if (paymentMethods.Count == 0)
+            {
+                warnings.Add("No free payment method is configured.");
+            }
+        }
+        else if (paymentMethods.Count == 0)
+        {
+            warnings.Add("No payment methods are currently available.");
+        }
+        else if (string.IsNullOrWhiteSpace(session.SelectedPaymentMethodId))
+        {
+            errors.Add("Payment method is required.");
+        }
+
         var totals = new CheckoutTotalsDto(
-            session.Subtotal,
-            session.DiscountTotal,
-            session.ShippingTotal,
-            session.TaxTotal,
-            session.GrandTotal,
-            session.CurrencyCode);
+            calculatedTotals.Subtotal,
+            calculatedTotals.DiscountTotal,
+            calculatedTotals.ShippingTotal,
+            calculatedTotals.TaxTotal,
+            calculatedTotals.ProductTaxTotal,
+            calculatedTotals.ShippingTaxTotal,
+            calculatedTotals.GiftCardApplied,
+            calculatedTotals.StoreCreditApplied,
+            calculatedTotals.GiftCardApplied + calculatedTotals.StoreCreditApplied,
+            calculatedTotals.GrandTotal,
+            calculatedTotals.CurrencyCode,
+            calculatedTotals.PricesIncludeTax,
+            (calculatedTotals.TaxLines ?? []).Select(x => new TaxLineDto(
+                x.Name,
+                x.Amount,
+                x.RatePercentage,
+                x.IsShippingTax,
+                x.TaxableAmount)).ToList(),
+            (calculatedTotals.TaxLineItems ?? []).Select(x => new TaxLineItemDto(
+                x.OfferId,
+                x.TaxableAmount,
+                x.TaxAmount,
+                x.TaxCategoryId,
+                x.TaxCategoryName,
+                x.RatePercentage)).ToList());
 
         var status = session.Status;
         if (errors.Count == 0 && status is CheckoutStatus.Active or CheckoutStatus.RequiresReview && !session.PriceChangeDetected)
@@ -769,7 +1058,12 @@ public sealed class CheckoutService(
             errors,
             warnings,
             session.ExpiresAtUtc,
-            session.CartUpdatedAtUtc);
+            session.CartUpdatedAtUtc,
+            session.AppliedCouponCode,
+            session.AppliedGiftCardCode,
+            session.AppliedStoreCreditAmount,
+            session.ReferralCode,
+            session.AffiliateId);
     }
 
     private async Task<IReadOnlyList<ShippingOptionDto>> GetShippingOptionsAsync(
@@ -778,7 +1072,7 @@ public sealed class CheckoutService(
         IReadOnlyList<CheckoutItemDto> items,
         CancellationToken cancellationToken)
     {
-        if (!session.RequiresShipping || shippingAddress is null)
+        if (!session.RequiresShipping)
         {
             return [];
         }
@@ -788,25 +1082,31 @@ public sealed class CheckoutService(
             session.CartId,
             session.CurrencyCode,
             shippingAddress,
-            items.Select(x => new ShippingRateLineItem(
-                x.OfferId,
-                x.ProductId,
-                x.VariantId,
-                x.Quantity,
-                x.UnitPrice,
-                string.Empty)).ToList());
+            items.Select(ToShippingRateLineItem).ToList());
 
         var options = new List<ShippingOptionDto>();
         foreach (var provider in shippingProviders)
         {
-            var rates = await provider.GetRatesAsync(request, cancellationToken).ConfigureAwait(false);
-            options.AddRange(rates.Select(x => new ShippingOptionDto(
-                x.Id,
-                x.Name,
-                x.ProviderSystemName,
-                x.Price,
-                x.Currency,
-                x.EstimatedDelivery)));
+            try
+            {
+                var rates = await provider.GetRatesAsync(request, cancellationToken).ConfigureAwait(false);
+                options.AddRange(rates.Select(x => new ShippingOptionDto(
+                    x.Id,
+                    x.Name,
+                    x.ProviderSystemName,
+                    x.Price,
+                    x.Currency,
+                    x.EstimatedDelivery,
+                    x.RequiresAddress)));
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(
+                    ex,
+                    "Shipping rate provider {ProviderSystemName} failed for checkout {CheckoutId}.",
+                    provider.ProviderSystemName,
+                    session.Id);
+            }
         }
 
         return options;
@@ -829,6 +1129,17 @@ public sealed class CheckoutService(
 
         return methods;
     }
+
+    private static ShippingRateLineItem ToShippingRateLineItem(CheckoutItemDto item) =>
+        new(
+            item.OfferId,
+            item.ProductId,
+            item.VariantId,
+            item.Quantity,
+            item.UnitPrice,
+            item.ProductType,
+            item.WeightGrams,
+            item.LineSubtotal);
 
     private Result<CheckoutOwnershipContext> ResolveContext()
     {

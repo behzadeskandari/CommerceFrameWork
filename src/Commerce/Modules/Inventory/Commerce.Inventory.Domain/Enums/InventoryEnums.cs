@@ -8,14 +8,18 @@ public enum InventoryMovementType
     Return = 3,
     Correction = 4,
     Damage = 5,
-    Loss = 6
+    Loss = 6,
+    Sale = 7,
+    TransferOut = 8,
+    TransferIn = 9
 }
 
 public enum InventoryReferenceType
 {
     None = 0,
     Order = 1,
-    Manual = 2
+    Manual = 2,
+    Transfer = 3
 }
 
 public enum InventoryReservationStatus

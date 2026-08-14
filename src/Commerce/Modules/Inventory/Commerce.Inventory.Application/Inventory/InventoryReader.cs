@@ -72,11 +72,11 @@ public sealed class InventoryReader(
         int storeId,
         CancellationToken cancellationToken)
     {
-        var item = await inventoryRepository
-            .GetByStoreAndOfferAsync(storeId, offerId, cancellationToken)
+        var items = await inventoryRepository
+            .ListByStoreAndOfferAsync(storeId, offerId, cancellationToken)
             .ConfigureAwait(false);
 
-        if (item is null)
+        if (items.Count == 0)
         {
             var offerResult = await offerReader.GetByIdAsync(offerId, cancellationToken).ConfigureAwait(false);
             if (!offerResult.IsSuccess || offerResult.Value is null)
@@ -91,6 +91,14 @@ public sealed class InventoryReader(
                 offerResult.Value.VariantId);
         }
 
-        return InventoryMapper.ToAvailability(item);
+        if (items.Count == 1)
+        {
+            return InventoryMapper.ToAvailability(items[0]);
+        }
+
+        var utcNow = DateTime.UtcNow;
+        var aggregated = InventoryAvailabilityAggregator.Aggregate(items, utcNow);
+        var first = items[0];
+        return InventoryMapper.ToAggregatedAvailability(storeId, offerId, first.ProductId, first.VariantId, aggregated);
     }
 }

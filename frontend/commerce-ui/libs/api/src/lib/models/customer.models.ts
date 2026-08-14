@@ -12,6 +12,9 @@ export interface CustomerSummary {
 export interface CustomerDetail extends CustomerSummary {
   identityUserId: string;
   updatedAtUtc: string;
+  isTaxExempt: boolean;
+  taxRegistrationNumber: string | null;
+  customerGroupId: number | null;
   addresses: CustomerAddress[];
 }
 

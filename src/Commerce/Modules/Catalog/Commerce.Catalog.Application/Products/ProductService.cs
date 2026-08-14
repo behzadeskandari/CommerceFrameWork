@@ -24,7 +24,8 @@ public sealed class ProductService(
     ICategoryRepository categoryRepository,
     IProductCategoryRepository productCategoryRepository,
     IProductAttributeRepository attributeRepository,
-    IProductVariantRepository variantRepository) : IProductService
+    IProductVariantRepository variantRepository,
+    IEnumerable<ICatalogChangeNotifier> changeNotifiers) : IProductService
 {
     public async Task<Result<ProductDetailDto>> CreateAsync(
         CreateProductRequest request,
@@ -71,6 +72,7 @@ public sealed class ProductService(
                 }
             }
 
+            await NotifyProductCreatedAsync(product.Id, cancellationToken).ConfigureAwait(false);
             return Result.Success(await MapDetailAsync(product, cancellationToken).ConfigureAwait(false));
         }
         catch (ArgumentException ex)
@@ -132,6 +134,7 @@ public sealed class ProductService(
                 }
             }
 
+            await NotifyProductUpdatedAsync(product.Id, cancellationToken).ConfigureAwait(false);
             return Result.Success(await MapDetailAsync(product, cancellationToken).ConfigureAwait(false));
         }
         catch (ArgumentException ex)
@@ -154,6 +157,7 @@ public sealed class ProductService(
 
         product.SoftDelete();
         await productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
+        await NotifyProductDeletedAsync(productId, cancellationToken).ConfigureAwait(false);
         return Result.Success();
     }
 
@@ -252,8 +256,34 @@ public sealed class ProductService(
             product.Slug,
             product.CreatedAtUtc,
             product.UpdatedAtUtc,
+            product.WeightGrams,
+            product.TaxCategoryId,
             categoryIds,
             mappedAttributes);
+    }
+
+    private async Task NotifyProductCreatedAsync(int productId, CancellationToken cancellationToken)
+    {
+        foreach (var notifier in changeNotifiers)
+        {
+            await notifier.NotifyProductCreatedAsync(productId, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private async Task NotifyProductUpdatedAsync(int productId, CancellationToken cancellationToken)
+    {
+        foreach (var notifier in changeNotifiers)
+        {
+            await notifier.NotifyProductUpdatedAsync(productId, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private async Task NotifyProductDeletedAsync(int productId, CancellationToken cancellationToken)
+    {
+        foreach (var notifier in changeNotifiers)
+        {
+            await notifier.NotifyProductDeletedAsync(productId, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     private static ProductSummaryDto MapSummary(Product product) =>

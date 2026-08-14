@@ -1,12 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CurrencyFormatPipe, TranslatePipe } from '@commerce/localization';
 import { EmptyStateComponent, ErrorStateComponent, LoadingStateComponent, PageState } from '@commerce/shared';
 import { CartStateService } from '@commerce/api';
+import { ApiClientError } from '@commerce/core';
 
 @Component({
   standalone: true,
   imports: [
+    FormsModule,
     RouterLink,
     TranslatePipe,
     CurrencyFormatPipe,
@@ -79,9 +82,48 @@ import { CartStateService } from '@commerce/api';
 
         <aside class="cart-summary" aria-labelledby="summary-title">
           <h2 id="summary-title">{{ 'cart.summary' | translate }}</h2>
+
+          <div class="coupon-section">
+            @if (cart.cart().appliedCouponCode) {
+              <p class="applied-coupon">
+                <span>{{ 'cart.couponApplied' | translate }}: <code>{{ cart.cart().appliedCouponCode }}</code></span>
+                <button type="button" class="link-btn" (click)="removeCoupon()" [disabled]="busy">
+                  {{ 'cart.removeCoupon' | translate }}
+                </button>
+              </p>
+            } @else {
+              <form class="coupon-form" (ngSubmit)="applyCoupon()">
+                <label for="coupon-code">{{ 'cart.couponCode' | translate }}</label>
+                <div class="coupon-row">
+                  <input
+                    id="coupon-code"
+                    [(ngModel)]="couponCode"
+                    name="couponCode"
+                    [placeholder]="'cart.couponPlaceholder' | translate"
+                    [disabled]="busy"
+                    autocomplete="off" />
+                  <button type="submit" [disabled]="busy || !couponCode.trim()">{{ 'cart.applyCoupon' | translate }}</button>
+                </div>
+                @if (couponError) {
+                  <p class="coupon-error" role="alert">{{ couponError }}</p>
+                }
+              </form>
+            }
+          </div>
+
           <p class="summary-row">
             <span>{{ 'cart.subtotal' | translate }}</span>
             <strong>{{ cart.cart().totals.subtotal | currencyFormat: cart.cart().currency }}</strong>
+          </p>
+          @if (cart.cart().totals.discountTotal > 0) {
+            <p class="summary-row discount">
+              <span>{{ 'cart.discount' | translate }}</span>
+              <strong>−{{ cart.cart().totals.discountTotal | currencyFormat: cart.cart().currency }}</strong>
+            </p>
+          }
+          <p class="summary-row grand">
+            <span>{{ 'cart.grandTotal' | translate }}</span>
+            <strong>{{ cart.cart().totals.grandTotal | currencyFormat: cart.cart().currency }}</strong>
           </p>
           <a routerLink="/checkout" class="checkout-btn">
             {{ 'cart.checkout' | translate }}
@@ -119,6 +161,20 @@ import { CartStateService } from '@commerce/api';
       max-width: 24rem; justify-self: end; width: 100%;
     }
     .summary-row { display: flex; justify-content: space-between; gap: 1rem; }
+    .summary-row.discount { color: #047857; }
+    .summary-row.grand { font-weight: 700; border-top: 1px solid #e5e7eb; padding-top: 0.5rem; margin-top: 0.25rem; }
+    .coupon-section { margin-bottom: 0.75rem; }
+    .coupon-form label { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; }
+    .coupon-row { display: flex; gap: 0.5rem; }
+    .coupon-row input { flex: 1; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem; }
+    .coupon-row button {
+      padding: 0.5rem 0.75rem; border: none; border-radius: 0.375rem;
+      background: var(--primary, #0f766e); color: #fff; cursor: pointer;
+    }
+    .coupon-row button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .applied-coupon { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; font-size: 0.875rem; }
+    .applied-coupon code { background: #ecfdf5; color: #047857; padding: 0.125rem 0.375rem; border-radius: 0.25rem; }
+    .coupon-error { color: #b91c1c; font-size: 0.875rem; margin: 0.375rem 0 0; }
     .primary-btn, .checkout-btn {
       display: inline-block; text-align: center; padding: 0.75rem 1rem; border-radius: 0.375rem; text-decoration: none;
     }
@@ -134,6 +190,8 @@ export class CartPageComponent implements OnInit {
   readonly cart = inject(CartStateService);
   state: PageState = 'loading';
   busy = false;
+  couponCode = '';
+  couponError = '';
 
   ngOnInit(): void {
     void this.load();
@@ -174,5 +232,34 @@ export class CartPageComponent implements OnInit {
     }
     this.busy = true;
     try { await this.cart.updateQuantity(cartItemId, value); } finally { this.busy = false; }
+  }
+
+  async applyCoupon(): Promise<void> {
+    const code = this.couponCode.trim();
+    if (!code) return;
+    this.busy = true;
+    this.couponError = '';
+    try {
+      await this.cart.applyCoupon(code);
+      this.couponCode = '';
+    } catch (error) {
+      this.couponError = error instanceof ApiClientError ? error.message : 'Failed to apply coupon.';
+    } finally {
+      this.busy = false;
+    }
+  }
+
+  async removeCoupon(): Promise<void> {
+    const code = this.cart.cart().appliedCouponCode;
+    if (!code) return;
+    this.busy = true;
+    this.couponError = '';
+    try {
+      await this.cart.removeCoupon(code);
+    } catch (error) {
+      this.couponError = error instanceof ApiClientError ? error.message : 'Failed to remove coupon.';
+    } finally {
+      this.busy = false;
+    }
   }
 }

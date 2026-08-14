@@ -8,17 +8,17 @@ namespace Commerce.Catalog.Infrastructure.Persistence.Repositories;
 internal sealed class EfProductRepository(CommerceDbContext dbContext) : IProductRepository
 {
     public Task<Product?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
-        dbContext.Set<Product>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        dbContext.Set<Product>().AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public Task<Product?> GetBySkuAsync(string sku, CancellationToken cancellationToken = default) =>
-        dbContext.Set<Product>().FirstOrDefaultAsync(x => x.Sku == sku, cancellationToken);
+        dbContext.Set<Product>().AsNoTracking().FirstOrDefaultAsync(x => x.Sku == sku, cancellationToken);
 
     public Task<Product?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default) =>
-        dbContext.Set<Product>().FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
+        dbContext.Set<Product>().AsNoTracking().FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
 
     public async Task<IReadOnlyList<Product>> ListAsync(bool includeDeleted, CancellationToken cancellationToken = default)
     {
-        var query = dbContext.Set<Product>().AsQueryable();
+        var query = dbContext.Set<Product>().AsNoTracking().AsQueryable();
         if (!includeDeleted)
         {
             query = query.Where(x => !x.Deleted);
@@ -33,7 +33,7 @@ internal sealed class EfProductRepository(CommerceDbContext dbContext) : IProduc
         bool publicOnly,
         CancellationToken cancellationToken = default)
     {
-        var query = dbContext.Set<Product>().AsQueryable();
+        var query = dbContext.Set<Product>().AsNoTracking().AsQueryable();
 
         if (!publicOnly)
         {
@@ -65,7 +65,16 @@ internal sealed class EfProductRepository(CommerceDbContext dbContext) : IProduc
 
     public async Task UpdateAsync(Product product, CancellationToken cancellationToken = default)
     {
-        dbContext.Set<Product>().Update(product);
+        var tracked = dbContext.Set<Product>().Local.FirstOrDefault(x => x.Id == product.Id);
+        if (tracked is not null)
+        {
+            dbContext.Entry(tracked).CurrentValues.SetValues(product);
+        }
+        else
+        {
+            dbContext.Set<Product>().Update(product);
+        }
+
         await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }
@@ -183,7 +192,23 @@ internal sealed class EfProductAttributeRepository(CommerceDbContext dbContext) 
     }
 
     public Task<ProductAttributeOption?> GetOptionByIdAsync(int optionId, CancellationToken cancellationToken = default) =>
-        dbContext.Set<ProductAttributeOption>().FirstOrDefaultAsync(x => x.Id == optionId, cancellationToken);
+        dbContext.Set<ProductAttributeOption>().AsNoTracking().FirstOrDefaultAsync(x => x.Id == optionId, cancellationToken);
+
+    public async Task<IReadOnlyList<ProductAttributeOption>> GetOptionsByIdsAsync(
+        IReadOnlyCollection<int> optionIds,
+        CancellationToken cancellationToken = default)
+    {
+        if (optionIds.Count == 0)
+        {
+            return [];
+        }
+
+        return await dbContext.Set<ProductAttributeOption>()
+            .AsNoTracking()
+            .Where(x => optionIds.Contains(x.Id))
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+    }
 
     public async Task<IReadOnlyList<ProductAttributeOption>> GetOptionsForDefinitionAsync(
         int attributeDefinitionId,
@@ -517,6 +542,50 @@ internal sealed class EfCategoryMediaRepository(CommerceDbContext dbContext) : I
     public async Task DeleteAsync(CategoryMedia media, CancellationToken cancellationToken = default)
     {
         dbContext.Set<CategoryMedia>().Remove(media);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+}
+
+internal sealed class EfOfferTierPriceRepository(CommerceDbContext dbContext) : IOfferTierPriceRepository
+{
+    public Task<IReadOnlyList<OfferTierPrice>> ListForOfferAsync(int offerId, CancellationToken cancellationToken = default) =>
+        dbContext.Set<OfferTierPrice>()
+            .AsNoTracking()
+            .Where(x => x.OfferId == offerId)
+            .OrderBy(x => x.MinQuantity)
+            .ToListAsync(cancellationToken)
+            .ContinueWith(t => (IReadOnlyList<OfferTierPrice>)t.Result, cancellationToken);
+
+    public Task<OfferTierPrice?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
+        dbContext.Set<OfferTierPrice>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+    public async Task<decimal?> ResolveTierUnitPriceAsync(int offerId, int quantity, CancellationToken cancellationToken = default)
+    {
+        var tiers = await dbContext.Set<OfferTierPrice>()
+            .AsNoTracking()
+            .Where(x => x.OfferId == offerId && x.IsActive && x.MinQuantity <= quantity)
+            .OrderByDescending(x => x.MinQuantity)
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return tiers?.Price;
+    }
+
+    public async Task AddAsync(OfferTierPrice tierPrice, CancellationToken cancellationToken = default)
+    {
+        dbContext.Set<OfferTierPrice>().Add(tierPrice);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task UpdateAsync(OfferTierPrice tierPrice, CancellationToken cancellationToken = default)
+    {
+        dbContext.Set<OfferTierPrice>().Update(tierPrice);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task DeleteAsync(OfferTierPrice tierPrice, CancellationToken cancellationToken = default)
+    {
+        dbContext.Set<OfferTierPrice>().Remove(tierPrice);
         await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

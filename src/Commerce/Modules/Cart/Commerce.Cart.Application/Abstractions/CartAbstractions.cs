@@ -1,5 +1,6 @@
 using Commerce.Cart.Domain.Entities;
 using Commerce.Cart.Domain.Enums;
+using Commerce.Pricing.Contracts.Pricing;
 
 namespace Commerce.Cart.Application.Abstractions;
 
@@ -65,6 +66,8 @@ public interface ICartTotalsCalculator
     CartLineTotals CalculateLine(decimal unitPrice, int quantity, string currencyCode);
 
     CartAggregateTotals CalculateCart(IReadOnlyList<CartLineTotals> lines, string currencyCode);
+
+    CartAggregateTotals CalculateFromDiscountResult(CartDiscountCalculationResult result);
 }
 
 public sealed record CartLineTotals(decimal UnitPrice, int Quantity, decimal LineSubtotal, string CurrencyCode);

@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Commerce.Plugin.Shipping.Pickup</RootNamespace>
+    <AssemblyName>Commerce.Plugin.Shipping.Pickup</AssemblyName>
+    <Description>Store pickup shipping provider plugin.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\PluginContracts\Commerce.Framework.PluginContracts\Commerce.Framework.PluginContracts.csproj" />
+    <ProjectReference Include="..\..\..\Modules\Checkout\Commerce.Checkout.Contracts\Commerce.Checkout.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Modules\Shipping\Commerce.Shipping.Application\Commerce.Shipping.Application.csproj" />
+    <ProjectReference Include="..\..\..\Modules\Shipping\Commerce.Shipping.Contracts\Commerce.Shipping.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Plugin.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="CopyPluginOutput" AfterTargets="Build">
+    <PropertyGroup>
+      <PluginHostDir>$(MSBuildThisFileDirectory)..\..\..\Host\Commerce.Host\Plugins\Shipping.Pickup\</PluginHostDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(PluginHostDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginHostDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Plugin.json" DestinationFolder="$(PluginHostDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

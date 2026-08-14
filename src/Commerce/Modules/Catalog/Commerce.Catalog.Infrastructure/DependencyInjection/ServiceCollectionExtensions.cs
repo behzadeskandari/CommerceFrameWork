@@ -14,6 +14,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IProductAttributeRepository, EfProductAttributeRepository>();
         services.AddScoped<IProductVariantRepository, EfProductVariantRepository>();
         services.AddScoped<IProductOfferRepository, EfProductOfferRepository>();
+        services.AddScoped<IOfferTierPriceRepository, EfOfferTierPriceRepository>();
         services.AddScoped<IProductMediaRepository, EfProductMediaRepository>();
         services.AddScoped<IProductVariantMediaRepository, EfProductVariantMediaRepository>();
         services.AddScoped<ICategoryMediaRepository, EfCategoryMediaRepository>();

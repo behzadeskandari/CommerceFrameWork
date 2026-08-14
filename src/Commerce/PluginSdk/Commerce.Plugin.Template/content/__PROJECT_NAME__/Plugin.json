@@ -1,0 +1,10 @@
+{
+  "systemName": "__SYSTEM_NAME__",
+  "name": "__PLUGIN_NAME__",
+  "version": "1.0.0",
+  "assembly": "__ASSEMBLY_NAME__",
+  "minimumCommerceVersion": "1.0.0",
+  "author": "Your Name",
+  "description": "Sample Commerce plugin scaffolded from the SDK template.",
+  "dependencies": []
+}

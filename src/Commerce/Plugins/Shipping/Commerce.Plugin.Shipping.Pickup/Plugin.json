@@ -1,0 +1,12 @@
+{
+  "systemName": "Shipping.Pickup",
+  "name": "Store Pickup Shipping",
+  "version": "1.0.0",
+  "assembly": "Commerce.Plugin.Shipping.Pickup.dll",
+  "minimumCommerceVersion": "1.0.0",
+  "author": "Behzad",
+  "description": "In-store pickup shipping provider plugin.",
+  "isSystemPlugin": true,
+  "isRequired": false,
+  "dependencies": []
+}

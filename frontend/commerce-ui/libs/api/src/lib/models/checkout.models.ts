@@ -38,6 +38,8 @@ export interface CheckoutItem {
   lineSubtotal: number;
   currency: string;
   priceChanged: boolean;
+  productType?: string | null;
+  weightGrams?: number | null;
   primaryImage?: CheckoutItemImage | null;
 }
 
@@ -46,8 +48,33 @@ export interface CheckoutTotals {
   discountTotal: number;
   shippingTotal: number;
   taxTotal: number;
+  productTaxTotal: number;
+  shippingTaxTotal: number;
+  giftCardApplied: number;
+  storeCreditApplied: number;
+  walletAdjustmentTotal: number;
   grandTotal: number;
   currency: string;
+  pricesIncludeTax: boolean;
+  taxLines: TaxLine[];
+  taxLineItems: TaxLineItem[];
+}
+
+export interface TaxLine {
+  name: string;
+  amount: number;
+  ratePercentage?: number | null;
+  isShippingTax: boolean;
+  taxableAmount?: number;
+}
+
+export interface TaxLineItem {
+  offerId: number;
+  taxableAmount: number;
+  taxAmount: number;
+  taxCategoryId?: number | null;
+  taxCategoryName?: string | null;
+  ratePercentage?: number | null;
 }
 
 export interface ShippingOption {
@@ -98,6 +125,11 @@ export interface CheckoutSession {
   warnings: string[];
   expiresAtUtc: string;
   cartUpdatedAtUtc: string;
+  appliedCouponCode?: string | null;
+  appliedGiftCardCode?: string | null;
+  appliedStoreCreditAmount?: number;
+  referralCode?: string | null;
+  affiliateId?: number | null;
 }
 
 export interface CheckoutAddressRequest {

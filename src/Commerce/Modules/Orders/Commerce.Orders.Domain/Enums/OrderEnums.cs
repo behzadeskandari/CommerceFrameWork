@@ -6,7 +6,8 @@ public enum OrderStatus
     Confirmed = 1,
     Processing = 2,
     Completed = 3,
-    Cancelled = 4
+    Cancelled = 4,
+    PartiallyCancelled = 5
 }
 
 public enum PaymentStatus
@@ -31,5 +32,6 @@ public enum OrderStatusHistoryType
 {
     Order = 0,
     Payment = 1,
-    Fulfillment = 2
+    Fulfillment = 2,
+    Return = 3
 }

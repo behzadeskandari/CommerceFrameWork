@@ -22,7 +22,8 @@ public sealed class CartModule : CommerceModuleBase
             new ModuleDependency("Commerce.Core"),
             new ModuleDependency("Commerce.Catalog"),
             new ModuleDependency("Commerce.Customers"),
-            new ModuleDependency("Commerce.Inventory")
+            new ModuleDependency("Commerce.Inventory"),
+            new ModuleDependency("Commerce.Pricing")
         ],
         IsRequired: false);
 

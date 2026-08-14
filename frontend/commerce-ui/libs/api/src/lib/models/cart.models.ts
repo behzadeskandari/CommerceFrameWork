@@ -38,6 +38,11 @@ export interface Cart {
   items: CartItem[];
   totals: CartTotals;
   itemCount: number;
+  appliedCouponCode?: string | null;
+}
+
+export interface ApplyCartCouponRequest {
+  code: string;
 }
 
 export interface AddCartItemRequest {

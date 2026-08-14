@@ -1,4 +1,6 @@
 using Commerce.Cart.Application.Abstractions;
+using Commerce.Cart.Contracts.Carts;
+using Commerce.Pricing.Contracts.Pricing;
 using Commerce.Framework.Domain.ValueObjects;
 
 namespace Commerce.Cart.Application.Carts;
@@ -30,4 +32,13 @@ public sealed class CartTotalsCalculator : ICartTotalsCalculator
             GrandTotal: subtotal.Amount,
             currency.Code);
     }
+
+    public CartAggregateTotals CalculateFromDiscountResult(CartDiscountCalculationResult result) =>
+        new(
+            result.Subtotal,
+            result.DiscountTotal,
+            ShippingTotal: 0m,
+            TaxTotal: 0m,
+            result.GrandTotal,
+            result.CurrencyCode);
 }

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Cache.Infrastructure</RootNamespace>
+    <AssemblyName>Commerce.Cache.Infrastructure</AssemblyName>
+    <Description>Cache infrastructure, Redis provider, and DI.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Cache.Application\Commerce.Cache.Application.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Infrastructure\Commerce.Framework.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Catalog\Commerce.Catalog.Application\Commerce.Catalog.Application.csproj" />
+    <ProjectReference Include="..\..\Catalog\Commerce.Catalog.Contracts\Commerce.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\Search\Commerce.Search.Application\Commerce.Search.Application.csproj" />
+    <ProjectReference Include="..\..\Search\Commerce.Search.Contracts\Commerce.Search.Contracts.csproj" />
+    <ProjectReference Include="..\..\Store\Commerce.Store.Infrastructure\Commerce.Store.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
+  </ItemGroup>
+</Project>

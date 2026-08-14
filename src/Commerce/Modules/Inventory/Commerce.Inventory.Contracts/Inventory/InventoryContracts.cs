@@ -13,10 +13,12 @@ public sealed record OfferAvailabilityDto(
     bool AllowBackorder,
     int OnHand,
     int Reserved,
+    int Incoming,
     int Available,
     InventoryAvailabilityStatus AvailabilityStatus,
     bool CanPurchase,
-    bool IsBackorder);
+    bool IsBackorder,
+    bool IsLowStock);
 
 public sealed record InventoryValidationResult(
     bool IsValid,
@@ -30,11 +32,16 @@ public sealed record InventoryItemSummaryDto(
     int OfferId,
     int ProductId,
     int? VariantId,
+    int? WarehouseId,
+    int? StockLocationId,
     bool TrackInventory,
     bool AllowBackorder,
     int OnHand,
     int Reserved,
+    int Incoming,
     int Available,
+    int? LowStockThreshold,
+    bool IsLowStock,
     InventoryAvailabilityStatus AvailabilityStatus,
     DateTime UpdatedAtUtc);
 
@@ -45,11 +52,15 @@ public sealed record InventoryItemDetailDto(
     int ProductId,
     int? VariantId,
     int? WarehouseId,
+    int? StockLocationId,
     bool TrackInventory,
     bool AllowBackorder,
     int OnHand,
     int Reserved,
+    int Incoming,
     int Available,
+    int? LowStockThreshold,
+    bool IsLowStock,
     InventoryAvailabilityStatus AvailabilityStatus,
     DateTime CreatedAtUtc,
     DateTime UpdatedAtUtc);
@@ -82,7 +93,10 @@ public sealed record CreateInventoryItemRequest(
     bool TrackInventory,
     bool AllowBackorder,
     int InitialOnHand = 0,
-    int? WarehouseId = null);
+    int? WarehouseId = null,
+    int? StockLocationId = null,
+    int? LowStockThreshold = null,
+    int InitialIncoming = 0);
 
 public sealed record AdjustInventoryStockRequest(
     int QuantityDelta,
@@ -110,6 +124,7 @@ public sealed record InventoryListQuery(
     int? StoreId = null,
     int? OfferId = null,
     int? ProductId = null,
+    int? WarehouseId = null,
     InventoryAvailabilityStatus? AvailabilityStatus = null);
 
 public sealed record PagedInventorySummaryResult(
@@ -162,7 +177,27 @@ public interface IInventoryOrderService
         int orderId,
         int storeId,
         CancellationToken cancellationToken = default);
+
+    Task<Result> ConvertForOrderAsync(
+        int orderId,
+        int storeId,
+        CancellationToken cancellationToken = default);
+
+    Task<Result> ReleasePartialForOrderAsync(
+        int orderId,
+        int storeId,
+        IReadOnlyList<InventoryOrderLineAdjustment> lines,
+        CancellationToken cancellationToken = default);
+
+    Task<Result> RestockForOrderAsync(
+        int orderId,
+        int storeId,
+        IReadOnlyList<InventoryOrderLineAdjustment> lines,
+        string reason,
+        CancellationToken cancellationToken = default);
 }
+
+public sealed record InventoryOrderLineAdjustment(int OfferId, int Quantity);
 
 public interface IInventoryAdminService
 {
@@ -190,6 +225,11 @@ public interface IInventoryAdminService
 
     Task<Result<IReadOnlyList<InventoryReservationDto>>> ListReservationsAsync(
         int inventoryItemId,
+        CancellationToken cancellationToken = default);
+
+    Task<Result<InventoryItemDetailDto>> SetLowStockThresholdAsync(
+        int inventoryItemId,
+        SetLowStockThresholdRequest request,
         CancellationToken cancellationToken = default);
 }
 

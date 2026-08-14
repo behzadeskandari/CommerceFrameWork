@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Commerce.Cache.Application</RootNamespace>
+    <AssemblyName>Commerce.Cache.Application</AssemblyName>
+    <Description>Cache decorators, invalidation, and profiling.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Contracts\Commerce.Framework.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Search\Commerce.Framework.Search\Commerce.Framework.Search.csproj" />
+    <ProjectReference Include="..\..\Catalog\Commerce.Catalog.Application\Commerce.Catalog.Application.csproj" />
+    <ProjectReference Include="..\..\Catalog\Commerce.Catalog.Contracts\Commerce.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\Search\Commerce.Search.Application\Commerce.Search.Application.csproj" />
+    <ProjectReference Include="..\..\Search\Commerce.Search.Contracts\Commerce.Search.Contracts.csproj" />
+    <ProjectReference Include="..\..\Store\Commerce.Store.Infrastructure\Commerce.Store.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.0" />
+  </ItemGroup>
+</Project>

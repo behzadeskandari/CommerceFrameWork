@@ -1,0 +1,358 @@
+version=1
+
+# This file caches language service data to improve the performance of C# Dev Kit.
+# It is not intended for manual editing. It can safely be deleted and will be
+# regenerated automatically. For more information, see https://aka.ms/lscache
+#
+# To control where cache files are stored, use the following VS Code setting:
+#   "dotnet.projectsystem.cacheInProjectFolder": true
+
+[project]
+language=C#
+primary
+lastDtbSucceeded
+
+[properties]
+AssemblyName=Commerce.Host
+CommandLineArgsForDesignTimeEvaluation=-langversion:latest -define:TRACE
+CompilerGeneratedFilesOutputPath=
+MaxSupportedLangVersion=
+ProjectAssetsFile=<PATH>obj/project.assets.json
+RootNamespace=Commerce.Host
+RunAnalyzers=
+RunAnalyzersDuringLiveAnalysis=
+SolutionPath=<PATH>../../../../Commerce.sln
+TargetFrameworkIdentifier=.NETCoreApp
+TargetPath=<PATH>bin/Debug/net10.0/Commerce.Host.dll
+TargetRefPath=<PATH>obj/Debug/net10.0/ref/Commerce.Host.dll
+TemporaryDependencyNodeTargetIdentifier=net10.0
+
+[commandLineArguments]
+/noconfig
+/unsafe-
+/checked-
+/nowarn:1701,1702,1701,1702
+/fullpaths
+/nostdlib+
+/errorreport:prompt
+/warn:1
+/define:TRACE;DEBUG;NET;NET10_0;NETCOREAPP;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP1_0_OR_GREATER;NETCOREAPP1_1_OR_GREATER;NETCOREAPP2_0_OR_GREATER;NETCOREAPP2_1_OR_GREATER;NETCOREAPP2_2_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER
+/highentropyva+
+/nullable:enable
+/debug+
+/debug:portable
+/filealign:512
+/optimize-
+/out:obj\Debug\net10.0\Commerce.Host.dll
+/refout:obj\Debug\net10.0\refint\Commerce.Host.dll
+/target:exe
+/warnaserror-
+/utf8output
+/deterministic+
+/langversion:latest
+/warnaserror+:NU1605,SYSLIB0011
+
+[sourceFiles]
+Analytics/AdminAnalyticsController.cs
+Audit/AdminAuditController.cs
+Auth/AuthController.cs
+Authorization/
+ AuditingPermissionAuthorizationHandler.cs
+ PermissionAuthorizationHandler.cs
+ PermissionPolicyProvider.cs
+ PermissionRequirement.cs
+ RequirePermissionAttribute.cs
+Cart/CartController.cs
+Catalog/
+ AdminOfferTierPricesController.cs
+ AttributesController.cs
+ CatalogActionResults.cs
+ CatalogStorefrontController.cs
+ CategoriesController.cs
+ OffersController.cs
+ PricingController.cs
+ ProductMediaController.cs
+ ProductsController.cs
+ VariantsController.cs
+Checkout/CheckoutController.cs
+Cms/CmsControllers.cs
+Configuration/CorsOptions.cs
+Customers/
+ AdminAffiliatesController.cs
+ AdminCustomerAccountController.cs
+ AdminCustomersController.cs
+ CustomerAddressesController.cs
+ CustomersController.cs
+Downloads/
+ AdminProductDownloadsController.cs
+ DownloadsController.cs
+Installation/InstallationController.cs
+Integration/
+ AdminApiClientsController.cs
+ AdminWebhooksController.cs
+ ApiClientContext.cs
+ ApiKeyAuthenticationMiddleware.cs
+ ExternalOrdersController.cs
+ RequireApiScopeAttribute.cs
+Inventory/
+ AdminInventoryController.cs
+ AdminWarehousesController.cs
+Media/
+ MediaController.cs
+ MediaDeliveryController.cs
+Middleware/InstallationGateMiddleware.cs
+Notifications/NotificationsControllers.cs
+obj/Debug/net10.0/
+ .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+ Commerce.Host.AssemblyInfo.cs
+ Commerce.Host.GlobalUsings.g.cs
+Orders/
+ AdminOrdersController.cs
+ OrdersController.cs
+Payments/
+ AdminGiftCardsController.cs
+ AdminPaymentsController.cs
+ PaymentCallbackController.cs
+ PaymentsController.cs
+Plugins/AdminPluginsController.cs
+Pricing/
+ AdminAdvancedPricingController.cs
+ AdminPricingController.cs
+Program.cs
+Promotions/PromotionsControllers.cs
+Reviews/ReviewsControllers.cs
+Scheduling/SchedulingControllers.cs
+Search/SearchControllers.cs
+Seo/SeoControllers.cs
+Shipping/AdminShippingController.cs
+Store/
+ CurrenciesController.cs
+ LanguagesController.cs
+ SettingsController.cs
+ StoreContextController.cs
+ StoresController.cs
+Tax/
+ AdminTaxController.cs
+ AdminTaxSettingsController.cs
+Theme/ThemeControllers.cs
+
+[metadataReferences]
+../../Framework/
+ Commerce.Framework.Application/obj/Debug/net10.0/ref/Commerce.Framework.Application.dll
+ Commerce.Framework.Contracts/obj/Debug/net10.0/ref/Commerce.Framework.Contracts.dll
+ Commerce.Framework.Core/obj/Debug/net10.0/ref/Commerce.Framework.Core.dll
+ Commerce.Framework.Data/obj/Debug/net10.0/ref/Commerce.Framework.Data.dll
+ Commerce.Framework.Domain/obj/Debug/net10.0/ref/Commerce.Framework.Domain.dll
+ Commerce.Framework.Events/obj/Debug/net10.0/ref/Commerce.Framework.Events.dll
+ Commerce.Framework.Infrastructure/obj/Debug/net10.0/ref/Commerce.Framework.Infrastructure.dll
+ PluginContracts/Commerce.Framework.PluginContracts/obj/Debug/net10.0/ref/Commerce.Framework.PluginContracts.dll
+ Plugins/Commerce.Framework.Plugins/obj/Debug/net10.0/ref/Commerce.Framework.Plugins.dll
+ Scheduling/Commerce.Framework.Scheduling/obj/Debug/net10.0/ref/Commerce.Framework.Scheduling.dll
+ Search/Commerce.Framework.Search/obj/Debug/net10.0/ref/Commerce.Framework.Search.dll
+ Seo/Commerce.Framework.Seo/obj/Debug/net10.0/ref/Commerce.Framework.Seo.dll
+ Themes/Commerce.Framework.Themes/obj/Debug/net10.0/ref/Commerce.Framework.Themes.dll
+../../Modules/Analytics/
+ Commerce.Analytics.Application/obj/Debug/net10.0/ref/Commerce.Analytics.Application.dll
+ Commerce.Analytics.Contracts/obj/Debug/net10.0/ref/Commerce.Analytics.Contracts.dll
+ Commerce.Analytics.Infrastructure/obj/Debug/net10.0/ref/Commerce.Analytics.Infrastructure.dll
+ Commerce.Modules.Analytics/obj/Debug/net10.0/ref/Commerce.Modules.Analytics.dll
+../../Modules/Audit/
+ Commerce.Audit.Application/obj/Debug/net10.0/ref/Commerce.Audit.Application.dll
+ Commerce.Audit.Contracts/obj/Debug/net10.0/ref/Commerce.Audit.Contracts.dll
+ Commerce.Audit.Domain/obj/Debug/net10.0/ref/Commerce.Audit.Domain.dll
+ Commerce.Audit.Infrastructure/obj/Debug/net10.0/ref/Commerce.Audit.Infrastructure.dll
+ Commerce.Modules.Audit/obj/Debug/net10.0/ref/Commerce.Modules.Audit.dll
+../../Modules/Cache/
+ Commerce.Cache.Application/obj/Debug/net10.0/ref/Commerce.Cache.Application.dll
+ Commerce.Cache.Infrastructure/obj/Debug/net10.0/ref/Commerce.Cache.Infrastructure.dll
+ Commerce.Modules.Cache/obj/Debug/net10.0/ref/Commerce.Modules.Cache.dll
+../../Modules/Cart/
+ Commerce.Cart.Application/obj/Debug/net10.0/ref/Commerce.Cart.Application.dll
+ Commerce.Cart.Contracts/obj/Debug/net10.0/ref/Commerce.Cart.Contracts.dll
+ Commerce.Cart.Domain/obj/Debug/net10.0/ref/Commerce.Cart.Domain.dll
+ Commerce.Cart.Infrastructure/obj/Debug/net10.0/ref/Commerce.Cart.Infrastructure.dll
+ Commerce.Modules.Cart/obj/Debug/net10.0/ref/Commerce.Modules.Cart.dll
+../../Modules/Catalog/
+ Commerce.Catalog.Application/obj/Debug/net10.0/ref/Commerce.Catalog.Application.dll
+ Commerce.Catalog.Contracts/obj/Debug/net10.0/ref/Commerce.Catalog.Contracts.dll
+ Commerce.Catalog.Domain/obj/Debug/net10.0/ref/Commerce.Catalog.Domain.dll
+ Commerce.Catalog.Infrastructure/obj/Debug/net10.0/ref/Commerce.Catalog.Infrastructure.dll
+ Commerce.Modules.Catalog/obj/Debug/net10.0/ref/Commerce.Modules.Catalog.dll
+../../Modules/Checkout/
+ Commerce.Checkout.Application/obj/Debug/net10.0/ref/Commerce.Checkout.Application.dll
+ Commerce.Checkout.Contracts/obj/Debug/net10.0/ref/Commerce.Checkout.Contracts.dll
+ Commerce.Checkout.Domain/obj/Debug/net10.0/ref/Commerce.Checkout.Domain.dll
+ Commerce.Checkout.Infrastructure/obj/Debug/net10.0/ref/Commerce.Checkout.Infrastructure.dll
+ Commerce.Modules.Checkout/obj/Debug/net10.0/ref/Commerce.Modules.Checkout.dll
+../../Modules/Cms/
+ Commerce.Cms.Application/obj/Debug/net10.0/ref/Commerce.Cms.Application.dll
+ Commerce.Cms.Contracts/obj/Debug/net10.0/ref/Commerce.Cms.Contracts.dll
+ Commerce.Cms.Domain/obj/Debug/net10.0/ref/Commerce.Cms.Domain.dll
+ Commerce.Cms.Infrastructure/obj/Debug/net10.0/ref/Commerce.Cms.Infrastructure.dll
+ Commerce.Modules.Cms/obj/Debug/net10.0/ref/Commerce.Modules.Cms.dll
+../../Modules/
+ Commerce.Modules.Core/obj/Debug/net10.0/ref/Commerce.Modules.Core.dll
+ Customers/
+  Commerce.Customers.Application/obj/Debug/net10.0/ref/Commerce.Customers.Application.dll
+  Commerce.Customers.Contracts/obj/Debug/net10.0/ref/Commerce.Customers.Contracts.dll
+  Commerce.Customers.Domain/obj/Debug/net10.0/ref/Commerce.Customers.Domain.dll
+  Commerce.Customers.Infrastructure/obj/Debug/net10.0/ref/Commerce.Customers.Infrastructure.dll
+  Commerce.Modules.Customers/obj/Debug/net10.0/ref/Commerce.Modules.Customers.dll
+ Downloads/
+  Commerce.Downloads.Application/obj/Debug/net10.0/ref/Commerce.Downloads.Application.dll
+  Commerce.Downloads.Contracts/obj/Debug/net10.0/ref/Commerce.Downloads.Contracts.dll
+  Commerce.Downloads.Domain/obj/Debug/net10.0/ref/Commerce.Downloads.Domain.dll
+  Commerce.Downloads.Infrastructure/obj/Debug/net10.0/ref/Commerce.Downloads.Infrastructure.dll
+  Commerce.Modules.Downloads/obj/Debug/net10.0/ref/Commerce.Modules.Downloads.dll
+ Integration/
+  Commerce.Integration.Application/obj/Debug/net10.0/ref/Commerce.Integration.Application.dll
+  Commerce.Integration.Contracts/obj/Debug/net10.0/ref/Commerce.Integration.Contracts.dll
+  Commerce.Integration.Domain/obj/Debug/net10.0/ref/Commerce.Integration.Domain.dll
+  Commerce.Integration.Infrastructure/obj/Debug/net10.0/ref/Commerce.Integration.Infrastructure.dll
+  Commerce.Modules.Integration/obj/Debug/net10.0/ref/Commerce.Modules.Integration.dll
+ Inventory/
+  Commerce.Inventory.Application/obj/Debug/net10.0/ref/Commerce.Inventory.Application.dll
+  Commerce.Inventory.Contracts/obj/Debug/net10.0/ref/Commerce.Inventory.Contracts.dll
+  Commerce.Inventory.Domain/obj/Debug/net10.0/ref/Commerce.Inventory.Domain.dll
+  Commerce.Inventory.Infrastructure/obj/Debug/net10.0/ref/Commerce.Inventory.Infrastructure.dll
+  Commerce.Modules.Inventory/obj/Debug/net10.0/ref/Commerce.Modules.Inventory.dll
+ Media/
+  Commerce.Media.Application/obj/Debug/net10.0/ref/Commerce.Media.Application.dll
+  Commerce.Media.Contracts/obj/Debug/net10.0/ref/Commerce.Media.Contracts.dll
+  Commerce.Media.Domain/obj/Debug/net10.0/ref/Commerce.Media.Domain.dll
+  Commerce.Media.Infrastructure/obj/Debug/net10.0/ref/Commerce.Media.Infrastructure.dll
+  Commerce.Modules.Media/obj/Debug/net10.0/ref/Commerce.Modules.Media.dll
+ Notifications/
+  Commerce.Modules.Notifications/obj/Debug/net10.0/ref/Commerce.Modules.Notifications.dll
+  Commerce.Notifications.Application/obj/Debug/net10.0/ref/Commerce.Notifications.Application.dll
+  Commerce.Notifications.Contracts/obj/Debug/net10.0/ref/Commerce.Notifications.Contracts.dll
+  Commerce.Notifications.Domain/obj/Debug/net10.0/ref/Commerce.Notifications.Domain.dll
+  Commerce.Notifications.Infrastructure/obj/Debug/net10.0/ref/Commerce.Notifications.Infrastructure.dll
+ Observability/
+  Commerce.Modules.Observability/obj/Debug/net10.0/ref/Commerce.Modules.Observability.dll
+  Commerce.Observability.Application/obj/Debug/net10.0/ref/Commerce.Observability.Application.dll
+  Commerce.Observability.Infrastructure/obj/Debug/net10.0/ref/Commerce.Observability.Infrastructure.dll
+ Orders/
+  Commerce.Modules.Orders/obj/Debug/net10.0/ref/Commerce.Modules.Orders.dll
+  Commerce.Orders.Application/obj/Debug/net10.0/ref/Commerce.Orders.Application.dll
+  Commerce.Orders.Contracts/obj/Debug/net10.0/ref/Commerce.Orders.Contracts.dll
+  Commerce.Orders.Domain/obj/Debug/net10.0/ref/Commerce.Orders.Domain.dll
+  Commerce.Orders.Infrastructure/obj/Debug/net10.0/ref/Commerce.Orders.Infrastructure.dll
+ Payments/
+  Commerce.Modules.Payments/obj/Debug/net10.0/ref/Commerce.Modules.Payments.dll
+  Commerce.Payments.Application/obj/Debug/net10.0/ref/Commerce.Payments.Application.dll
+  Commerce.Payments.Contracts/obj/Debug/net10.0/ref/Commerce.Payments.Contracts.dll
+  Commerce.Payments.Domain/obj/Debug/net10.0/ref/Commerce.Payments.Domain.dll
+  Commerce.Payments.Infrastructure/obj/Debug/net10.0/ref/Commerce.Payments.Infrastructure.dll
+ Pricing/
+  Commerce.Modules.Pricing/obj/Debug/net10.0/ref/Commerce.Modules.Pricing.dll
+  Commerce.Pricing.Application/obj/Debug/net10.0/ref/Commerce.Pricing.Application.dll
+  Commerce.Pricing.Contracts/obj/Debug/net10.0/ref/Commerce.Pricing.Contracts.dll
+  Commerce.Pricing.Domain/obj/Debug/net10.0/ref/Commerce.Pricing.Domain.dll
+  Commerce.Pricing.Infrastructure/obj/Debug/net10.0/ref/Commerce.Pricing.Infrastructure.dll
+ Promotions/
+  Commerce.Modules.Promotions/obj/Debug/net10.0/ref/Commerce.Modules.Promotions.dll
+  Commerce.Promotions.Application/obj/Debug/net10.0/ref/Commerce.Promotions.Application.dll
+  Commerce.Promotions.Contracts/obj/Debug/net10.0/ref/Commerce.Promotions.Contracts.dll
+  Commerce.Promotions.Domain/obj/Debug/net10.0/ref/Commerce.Promotions.Domain.dll
+  Commerce.Promotions.Infrastructure/obj/Debug/net10.0/ref/Commerce.Promotions.Infrastructure.dll
+ Reviews/
+  Commerce.Modules.Reviews/obj/Debug/net10.0/ref/Commerce.Modules.Reviews.dll
+  Commerce.Reviews.Application/obj/Debug/net10.0/ref/Commerce.Reviews.Application.dll
+  Commerce.Reviews.Contracts/obj/Debug/net10.0/ref/Commerce.Reviews.Contracts.dll
+  Commerce.Reviews.Domain/obj/Debug/net10.0/ref/Commerce.Reviews.Domain.dll
+  Commerce.Reviews.Infrastructure/obj/Debug/net10.0/ref/Commerce.Reviews.Infrastructure.dll
+ Scheduling/
+  Commerce.Modules.Scheduling/obj/Debug/net10.0/ref/Commerce.Modules.Scheduling.dll
+  Commerce.Scheduling.Application/obj/Debug/net10.0/ref/Commerce.Scheduling.Application.dll
+  Commerce.Scheduling.Contracts/obj/Debug/net10.0/ref/Commerce.Scheduling.Contracts.dll
+  Commerce.Scheduling.Domain/obj/Debug/net10.0/ref/Commerce.Scheduling.Domain.dll
+  Commerce.Scheduling.Infrastructure/obj/Debug/net10.0/ref/Commerce.Scheduling.Infrastructure.dll
+ Search/
+  Commerce.Modules.Search/obj/Debug/net10.0/ref/Commerce.Modules.Search.dll
+  Commerce.Search.Application/obj/Debug/net10.0/ref/Commerce.Search.Application.dll
+  Commerce.Search.Contracts/obj/Debug/net10.0/ref/Commerce.Search.Contracts.dll
+  Commerce.Search.Domain/obj/Debug/net10.0/ref/Commerce.Search.Domain.dll
+  Commerce.Search.Infrastructure/obj/Debug/net10.0/ref/Commerce.Search.Infrastructure.dll
+ Seo/
+  Commerce.Modules.Seo/obj/Debug/net10.0/ref/Commerce.Modules.Seo.dll
+  Commerce.Seo.Application/obj/Debug/net10.0/ref/Commerce.Seo.Application.dll
+  Commerce.Seo.Contracts/obj/Debug/net10.0/ref/Commerce.Seo.Contracts.dll
+  Commerce.Seo.Domain/obj/Debug/net10.0/ref/Commerce.Seo.Domain.dll
+  Commerce.Seo.Infrastructure/obj/Debug/net10.0/ref/Commerce.Seo.Infrastructure.dll
+ Shipping/
+  Commerce.Modules.Shipping/obj/Debug/net10.0/ref/Commerce.Modules.Shipping.dll
+  Commerce.Shipping.Application/obj/Debug/net10.0/ref/Commerce.Shipping.Application.dll
+  Commerce.Shipping.Contracts/obj/Debug/net10.0/ref/Commerce.Shipping.Contracts.dll
+  Commerce.Shipping.Domain/obj/Debug/net10.0/ref/Commerce.Shipping.Domain.dll
+  Commerce.Shipping.Infrastructure/obj/Debug/net10.0/ref/Commerce.Shipping.Infrastructure.dll
+ Store/
+  Commerce.Modules.Store/obj/Debug/net10.0/ref/Commerce.Modules.Store.dll
+  Commerce.Store.Application/obj/Debug/net10.0/ref/Commerce.Store.Application.dll
+  Commerce.Store.Contracts/obj/Debug/net10.0/ref/Commerce.Store.Contracts.dll
+  Commerce.Store.Domain/obj/Debug/net10.0/ref/Commerce.Store.Domain.dll
+  Commerce.Store.Infrastructure/obj/Debug/net10.0/ref/Commerce.Store.Infrastructure.dll
+ Tax/
+  Commerce.Modules.Tax/obj/Debug/net10.0/ref/Commerce.Modules.Tax.dll
+  Commerce.Tax.Application/obj/Debug/net10.0/ref/Commerce.Tax.Application.dll
+  Commerce.Tax.Contracts/obj/Debug/net10.0/ref/Commerce.Tax.Contracts.dll
+  Commerce.Tax.Domain/obj/Debug/net10.0/ref/Commerce.Tax.Domain.dll
+  Commerce.Tax.Infrastructure/obj/Debug/net10.0/ref/Commerce.Tax.Infrastructure.dll
+ Themes/
+  Commerce.Modules.Themes/obj/Debug/net10.0/ref/Commerce.Modules.Themes.dll
+  Commerce.Themes.Application/obj/Debug/net10.0/ref/Commerce.Themes.Application.dll
+  Commerce.Themes.Contracts/obj/Debug/net10.0/ref/Commerce.Themes.Contracts.dll
+  Commerce.Themes.Domain/obj/Debug/net10.0/ref/Commerce.Themes.Domain.dll
+  Commerce.Themes.Infrastructure/obj/Debug/net10.0/ref/Commerce.Themes.Infrastructure.dll
+../../Plugins/
+ Search/Commerce.Plugin.Search.Database/obj/Debug/net10.0/ref/Commerce.Plugin.Search.Database.dll
+ Theme/Commerce.Plugin.Theme.Default/obj/Debug/net10.0/ref/Commerce.Plugin.Theme.Default.dll
+<NUGET>/
+ azure.core/1.47.1/lib/net8.0/Azure.Core.dll
+ azure.identity/1.14.2/lib/net8.0/Azure.Identity.dll
+ microsoft.aspnetcore.identity.entityframeworkcore/10.0.0/lib/net10.0/Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+ microsoft.bcl.asyncinterfaces/8.0.0/lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll
+ microsoft.bcl.cryptography/9.0.4/lib/net9.0/Microsoft.Bcl.Cryptography.dll
+ microsoft.data.sqlclient/6.1.1/ref/net9.0/Microsoft.Data.SqlClient.dll
+ microsoft.entityframeworkcore.abstractions/10.0.0/lib/net10.0/Microsoft.EntityFrameworkCore.Abstractions.dll
+ microsoft.entityframeworkcore.inmemory/10.0.0/lib/net10.0/Microsoft.EntityFrameworkCore.InMemory.dll
+ microsoft.entityframeworkcore.relational/10.0.0/lib/net10.0/Microsoft.EntityFrameworkCore.Relational.dll
+ microsoft.entityframeworkcore.sqlserver/10.0.0/lib/net10.0/Microsoft.EntityFrameworkCore.SqlServer.dll
+ microsoft.entityframeworkcore/10.0.0/lib/net10.0/Microsoft.EntityFrameworkCore.dll
+ microsoft.extensions.caching.stackexchangeredis/10.0.0/lib/net10.0/Microsoft.Extensions.Caching.StackExchangeRedis.dll
+ microsoft.identity.client.extensions.msal/4.73.1/lib/net8.0/Microsoft.Identity.Client.Extensions.Msal.dll
+ microsoft.identity.client/4.73.1/lib/net8.0/Microsoft.Identity.Client.dll
+ microsoft.identitymodel.abstractions/7.7.1/lib/net8.0/Microsoft.IdentityModel.Abstractions.dll
+ microsoft.identitymodel.jsonwebtokens/7.7.1/lib/net8.0/Microsoft.IdentityModel.JsonWebTokens.dll
+ microsoft.identitymodel.logging/7.7.1/lib/net8.0/Microsoft.IdentityModel.Logging.dll
+ microsoft.identitymodel.protocols.openidconnect/7.7.1/lib/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+ microsoft.identitymodel.protocols/7.7.1/lib/net8.0/Microsoft.IdentityModel.Protocols.dll
+ microsoft.identitymodel.tokens/7.7.1/lib/net8.0/Microsoft.IdentityModel.Tokens.dll
+ microsoft.sqlserver.server/1.0.0/lib/netstandard2.0/Microsoft.SqlServer.Server.dll
+ pipelines.sockets.unofficial/2.2.8/lib/net5.0/Pipelines.Sockets.Unofficial.dll
+ sixlabors.imagesharp/3.1.12/lib/net6.0/SixLabors.ImageSharp.dll
+ stackexchange.redis/2.8.31/lib/net8.0/StackExchange.Redis.dll
+ system.clientmodel/1.5.1/lib/net8.0/System.ClientModel.dll
+ system.identitymodel.tokens.jwt/7.7.1/lib/net8.0/System.IdentityModel.Tokens.Jwt.dll
+ system.memory.data/8.0.1/lib/net8.0/System.Memory.Data.dll
+ system.security.cryptography.pkcs/9.0.4/lib/net9.0/System.Security.Cryptography.Pkcs.dll
+ system.security.cryptography.protecteddata/9.0.4/lib/net9.0/System.Security.Cryptography.ProtectedData.dll
+
+[analyzerReferences]
+<DOTNET>/sdk/8.0.302/Sdks/Microsoft.NET.Sdk.Razor/source-generators/
+ Microsoft.AspNetCore.Razor.Utilities.Shared.dll
+ Microsoft.CodeAnalysis.Razor.Compiler.dll
+ Microsoft.Extensions.ObjectPool.dll
+ System.Collections.Immutable.dll
+<DOTNET>/sdk/8.0.302/Sdks/Microsoft.NET.Sdk.Web/analyzers/cs/
+ Microsoft.AspNetCore.Analyzers.dll
+ Microsoft.AspNetCore.Mvc.Analyzers.dll
+<DOTNET>/sdk/8.0.302/Sdks/Microsoft.NET.Sdk/analyzers/
+ Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
+ Microsoft.CodeAnalysis.NetAnalyzers.dll
+<NUGET>/
+ microsoft.entityframeworkcore.analyzers/10.0.0/analyzers/dotnet/cs/Microsoft.EntityFrameworkCore.Analyzers.dll
+ system.clientmodel/1.5.1/analyzers/dotnet/cs/System.ClientModel.SourceGeneration.dll
+
+[analyzerConfigFiles]
+obj/Debug/net10.0/Commerce.Host.GeneratedMSBuildEditorConfig.editorconfig

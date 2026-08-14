@@ -19,6 +19,9 @@ public sealed record CustomerDetailDto(
     string? PhoneNumber,
     bool Active,
     bool Deleted,
+    bool IsTaxExempt,
+    string? TaxRegistrationNumber,
+    int? CustomerGroupId,
     DateTime CreatedAtUtc,
     DateTime UpdatedAtUtc,
     IReadOnlyList<CustomerAddressDto> Addresses);

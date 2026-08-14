@@ -16,12 +16,13 @@ public sealed class InventoryModule : CommerceModuleBase
         SystemName: "Commerce.Inventory",
         Name: "Inventory",
         Version: new Version(1, 0, 0),
-        Description: "Stock, reservations, and availability engine.",
+        Description: "Stock, warehouses, reservations, and availability engine.",
         Dependencies:
         [
             new ModuleDependency("Commerce.Core"),
             new ModuleDependency("Commerce.Catalog"),
-            new ModuleDependency("Commerce.Store")
+            new ModuleDependency("Commerce.Store"),
+            new ModuleDependency("Commerce.Scheduling")
         ],
         IsRequired: false);
 
@@ -30,5 +31,10 @@ public sealed class InventoryModule : CommerceModuleBase
         services.AddSingleton<ICommerceModelContributor, InventoryModelContributor>();
         services.AddSingleton<ICommerceMigration, InventoryInitialMigration>();
         services.AddInventoryInfrastructure();
+    }
+
+    public override async Task StartAsync(ICommerceModuleContext context, CancellationToken cancellationToken = default)
+    {
+        await context.Services.RegisterInventoryRecurringJobsAsync(cancellationToken).ConfigureAwait(false);
     }
 }

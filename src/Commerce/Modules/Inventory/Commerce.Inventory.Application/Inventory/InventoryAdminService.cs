@@ -25,6 +25,7 @@ public sealed class InventoryAdminService(
             query.StoreId ?? storeContext.CurrentStoreId,
             query.OfferId,
             query.ProductId,
+            query.WarehouseId,
             query.AvailabilityStatus);
 
         var (items, total) = await inventoryRepository.ListAsync(criteria, cancellationToken).ConfigureAwait(false);
@@ -57,13 +58,20 @@ public sealed class InventoryAdminService(
             return Result.Failure<InventoryItemDetailDto>(InventoryErrors.StoreMismatch());
         }
 
-        var existing = await inventoryRepository
-            .GetByStoreAndOfferAsync(storeId.Value, request.OfferId, cancellationToken)
-            .ConfigureAwait(false);
+        int? warehouseId = request.WarehouseId;
+        if (!warehouseId.HasValue)
+        {
+            var defaultWarehouse = await inventoryRepository.GetDefaultWarehouseAsync(storeId.Value, cancellationToken).ConfigureAwait(false);
+            warehouseId = defaultWarehouse?.Id;
+        }
+
+        var existing = warehouseId.HasValue
+            ? await inventoryRepository.GetByStoreOfferAndWarehouseAsync(storeId.Value, request.OfferId, warehouseId, cancellationToken).ConfigureAwait(false)
+            : await inventoryRepository.GetByStoreAndOfferAsync(storeId.Value, request.OfferId, cancellationToken).ConfigureAwait(false);
 
         if (existing is not null)
         {
-            return Result.Failure<InventoryItemDetailDto>(InventoryErrors.AlreadyExists(storeId.Value, request.OfferId));
+            return Result.Failure<InventoryItemDetailDto>(InventoryErrors.AlreadyExists(storeId.Value, request.OfferId, warehouseId));
         }
 
         var offerResult = await offerReader.GetByIdAsync(request.OfferId, cancellationToken).ConfigureAwait(false);
@@ -85,7 +93,9 @@ public sealed class InventoryAdminService(
             offer.VariantId,
             request.TrackInventory,
             request.AllowBackorder,
-            request.WarehouseId);
+            warehouseId,
+            request.StockLocationId,
+            request.LowStockThreshold);
 
         if (request.InitialOnHand > 0)
         {
@@ -96,6 +106,11 @@ public sealed class InventoryAdminService(
                 InventoryReferenceType.None,
                 null,
                 "admin");
+        }
+
+        if (request.InitialIncoming > 0)
+        {
+            item.AddIncoming(request.InitialIncoming, "Initial incoming stock.", "admin");
         }
 
         await inventoryRepository.AddAsync(item, cancellationToken).ConfigureAwait(false);
@@ -157,5 +172,28 @@ public sealed class InventoryAdminService(
             ? Result.Failure<IReadOnlyList<InventoryReservationDto>>(InventoryErrors.NotFound(inventoryItemId))
             : Result.Success<IReadOnlyList<InventoryReservationDto>>(
                 item.Reservations.Select(InventoryMapper.ToReservation).ToList());
+    }
+
+    public async Task<Result<InventoryItemDetailDto>> SetLowStockThresholdAsync(
+        int inventoryItemId,
+        SetLowStockThresholdRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var item = await inventoryRepository.GetByIdWithDetailsAsync(inventoryItemId, cancellationToken).ConfigureAwait(false);
+        if (item is null)
+        {
+            return Result.Failure<InventoryItemDetailDto>(InventoryErrors.NotFound(inventoryItemId));
+        }
+
+        try
+        {
+            item.SetLowStockThreshold(request.Threshold);
+            await inventoryRepository.SaveAsync(item, cancellationToken).ConfigureAwait(false);
+            return Result.Success(InventoryMapper.ToDetail(item));
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            return Result.Failure<InventoryItemDetailDto>(InventoryErrors.InvalidAdjustment(ex.Message));
+        }
     }
 }

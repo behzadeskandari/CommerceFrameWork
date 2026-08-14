@@ -107,4 +107,25 @@ public sealed class InventoryReservation : Entity
         ReleaseReason = "Expired.";
         UpdatedAtUtc = utcNow;
     }
+
+    public void ReduceQuantity(int reduceBy, DateTime utcNow)
+    {
+        if (reduceBy <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(reduceBy));
+        }
+
+        if (reduceBy >= Quantity)
+        {
+            throw new InvalidOperationException("Use Release for full reservation release.");
+        }
+
+        if (Status != InventoryReservationStatus.Active)
+        {
+            throw new InvalidOperationException($"Reservation cannot be reduced from status {Status}.");
+        }
+
+        Quantity -= reduceBy;
+        UpdatedAtUtc = utcNow;
+    }
 }

@@ -183,6 +183,134 @@ public sealed class InventoryFlowTests
     }
 
     [Fact]
+    public async Task Warehouse_CreateAndTransferStock_Succeeds()
+    {
+        await using var factory = InstallationFlowTests.CreateFactory();
+        using var client = CreateStorefrontClient(factory);
+        await InstallationFlowTests.CompleteInstallationAsync(client, InstallationFlowTests.CreateInMemoryToken());
+
+        var offerId = await CreateSimpleProductOfferAsync(client, "INV-WH-1", 22m);
+        await IntegrationAuthHelper.LoginAsAdministratorAsync(client);
+
+        var warehouseA = await client.PostAsJsonAsync("/api/admin/inventory/warehouses", new
+        {
+            Name = "Warehouse A",
+            SystemName = "warehouse-a",
+            IsDefault = true,
+            DisplayOrder = 0
+        });
+        Assert.Equal(HttpStatusCode.Created, warehouseA.StatusCode);
+        using var warehouseAJson = JsonDocument.Parse(await warehouseA.Content.ReadAsStreamAsync());
+        var warehouseAId = warehouseAJson.RootElement.GetProperty("data").GetProperty("id").GetInt32();
+
+        var warehouseB = await client.PostAsJsonAsync("/api/admin/inventory/warehouses", new
+        {
+            Name = "Warehouse B",
+            SystemName = "warehouse-b",
+            IsDefault = false,
+            DisplayOrder = 1
+        });
+        Assert.Equal(HttpStatusCode.Created, warehouseB.StatusCode);
+        using var warehouseBJson = JsonDocument.Parse(await warehouseB.Content.ReadAsStreamAsync());
+        var warehouseBId = warehouseBJson.RootElement.GetProperty("data").GetProperty("id").GetInt32();
+
+        var sourceInventory = await client.PostAsJsonAsync("/api/admin/inventory", new
+        {
+            OfferId = offerId,
+            TrackInventory = true,
+            AllowBackorder = false,
+            InitialOnHand = 8,
+            WarehouseId = warehouseAId
+        });
+        sourceInventory.EnsureSuccessStatusCode();
+        using var sourceJson = JsonDocument.Parse(await sourceInventory.Content.ReadAsStreamAsync());
+        var sourceId = sourceJson.RootElement.GetProperty("data").GetProperty("id").GetInt32();
+
+        var destInventory = await client.PostAsJsonAsync("/api/admin/inventory", new
+        {
+            OfferId = offerId,
+            TrackInventory = true,
+            AllowBackorder = false,
+            InitialOnHand = 0,
+            WarehouseId = warehouseBId
+        });
+        destInventory.EnsureSuccessStatusCode();
+        using var destJson = JsonDocument.Parse(await destInventory.Content.ReadAsStreamAsync());
+        var destId = destJson.RootElement.GetProperty("data").GetProperty("id").GetInt32();
+
+        var transfer = await client.PostAsJsonAsync("/api/admin/inventory/transfer", new
+        {
+            SourceInventoryItemId = sourceId,
+            DestinationInventoryItemId = destId,
+            Quantity = 3,
+            Reason = "Replenish secondary warehouse."
+        });
+        Assert.Equal(HttpStatusCode.OK, transfer.StatusCode);
+
+        var sourceDetail = await client.GetAsync($"/api/admin/inventory/{sourceId}");
+        using var sourceDetailJson = JsonDocument.Parse(await sourceDetail.Content.ReadAsStreamAsync());
+        Assert.Equal(5, sourceDetailJson.RootElement.GetProperty("data").GetProperty("onHand").GetInt32());
+
+        var destDetail = await client.GetAsync($"/api/admin/inventory/{destId}");
+        using var destDetailJson = JsonDocument.Parse(await destDetail.Content.ReadAsStreamAsync());
+        Assert.Equal(3, destDetailJson.RootElement.GetProperty("data").GetProperty("onHand").GetInt32());
+    }
+
+    [Fact]
+    public async Task ReceiveIncoming_UpdatesOnHandAndIncoming()
+    {
+        await using var factory = InstallationFlowTests.CreateFactory();
+        using var client = CreateStorefrontClient(factory);
+        await InstallationFlowTests.CompleteInstallationAsync(client, InstallationFlowTests.CreateInMemoryToken());
+
+        var offerId = await CreateSimpleProductOfferAsync(client, "INV-INCOMING-1", 18m);
+        await IntegrationAuthHelper.LoginAsAdministratorAsync(client);
+
+        var create = await client.PostAsJsonAsync("/api/admin/inventory", new
+        {
+            OfferId = offerId,
+            TrackInventory = true,
+            AllowBackorder = false,
+            InitialOnHand = 2,
+            InitialIncoming = 5
+        });
+        create.EnsureSuccessStatusCode();
+        using var createJson = JsonDocument.Parse(await create.Content.ReadAsStreamAsync());
+        var inventoryId = createJson.RootElement.GetProperty("data").GetProperty("id").GetInt32();
+        Assert.Equal(5, createJson.RootElement.GetProperty("data").GetProperty("incoming").GetInt32());
+
+        var receive = await client.PostAsJsonAsync($"/api/admin/inventory/{inventoryId}/receive-incoming", new
+        {
+            Quantity = 4,
+            Reason = "PO arrival."
+        });
+        Assert.Equal(HttpStatusCode.OK, receive.StatusCode);
+        using var receiveJson = JsonDocument.Parse(await receive.Content.ReadAsStreamAsync());
+        Assert.Equal(6, receiveJson.RootElement.GetProperty("data").GetProperty("onHand").GetInt32());
+        Assert.Equal(1, receiveJson.RootElement.GetProperty("data").GetProperty("incoming").GetInt32());
+    }
+
+    [Fact]
+    public async Task Overselling_PreventedWhenTwoOrdersCompeteForLastUnit()
+    {
+        await using var factory = InstallationFlowTests.CreateFactory();
+        using var client = CreateStorefrontClient(factory);
+        await InstallationFlowTests.CompleteInstallationAsync(client, InstallationFlowTests.CreateInMemoryToken());
+
+        var offerId = await CreateSimpleProductOfferAsync(client, "INV-OVER-1", 13m);
+        await CreateInventoryAsync(client, offerId, onHand: 1);
+
+        var checkoutA = await PrepareReadyGuestCheckoutAsync(client, offerId);
+        var checkoutB = await PrepareReadyGuestCheckoutAsync(client, offerId);
+
+        var orderA = await CreateOrderAsync(client, checkoutA, Guid.NewGuid().ToString("N"));
+        var orderB = await CreateOrderAsync(client, checkoutB, Guid.NewGuid().ToString("N"));
+
+        var successCount = new[] { orderA.StatusCode, orderB.StatusCode }.Count(code => code == HttpStatusCode.Created);
+        Assert.Equal(1, successCount);
+    }
+
+    [Fact]
     public async Task NonTrackedOffer_AllowsCheckoutWithoutInventoryItem()
     {
         await using var factory = InstallationFlowTests.CreateFactory();

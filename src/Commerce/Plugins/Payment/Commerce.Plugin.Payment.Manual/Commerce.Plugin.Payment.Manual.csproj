@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+
+
+  <PropertyGroup>
+
+    <RootNamespace>Commerce.Plugin.Payment.Manual</RootNamespace>
+
+    <AssemblyName>Commerce.Plugin.Payment.Manual</AssemblyName>
+
+    <Description>Manual payment provider plugin.</Description>
+
+  </PropertyGroup>
+
+
+
+  <ItemGroup>
+
+    <ProjectReference Include="..\..\..\Framework\PluginContracts\Commerce.Framework.PluginContracts\Commerce.Framework.PluginContracts.csproj" />
+
+    <ProjectReference Include="..\..\..\Modules\Payments\Commerce.Payments.Contracts\Commerce.Payments.Contracts.csproj" />
+
+  </ItemGroup>
+
+
+
+  <ItemGroup>
+
+    <None Include="Plugin.json" CopyToOutputDirectory="PreserveNewest" />
+
+  </ItemGroup>
+
+
+
+  <Target Name="CopyPluginOutput" AfterTargets="Build">
+
+    <PropertyGroup>
+
+      <PluginHostDir>$(MSBuildThisFileDirectory)..\..\..\Host\Commerce.Host\Plugins\Payment.Manual\</PluginHostDir>
+
+    </PropertyGroup>
+
+    <MakeDir Directories="$(PluginHostDir)" />
+
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginHostDir)" SkipUnchangedFiles="true" />
+
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Plugin.json" DestinationFolder="$(PluginHostDir)" SkipUnchangedFiles="true" />
+
+  </Target>
+
+
+
+</Project>
+
+

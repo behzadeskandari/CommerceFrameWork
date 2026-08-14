@@ -1,0 +1,106 @@
+version=1
+
+# This file caches language service data to improve the performance of C# Dev Kit.
+# It is not intended for manual editing. It can safely be deleted and will be
+# regenerated automatically. For more information, see https://aka.ms/lscache
+#
+# To control where cache files are stored, use the following VS Code setting:
+#   "dotnet.projectsystem.cacheInProjectFolder": true
+
+[project]
+language=C#
+primary
+lastDtbSucceeded
+
+[properties]
+AssemblyName=Commerce.Shipping.Application
+CommandLineArgsForDesignTimeEvaluation=-langversion:latest -define:TRACE
+CompilerGeneratedFilesOutputPath=
+MaxSupportedLangVersion=
+ProjectAssetsFile=<PATH>obj/project.assets.json
+RootNamespace=Commerce.Shipping.Application
+RunAnalyzers=
+RunAnalyzersDuringLiveAnalysis=
+SolutionPath=<PATH>../../../../../Commerce.sln
+TargetFrameworkIdentifier=.NETCoreApp
+TargetPath=<PATH>bin/Debug/net10.0/Commerce.Shipping.Application.dll
+TargetRefPath=<PATH>obj/Debug/net10.0/ref/Commerce.Shipping.Application.dll
+TemporaryDependencyNodeTargetIdentifier=net10.0
+
+[commandLineArguments]
+/noconfig
+/unsafe-
+/checked-
+/nowarn:1701,1702,1701,1702
+/fullpaths
+/nostdlib+
+/errorreport:prompt
+/warn:1
+/define:TRACE;DEBUG;NET;NET10_0;NETCOREAPP;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP1_0_OR_GREATER;NETCOREAPP1_1_OR_GREATER;NETCOREAPP2_0_OR_GREATER;NETCOREAPP2_1_OR_GREATER;NETCOREAPP2_2_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER
+/highentropyva+
+/nullable:enable
+/debug+
+/debug:portable
+/filealign:512
+/optimize-
+/out:obj\Debug\net10.0\Commerce.Shipping.Application.dll
+/refout:obj\Debug\net10.0\refint\Commerce.Shipping.Application.dll
+/target:library
+/warnaserror-
+/utf8output
+/deterministic+
+/langversion:latest
+/warnaserror+:NU1605,SYSLIB0011
+
+[sourceFiles]
+Abstractions/ShippingAbstractions.cs
+DependencyInjection/ServiceCollectionExtensions.cs
+obj/Debug/net10.0/
+ .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+ Commerce.Shipping.Application.AssemblyInfo.cs
+ Commerce.Shipping.Application.GlobalUsings.g.cs
+Shipments/
+ OrderFulfillmentSync.cs
+ ShipmentAdminService.cs
+Shipping/
+ FlatRateShippingProvider.cs
+ FlatRateShippingRateProvider.cs
+ PickupShippingProvider.cs
+ PickupShippingRateProvider.cs
+ ShippingAdminService.cs
+ ShippingCalculationService.cs
+ ShippingProviderRegistry.cs
+ ShippingZoneMatcher.cs
+ShippingSettings.cs
+
+[metadataReferences]
+../../../Framework/
+ Commerce.Framework.Contracts/obj/Debug/net10.0/ref/Commerce.Framework.Contracts.dll
+ Commerce.Framework.Core/obj/Debug/net10.0/ref/Commerce.Framework.Core.dll
+ Commerce.Framework.Domain/obj/Debug/net10.0/ref/Commerce.Framework.Domain.dll
+../../Catalog/
+ Commerce.Catalog.Contracts/obj/Debug/net10.0/ref/Commerce.Catalog.Contracts.dll
+ Commerce.Catalog.Domain/obj/Debug/net10.0/ref/Commerce.Catalog.Domain.dll
+../../Checkout/
+ Commerce.Checkout.Contracts/obj/Debug/net10.0/ref/Commerce.Checkout.Contracts.dll
+ Commerce.Checkout.Domain/obj/Debug/net10.0/ref/Commerce.Checkout.Domain.dll
+../../Orders/
+ Commerce.Orders.Contracts/obj/Debug/net10.0/ref/Commerce.Orders.Contracts.dll
+ Commerce.Orders.Domain/obj/Debug/net10.0/ref/Commerce.Orders.Domain.dll
+../
+ Commerce.Shipping.Contracts/obj/Debug/net10.0/ref/Commerce.Shipping.Contracts.dll
+ Commerce.Shipping.Domain/obj/Debug/net10.0/ref/Commerce.Shipping.Domain.dll
+<NUGET>/
+ microsoft.extensions.configuration.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.Configuration.Abstractions.dll
+ microsoft.extensions.dependencyinjection.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
+ microsoft.extensions.logging.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.Logging.Abstractions.dll
+ microsoft.extensions.primitives/10.0.0/lib/net10.0/Microsoft.Extensions.Primitives.dll
+
+[analyzerReferences]
+<DOTNET>/sdk/8.0.302/Sdks/Microsoft.NET.Sdk/analyzers/
+ Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
+ Microsoft.CodeAnalysis.NetAnalyzers.dll
+<NUGET>/microsoft.extensions.logging.abstractions/10.0.0/analyzers/dotnet/roslyn4.4/cs/Microsoft.Extensions.Logging.Generators.dll
+
+[analyzerConfigFiles]
+obj/Debug/net10.0/Commerce.Shipping.Application.GeneratedMSBuildEditorConfig.editorconfig

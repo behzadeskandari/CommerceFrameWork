@@ -53,7 +53,7 @@ public sealed class MigrationAndSeederOrderingTests
         Assert.Equal("TestModuleSeeder", ordered[1]);
     }
 
-    private static ModuleRegistrationContext CreateContext(IReadOnlyList<Commerce.Framework.Contracts.Modules.ICommerceModule> modules)
+    private static ModuleRegistrationContext CreateContext(IReadOnlyList<global::Commerce.Framework.Contracts.Modules.ICommerceModule> modules)
     {
         var descriptors = modules.Select(x => x.Descriptor).ToList();
         var ordered = ModuleDependencyResolver.Resolve(descriptors);

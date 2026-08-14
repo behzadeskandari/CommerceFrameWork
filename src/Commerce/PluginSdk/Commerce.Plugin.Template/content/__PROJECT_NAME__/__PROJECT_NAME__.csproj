@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>__ROOT_NAMESPACE__</RootNamespace>
+    <AssemblyName>__PROJECT_NAME__</AssemblyName>
+    <Description>__PLUGIN_NAME__</Description>
+    <CommercePluginSystemName>__SYSTEM_NAME__</CommercePluginSystemName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Framework\PluginContracts\Commerce.Framework.PluginContracts\Commerce.Framework.PluginContracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Plugin.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Localization\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Import Project="..\..\..\..\PluginSdk\Commerce.Plugin.Sdk\Build\Commerce.Plugin.Sdk.targets" />
+</Project>

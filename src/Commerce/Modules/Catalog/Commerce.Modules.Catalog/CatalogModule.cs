@@ -29,6 +29,7 @@ public sealed class CatalogModule : CommerceModuleBase
     {
         services.AddSingleton<ICommerceModelContributor, CatalogModelContributor>();
         services.AddSingleton<ICommerceMigration, CatalogInitialMigration>();
+        services.AddSingleton<ICommerceMigration, CatalogPhase21Migration>();
         services.AddSingleton<ICommerceSeeder, CatalogDevelopmentSeeder>();
         services.AddSingleton<IModulePermissionContributor, CatalogPermissionContributor>();
         services.AddCatalogApplication();

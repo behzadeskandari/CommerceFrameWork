@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Commerce.Plugin.Cli</RootNamespace>
+    <AssemblyName>commerce</AssemblyName>
+    <Description>Commerce plugin developer CLI.</Description>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>commerce</ToolCommandName>
+    <PackageId>Commerce.Plugin.Cli</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.Plugin.Sdk\Commerce.Plugin.Sdk.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
+</Project>

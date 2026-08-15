@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start:admin": "ng serve admin --port 4200",
-    "start:storefront": "ng serve storefront --port 4201",
+    "start:admin": "ng serve admin --port 4200 --proxy-config proxy.conf.json",
+    "start:storefront": "ng serve storefront --port 4201 --proxy-config proxy.conf.json",
     "build": "ng build admin && ng build storefront",
     "build:admin": "ng build admin --configuration production",
     "build:storefront": "ng build storefront --configuration production",

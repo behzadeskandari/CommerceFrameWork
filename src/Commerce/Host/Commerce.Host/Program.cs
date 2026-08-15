@@ -141,6 +141,10 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
+// Add Swagger/OpenAPI for local development and exploration
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var corsOptions = builder.Configuration
     .GetSection(CorsOptions.SectionName)
     .Get<CorsOptions>() ?? new CorsOptions();
@@ -172,6 +176,12 @@ app.UseRateLimiter();
 app.UseApiKeyAuthentication();
 app.UseAuthentication();
 app.UseAuthorization();
+// Enable Swagger UI only in Development
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 app.UseCommerceAdminAudit();
 app.UsePluginStaticFiles();
 app.MapControllers();

@@ -1,6 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { GiftCardSummary, GiftCardsApi } from '@commerce/api';
 import { PermissionService } from '@commerce/auth';
 import { ApiClientError } from '@commerce/core';
@@ -16,7 +15,6 @@ import { firstValueFrom } from 'rxjs';
 @Component({
   standalone: true,
   imports: [
-    RouterLink,
     DecimalPipe,
     DatePipe,
     BreadcrumbsComponent,

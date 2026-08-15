@@ -6,5 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Commerce.Plugin.Contracts\Commerce.Plugin.Contracts.csproj" />
+    <ProjectReference Include="..\..\Framework\PluginContracts\Commerce.Framework.PluginContracts\Commerce.Framework.PluginContracts.csproj" />
   </ItemGroup>
 </Project>

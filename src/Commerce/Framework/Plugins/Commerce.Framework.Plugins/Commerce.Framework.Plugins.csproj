@@ -12,6 +12,7 @@
     <ProjectReference Include="..\..\Commerce.Framework.Core\Commerce.Framework.Core.csproj" />
     <ProjectReference Include="..\..\Commerce.Framework.Data\Commerce.Framework.Data.csproj" />
     <ProjectReference Include="..\..\Commerce.Framework.Application\Commerce.Framework.Application.csproj" />
+    <ProjectReference Include="..\..\..\PluginSdk\Commerce.Plugin.Sdk\Commerce.Plugin.Sdk.csproj" />
   </ItemGroup>
 
   <ItemGroup>

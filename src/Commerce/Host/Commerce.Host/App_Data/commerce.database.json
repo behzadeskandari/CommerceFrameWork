@@ -1,4 +1,4 @@
 {
   "Provider": "SqlServer",
-  "ConnectionString": "__InMemory__"
+  "ConnectionString": "Data Source=192.168.13.122;Initial Catalog=Commerce;User Id=sa;Password=123456;MultipleActiveResultSets=True;TrustServerCertificate=True;"
 }

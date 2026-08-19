@@ -18,18 +18,32 @@ public sealed class StoreContextInitializer : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        using var scope = _serviceProvider.CreateScope();
-        var installationState = scope.ServiceProvider.GetRequiredService<IInstallationStateService>();
+        Console.WriteLine("STORE CONTEXT INITIALIZER START");
 
-        if (!await installationState.IsInstalledAsync(cancellationToken).ConfigureAwait(false))
+        using var scope = _serviceProvider.CreateScope();
+
+        Console.WriteLine("Created scope");
+
+        var installationState =
+            scope.ServiceProvider.GetRequiredService<IInstallationStateService>();
+
+        Console.WriteLine("Checking installation state");
+
+
+        if (!await installationState.IsInstalledAsync(cancellationToken))
         {
+            Console.WriteLine("NOT INSTALLED");
             return;
         }
 
+        Console.WriteLine("INSTALLED");
+
+
         await scope.ServiceProvider
             .GetRequiredService<IStoreContextInitializerService>()
-            .InitializeAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .InitializeAsync(cancellationToken);
+
+        Console.WriteLine("STORE INITIALIZED");
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

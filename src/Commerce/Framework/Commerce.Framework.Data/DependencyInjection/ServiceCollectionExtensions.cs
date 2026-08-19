@@ -57,12 +57,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IStoreContextAccessor, StoreContextAccessor>();
         services.AddScoped<IStoreContextInitializerService, StoreContextInitializerService>();
         services.AddScoped<IModuleSettings, ModuleSettingsService>();
-        services.AddHostedService<StoreContextInitializer>();
+        //services.AddHostedService<StoreContextInitializer>();
 
         services.AddScoped<IInstallationStateService, InstallationStateService>();
         services.AddScoped<IInstallationService, InstallationService>();
         services.Configure<CommerceDeploymentOptions>(configuration.GetSection(CommerceDeploymentOptions.SectionName));
-        services.AddHostedService<Deployment.DeploymentStartupHostedService>();
+        //services.AddHostedService<Deployment.DeploymentStartupHostedService>();
 
         return services;
     }

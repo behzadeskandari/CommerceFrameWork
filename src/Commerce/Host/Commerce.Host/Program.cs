@@ -162,7 +162,16 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+
+
+Console.WriteLine("STEP 1 - App built");
+
+
 await app.Services.LoadPersistedInstallationConfigurationAsync().ConfigureAwait(false);
+
+
+Console.WriteLine("STEP 2 - Database config loaded");
+
 
 app.UseMiddleware<InstallationGateMiddleware>();
 app.UseCommerceCorrelation();
@@ -197,7 +206,7 @@ app.MapGet("/", async (IInstallationStateService stateService, CancellationToken
 
     return Results.Redirect("/installation");
 });
-
+Console.WriteLine("STEP 4 - Before Run");
 app.MapGet("/modules", (ICommerceModuleRegistry moduleRegistry) =>
 {
     var modules = moduleRegistry.GetModulesInDependencyOrder()
@@ -214,7 +223,7 @@ app.MapGet("/modules", (ICommerceModuleRegistry moduleRegistry) =>
 
     return Results.Ok(new { modules });
 });
-
+Console.WriteLine("STEP 5 - Before Run");
 app.Run();
 
 public partial class Program;

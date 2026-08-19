@@ -17,9 +17,12 @@ public sealed class InstallationStateService : IInstallationStateService
         IInstallationConnectionProvider connectionProvider,
         ILogger<InstallationStateService> logger)
     {
+        Console.WriteLine("INSTALLATION STATE CONSTRUCTOR ENTER");
         _dbContext = dbContext;
         _connectionProvider = connectionProvider;
         _logger = logger;
+
+        Console.WriteLine("INSTALLATION STATE CONSTRUCTOR EXIT");
     }
 
     public async Task<InstallationStateInfo> GetStateAsync(CancellationToken cancellationToken = default)
@@ -88,20 +91,52 @@ public sealed class InstallationStateService : IInstallationStateService
     public Task<bool> IsInstallationLockedAsync(CancellationToken cancellationToken = default) =>
         IsInstalledAsync(cancellationToken);
 
-    private async Task<bool> CanAccessDatabaseAsync(CancellationToken cancellationToken)
+    private async Task<bool> CanAccessDatabaseAsync(
+     CancellationToken cancellationToken)
     {
+        Console.WriteLine("CAN ACCESS DATABASE START");
+
+
         var connection = _connectionProvider.GetCurrent();
+
+
+        Console.WriteLine(
+            $"Provider: {connection.Provider}");
+
+        Console.WriteLine(
+            $"Connection: {connection.ConnectionString}");
+
+
         if (string.IsNullOrWhiteSpace(connection.ConnectionString))
         {
+            Console.WriteLine("EMPTY CONNECTION");
             return false;
         }
 
         try
         {
-            return await _dbContext.Database.CanConnectAsync(cancellationToken).ConfigureAwait(false);
+            Console.WriteLine("TRYING DB CONNECTION");
+
+
+            var result =
+                await _dbContext.Database
+                    .CanConnectAsync(cancellationToken);
+
+
+            Console.WriteLine(
+                $"DB CONNECTION RESULT: {result}");
+
+
+            return result;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(
+                "DB CONNECTION FAILED");
+
+            Console.WriteLine(ex);
+
+
             return false;
         }
     }

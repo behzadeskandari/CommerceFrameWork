@@ -17,16 +17,20 @@ public sealed class PromotionConfiguration : IEntityTypeConfiguration<Promotion>
         builder.Property(x => x.CouponCode).HasMaxLength(Promotion.CouponCodeMaxLength);
         builder.HasIndex(x => x.SystemName).IsUnique();
         builder.HasIndex(x => new { x.StoreId, x.IsActive });
-        builder.HasMany<PromotionCondition>("_conditions")
+
+        builder.HasMany(x => x.Conditions)
             .WithOne()
             .HasForeignKey(x => x.PromotionId)
             .OnDelete(DeleteBehavior.Cascade);
-        builder.HasMany<PromotionAction>("_actions")
+        builder.Navigation(x => x.Conditions)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasMany(x => x.Actions)
             .WithOne()
             .HasForeignKey(x => x.PromotionId)
             .OnDelete(DeleteBehavior.Cascade);
-        builder.Navigation("_conditions").UsePropertyAccessMode(PropertyAccessMode.Field);
-        builder.Navigation("_actions").UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(x => x.Actions)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }
 

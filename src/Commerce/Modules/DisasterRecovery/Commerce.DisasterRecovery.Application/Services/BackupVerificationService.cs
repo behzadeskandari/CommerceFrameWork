@@ -8,7 +8,7 @@ namespace Commerce.DisasterRecovery.Application.Services;
 
 public sealed class BackupVerificationService(IBackupRepository repository) : IBackupVerificationService
 {
-    public async Task<Result<BackupRunDto>> VerifyChecksumsAsync(long backupRunId, CancellationToken cancellationToken = default)
+    public async Task<Result<BackupRunDto>> VerifyChecksumsAsync(int backupRunId, CancellationToken cancellationToken = default)
     {
         var run = await repository.GetByIdAsync(backupRunId, cancellationToken).ConfigureAwait(false);
         if (run is null)

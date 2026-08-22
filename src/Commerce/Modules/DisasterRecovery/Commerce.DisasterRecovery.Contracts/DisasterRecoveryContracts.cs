@@ -57,7 +57,7 @@ public sealed record BackupRunDto(
 
 public sealed record RecoveryTestDto(
     long Id,
-    long BackupRunId,
+    int BackupRunId,
     DateTime StartedAtUtc,
     DateTime? CompletedAtUtc,
     RecoveryTestStatus Status,
@@ -87,19 +87,19 @@ public interface IBackupService
 
     Task<Result<IReadOnlyList<BackupRunDto>>> ListBackupsAsync(CancellationToken cancellationToken = default);
 
-    Task<Result<BackupRunDto>> GetBackupAsync(long backupRunId, CancellationToken cancellationToken = default);
+    Task<Result<BackupRunDto>> GetBackupAsync(int backupRunId, CancellationToken cancellationToken = default);
 
     Task<Result> ApplyRetentionPolicyAsync(CancellationToken cancellationToken = default);
 }
 
 public interface IBackupVerificationService
 {
-    Task<Result<BackupRunDto>> VerifyChecksumsAsync(long backupRunId, CancellationToken cancellationToken = default);
+    Task<Result<BackupRunDto>> VerifyChecksumsAsync(int backupRunId, CancellationToken cancellationToken = default);
 }
 
 public interface IRecoveryTestService
 {
-    Task<Result<RecoveryTestDto>> RunRecoveryTestAsync(long backupRunId, CancellationToken cancellationToken = default);
+    Task<Result<RecoveryTestDto>> RunRecoveryTestAsync(int backupRunId, CancellationToken cancellationToken = default);
 }
 
 public interface IDataIntegrityService

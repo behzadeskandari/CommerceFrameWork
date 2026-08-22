@@ -106,7 +106,7 @@ public sealed class RecoveryTestRun : Entity
     {
     }
 
-    public long BackupRunId { get; private set; }
+    public int BackupRunId { get; private set; }
 
     public DateTime StartedAtUtc { get; private set; }
 
@@ -122,7 +122,7 @@ public sealed class RecoveryTestRun : Entity
 
     public BackupRun? BackupRun { get; private set; }
 
-    public static RecoveryTestRun Start(long backupRunId) =>
+    public static RecoveryTestRun Start(int backupRunId) =>
         new()
         {
             BackupRunId = backupRunId,

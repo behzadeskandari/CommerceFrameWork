@@ -117,7 +117,7 @@ public sealed class BackupService(
         return Result.Success<IReadOnlyList<BackupRunDto>>(runs.Select(BackupMapper.ToDto).ToList());
     }
 
-    public async Task<Result<BackupRunDto>> GetBackupAsync(long backupRunId, CancellationToken cancellationToken = default)
+    public async Task<Result<BackupRunDto>> GetBackupAsync(int backupRunId, CancellationToken cancellationToken = default)
     {
         var run = await repository.GetByIdAsync(backupRunId, cancellationToken).ConfigureAwait(false);
         return run is null

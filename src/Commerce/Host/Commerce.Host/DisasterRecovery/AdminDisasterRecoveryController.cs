@@ -29,9 +29,9 @@ public sealed class AdminDisasterRecoveryController(
         return ToActionResult(result, value => value);
     }
 
-    [HttpGet("backups/{id:long}")]
+    [HttpGet("backups/{id:int}")]
     [RequirePermission(DisasterRecoveryPermissions.View)]
-    public async Task<IActionResult> GetBackup(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetBackup(int id, CancellationToken cancellationToken)
     {
         var result = await backupService.GetBackupAsync(id, cancellationToken).ConfigureAwait(false);
         return ToActionResult(result, value => value);
@@ -45,17 +45,17 @@ public sealed class AdminDisasterRecoveryController(
         return ToActionResult(result, value => value, StatusCodes.Status201Created);
     }
 
-    [HttpPost("backups/{id:long}/verify")]
+    [HttpPost("backups/{id:int}/verify")]
     [RequirePermission(DisasterRecoveryPermissions.VerifyBackup)]
-    public async Task<IActionResult> VerifyBackup(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> VerifyBackup(int id, CancellationToken cancellationToken)
     {
         var result = await verificationService.VerifyChecksumsAsync(id, cancellationToken).ConfigureAwait(false);
         return ToActionResult(result, value => value);
     }
 
-    [HttpPost("backups/{id:long}/recovery-test")]
+    [HttpPost("backups/{id:int}/recovery-test")]
     [RequirePermission(DisasterRecoveryPermissions.RunRecoveryTest)]
-    public async Task<IActionResult> RunRecoveryTest(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> RunRecoveryTest(int id, CancellationToken cancellationToken)
     {
         var result = await recoveryTestService.RunRecoveryTestAsync(id, cancellationToken).ConfigureAwait(false);
         return ToActionResult(result, value => value);

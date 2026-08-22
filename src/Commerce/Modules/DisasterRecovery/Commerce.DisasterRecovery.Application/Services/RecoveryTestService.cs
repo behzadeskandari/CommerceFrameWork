@@ -15,7 +15,7 @@ public sealed class RecoveryTestService(
     IOptions<DisasterRecoveryApplicationOptions> options,
     ILogger<RecoveryTestService> logger) : IRecoveryTestService
 {
-    public async Task<Result<RecoveryTestDto>> RunRecoveryTestAsync(long backupRunId, CancellationToken cancellationToken = default)
+    public async Task<Result<RecoveryTestDto>> RunRecoveryTestAsync(int backupRunId, CancellationToken cancellationToken = default)
     {
         var run = await repository.GetByIdAsync(backupRunId, cancellationToken).ConfigureAwait(false);
         if (run is null)

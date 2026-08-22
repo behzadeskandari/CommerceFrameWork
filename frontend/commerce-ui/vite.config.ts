@@ -7,6 +7,12 @@ export default defineConfig({
         target: 'https://localhost:5100',
         changeOrigin: true,
         secure: false,
+      },
+
+      '/themes': {
+        target: 'https://localhost:5100',
+        changeOrigin: true,
+        secure: false,
       }
     }
   }

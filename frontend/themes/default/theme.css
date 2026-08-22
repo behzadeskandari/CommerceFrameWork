@@ -1,0 +1,24 @@
+:root {
+  /* Default theme baseline â€” overridden at runtime by ThemeRuntimeService */
+}
+
+.storefront-shell {
+  font-family: var(--font-family, system-ui, sans-serif);
+}
+
+[dir='rtl'] .storefront-header nav,
+[dir='rtl'] .header-actions {
+  direction: rtl;
+}
+
+[dir='rtl'] .storefront-content {
+  text-align: start;
+}
+
+.cmr-widget-zone:empty {
+  display: none;
+}
+
+.cmr-widget-zone + .cmr-widget-zone {
+  margin-top: 0.75rem;
+}

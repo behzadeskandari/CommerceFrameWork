@@ -50,11 +50,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
+using Commerce.Plugin.Theme.Default;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCommerceInfrastructure(builder.Configuration);
 builder.Services.AddCommercePlugins(builder.Configuration, builder.Environment);
+builder.Services.AddDefaultTheme();
 builder.Services.AddCommerceModules(builder.Configuration, modules =>
 {
     modules.AddModule<CoreModule>();
@@ -90,8 +92,8 @@ builder.Services.AddCommerceModules(builder.Configuration, modules =>
 builder.Services.AddCommerceData(builder.Configuration);
 builder.Services.RegisterEnabledPluginServices(builder.Configuration, builder.Environment);
 
-//builder.Services.AddCommerceModuleRuntime();
-//builder.Services.AddCommercePluginRuntime();
+builder.Services.AddCommerceModuleRuntime();
+builder.Services.AddCommercePluginRuntime();
 
 builder.Services.AddAuthorization(options =>
 {
@@ -144,7 +146,18 @@ builder.Services.AddControllers()
 
 // Add Swagger/OpenAPI for local development and exploration
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.CustomSchemaIds(type =>
+    {
+        if (type.FullName is null)
+            return type.Name;
+
+        return type.FullName
+            .Replace("+", ".")
+            .Replace("`", "_");
+    });
+});
 
 var corsOptions = builder.Configuration
     .GetSection(CorsOptions.SectionName)
@@ -194,6 +207,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseCommerceAdminAudit();
 app.UsePluginStaticFiles();
+app.UseThemeStaticFiles();
 app.MapControllers();
 
 app.MapCommerceHealthChecks();

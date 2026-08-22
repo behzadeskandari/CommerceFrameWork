@@ -81,7 +81,14 @@
             "polyfills": ["zone.js"],
             "tsConfig": "apps/storefront/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": [{ "glob": "**/*", "input": "apps/storefront/public" }],
+            "assets": [
+              { "glob": "**/*", "input": "apps/storefront/public" },
+              {
+                "glob": "themes/**/*",
+                "input": "../../src/Commerce/Host/Commerce.Host/wwwroot",
+                "output": "."
+              }
+            ],
             "styles": ["apps/storefront/src/styles.scss"],
             "scripts": []
           },

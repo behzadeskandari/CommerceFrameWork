@@ -69,6 +69,17 @@ public sealed class InstallationStateService : IInstallationStateService
                 record.InstalledAtUtc,
                 record.LastError);
         }
+        catch (Exception ex) when (ex is Microsoft.Data.SqlClient.SqlException sql && sql.Number == 208)
+        {
+            _logger.LogInformation("Installation table not found; treating as not installed.");
+            return new InstallationStateInfo(
+                InstallationStatus.NotInstalled,
+                InstallationStep.Requirements,
+                false,
+                null,
+                null,
+                null);
+        }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Unable to read installation state from database.");

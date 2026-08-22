@@ -1,4 +1,4 @@
-using Commerce.Catalog.Domain.Entities;
+﻿using Commerce.Catalog.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -202,10 +202,14 @@ internal sealed class CatalogProductOfferConfiguration : IEntityTypeConfiguratio
             .WithMany()
             .HasForeignKey(x => x.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Restrict avoids SQL Server multiple cascade paths:
+        // Product → ProductVariant → ProductOffer
+        // Product → ProductOffer
         builder.HasOne<ProductVariant>()
             .WithMany()
             .HasForeignKey(x => x.VariantId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 

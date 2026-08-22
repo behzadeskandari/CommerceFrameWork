@@ -74,7 +74,15 @@ export class ThemeRuntimeService {
     const link = document.createElement('link');
     link.id = id;
     link.rel = 'stylesheet';
-    link.href = href;
+    link.href = this.toRootRelativeAssetUrl(href);
     document.head.appendChild(link);
+  }
+
+  private toRootRelativeAssetUrl(href: string): string {
+    if (href.startsWith('/') || /^[a-z][a-z\d+.-]*:/i.test(href)) {
+      return href;
+    }
+
+    return `/${href}`;
   }
 }

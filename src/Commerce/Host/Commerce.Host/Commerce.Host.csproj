@@ -56,6 +56,7 @@
     <ProjectReference Include="..\..\Modules\DisasterRecovery\Commerce.Modules.DisasterRecovery\Commerce.Modules.DisasterRecovery.csproj" />
     <ProjectReference Include="..\..\Modules\DisasterRecovery\Commerce.DisasterRecovery.Contracts\Commerce.DisasterRecovery.Contracts.csproj" />
     <ProjectReference Include="..\..\Modules\SmartstoreImport\Commerce.Modules.SmartstoreImport\Commerce.Modules.SmartstoreImport.csproj" />
+    <ProjectReference Include="..\..\Plugins\Theme\Commerce.Plugin.Theme.Default\Commerce.Plugin.Theme.Default.csproj" />
   </ItemGroup>
 
   <ItemGroup>

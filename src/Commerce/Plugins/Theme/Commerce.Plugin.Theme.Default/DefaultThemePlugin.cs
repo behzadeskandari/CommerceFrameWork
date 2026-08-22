@@ -7,8 +7,14 @@ namespace Commerce.Plugin.Theme.Default;
 
 public sealed class DefaultThemePlugin : ICommercePlugin
 {
-    public void RegisterServices(IServiceCollection services, IConfiguration configuration) =>
+    public void RegisterServices(IServiceCollection services, IConfiguration configuration)
+    {
+        Console.WriteLine(
+        "========== DEFAULT THEME PLUGIN RegisterServices CALLED ==========");
+
         services.AddDefaultTheme();
+    }
+        
 
     public Task InitializeAsync(ICommercePluginContext context, CancellationToken cancellationToken = default) =>
         Task.CompletedTask;

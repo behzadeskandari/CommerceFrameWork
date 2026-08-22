@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\Framework\Plugins\Commerce.Framework.Plugins\Commerce.Framework.Plugins.csproj" />
     <ProjectReference Include="..\..\Modules\Commerce.Modules.Core\Commerce.Modules.Core.csproj" />
     <ProjectReference Include="..\..\Modules\Catalog\Commerce.Modules.Catalog\Commerce.Modules.Catalog.csproj" />
+    <ProjectReference Include="..\..\Modules\DisasterRecovery\Commerce.DisasterRecovery.Infrastructure\Commerce.DisasterRecovery.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Media\Commerce.Modules.Media\Commerce.Modules.Media.csproj" />
     <ProjectReference Include="..\..\Modules\Cart\Commerce.Modules.Cart\Commerce.Modules.Cart.csproj" />
     <ProjectReference Include="..\..\Modules\Checkout\Commerce.Modules.Checkout\Commerce.Modules.Checkout.csproj" />

@@ -9,35 +9,76 @@ namespace Commerce.Framework.Data.Db;
 
 public static class CommerceDbContextRegistration
 {
-    public static IServiceCollection AddCommerceDbContext(this IServiceCollection services)
+    public static IServiceCollection AddCommerceDbContext(
+        this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
 
         services.AddScoped<DbContextOptions<CommerceDbContext>>(serviceProvider =>
         {
-            var optionsBuilder = new DbContextOptionsBuilder<CommerceDbContext>();
-            var dataOptions = serviceProvider.GetRequiredService<IOptions<CommerceDataOptions>>().Value;
+            var optionsBuilder =
+                new DbContextOptionsBuilder<CommerceDbContext>();
 
-            serviceProvider
-                .GetRequiredService<ICommerceDbContextConfigurator>()
-                .Configure(optionsBuilder, dataOptions);
+            var dataOptions =
+                serviceProvider
+                    .GetRequiredService<IOptions<CommerceDataOptions>>()
+                    .Value;
 
-            var interceptor = serviceProvider.GetService<DomainEventSaveChangesInterceptor>();
-            if (interceptor is not null)
-            {
-                optionsBuilder.AddInterceptors(interceptor);
-            }
+            var configurator =
+                serviceProvider
+                    .GetRequiredService<ICommerceDbContextConfigurator>();
 
-            optionsBuilder.ReplaceService<IModelCacheKeyFactory, CommerceModelCacheKeyFactory>();
+            configurator.Configure(
+                optionsBuilder,
+                dataOptions);
+
+            optionsBuilder.ReplaceService<
+                IModelCacheKeyFactory,
+                CommerceModelCacheKeyFactory>();
 
             return optionsBuilder.Options;
         });
 
         services.AddScoped<CommerceDbContext>(serviceProvider =>
             new CommerceDbContext(
-                serviceProvider.GetRequiredService<DbContextOptions<CommerceDbContext>>(),
+                serviceProvider.GetRequiredService<
+                    DbContextOptions<CommerceDbContext>>(),
                 serviceProvider));
 
         return services;
     }
 }
+//public static class CommerceDbContextRegistration
+//{
+//    public static IServiceCollection AddCommerceDbContext(this IServiceCollection services)
+//    {
+//        ArgumentNullException.ThrowIfNull(services);
+
+//        services.AddScoped<DbContextOptions<CommerceDbContext>>(serviceProvider =>
+//        {
+//            var optionsBuilder = new DbContextOptionsBuilder<CommerceDbContext>();
+//            var dataOptions = serviceProvider.GetRequiredService<IOptions<CommerceDataOptions>>().Value;
+
+//            serviceProvider
+//                .GetRequiredService<ICommerceDbContextConfigurator>()
+//                .Configure(optionsBuilder, dataOptions);
+
+//            var interceptor = serviceProvider.GetService<DomainEventSaveChangesInterceptor>();
+//            if (interceptor is not null)
+//            {
+//                optionsBuilder.AddInterceptors(interceptor);
+//            }
+
+//            optionsBuilder.ReplaceService<IModelCacheKeyFactory, CommerceModelCacheKeyFactory>();
+
+//            return optionsBuilder.Options;
+//        });
+
+//        services.AddScoped<CommerceDbContext>(serviceProvider =>
+//            new CommerceDbContext(
+//                serviceProvider.GetRequiredService<DbContextOptions<CommerceDbContext>>(),
+//                serviceProvider));
+
+//        return services;
+//    }
+//}

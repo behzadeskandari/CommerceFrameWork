@@ -89,8 +89,9 @@ builder.Services.AddCommerceModules(builder.Configuration, modules =>
 });
 builder.Services.AddCommerceData(builder.Configuration);
 builder.Services.RegisterEnabledPluginServices(builder.Configuration, builder.Environment);
-builder.Services.AddCommerceModuleRuntime();
-builder.Services.AddCommercePluginRuntime();
+
+//builder.Services.AddCommerceModuleRuntime();
+//builder.Services.AddCommercePluginRuntime();
 
 builder.Services.AddAuthorization(options =>
 {

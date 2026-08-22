@@ -1,15 +1,9 @@
+using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
 using Commerce.DisasterRecovery.Application.Abstractions;
-using Commerce.DisasterRecovery.Domain.Enums;
-
-namespace Commerce.DisasterRecovery.Infrastructure.Backup;
-
-using System.IO.Compression;
-using Commerce.DisasterRecovery.Application.Abstractions;
 using Commerce.DisasterRecovery.Application.Services;
 using Commerce.DisasterRecovery.Domain.Enums;
-using global::Commerce.DisasterRecovery.Application.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -84,7 +78,7 @@ public sealed class BackupComponentCollector(
 
         try
         {
-            await databaseBackupProvider.BackupDatabaseAsync(targetPath, cancellationToken).ConfigureAwait(false);
+            var result =  await databaseBackupProvider.BackupDatabaseAsync(targetPath, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is NotSupportedException or InvalidOperationException)
         {

@@ -64,7 +64,7 @@ public sealed class BackupArtifact : Entity
     {
     }
 
-    public long BackupRunId { get; private set; }
+    public int BackupRunId { get; private set; }
 
     public BackupComponentType ComponentType { get; private set; }
 
@@ -81,7 +81,7 @@ public sealed class BackupArtifact : Entity
     public BackupRun? BackupRun { get; private set; }
 
     public static BackupArtifact Create(
-        long backupRunId,
+        int backupRunId,
         BackupComponentType componentType,
         string relativePath,
         long sizeBytes,

@@ -2,11 +2,9 @@ using Commerce.Integration.Contracts.ApiClients;
 
 namespace Commerce.Host.Integration;
 
-public sealed class ApiKeyAuthenticationMiddleware(
-    RequestDelegate next,
-    IApiClientAuthenticator authenticator)
+public sealed class ApiKeyAuthenticationMiddleware(RequestDelegate next)
 {
-    public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context, IApiClientAuthenticator authenticator)
     {
         if (!context.Request.Path.StartsWithSegments("/api/external", StringComparison.OrdinalIgnoreCase))
         {
